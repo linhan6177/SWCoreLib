@@ -10,7 +10,7 @@
 
 typedef void(^OCTryBlock)();
 typedef id(^OCReturnsTryBlock)();
-@interface OCHelper : NSObject
+@interface SWOCHelper : NSObject
 + (void)tryBlock:(OCTryBlock)block;
 + (id)tryBlockWithReturns:(OCReturnsTryBlock)block;
 @end

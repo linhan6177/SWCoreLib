@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "OCHelper.h"
 
-@implementation OCHelper
+@implementation SWOCHelper
 
 + (void)tryBlock:(OCTryBlock)block
 {
