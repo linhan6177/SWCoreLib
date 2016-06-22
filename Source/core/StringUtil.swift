@@ -10,10 +10,10 @@ import Foundation
 
 #if os(iOS)
     import UIKit
-    typealias Font = UIFont
+    typealias SWFont = UIFont
 #else
     import AppKit
-    typealias Font = NSFont
+    typealias SWFont = NSFont
 #endif
 
 extension String
@@ -115,7 +115,7 @@ public class StringUtil:NSObject
     }
     
     //获取已知文字在限定宽度内布局后的高度
-    class func getStringHeight(text:String, font:Font, width:CGFloat, lineSpacing:CGFloat = 2) -> CGFloat
+    class func getStringHeight(text:String, font:SWFont, width:CGFloat, lineSpacing:CGFloat = 2) -> CGFloat
     {
         let size = CGSizeMake(width, CGFloat.max)
         let paragraphStyle = NSMutableParagraphStyle()
@@ -128,7 +128,7 @@ public class StringUtil:NSObject
     }
     
     //获取已知文字单行的宽度
-    class func getStringWidth(text:String, font:Font) -> CGFloat
+    class func getStringWidth(text:String, font:SWFont) -> CGFloat
     {
         let size = CGSizeMake(CGFloat.max, CGFloat.max)
         let attributes = [NSFontAttributeName:font]

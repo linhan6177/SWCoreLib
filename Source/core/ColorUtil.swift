@@ -9,14 +9,14 @@
 import Foundation
 #if os(iOS)
     import UIKit
-    typealias Color = UIColor
+    typealias SWColor = UIColor
 #else
     import AppKit.NSColor
-    typealias Color = NSColor
+    typealias SWColor = NSColor
 #endif
 
 
-extension Color
+extension SWColor
 {
     //十六进制值来表示UIColor
     convenience init(hex:AnyObject, alpha:CGFloat = 1)
@@ -58,7 +58,7 @@ extension Color
     }
 }
 
-extension Color
+extension SWColor
 {
     //获取随机颜色
     class func randomColor() -> Color
