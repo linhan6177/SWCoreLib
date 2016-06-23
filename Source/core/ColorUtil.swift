@@ -61,12 +61,12 @@ extension SWColor
 extension SWColor
 {
     //获取随机颜色
-    class func randomColor() -> Color
+    class func randomColor() -> SWColor
     {
         let red:CGFloat = CGFloat(arc4random_uniform(255)) / 255
         let green:CGFloat = CGFloat(arc4random_uniform(255)) / 255
         let blue:CGFloat = CGFloat(arc4random_uniform(255)) / 255
-        let color:Color = Color(red:red, green:green, blue:blue, alpha: 1)
+        let color:SWColor = SWColor(red:red, green:green, blue:blue, alpha: 1)
         return color
     }
 }
