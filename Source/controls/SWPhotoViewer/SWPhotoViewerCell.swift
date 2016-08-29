@@ -19,7 +19,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
 {
     weak var delegate:SWPhotoViewerCellDelegate?
     
-    weak var progressView:SWPhotoViewerProgressView?
+    var progressView:SWPhotoViewerProgressView?
     {
         didSet
         {
@@ -37,8 +37,6 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
     private var selfFrame:CGRect = CGRectZero
     
     private var _downloader:Downloader = Downloader()
-    
-    private var _cachePath:String?
     
     //图片打开前的位置及大小
     var startFrame:CGRect?
@@ -97,7 +95,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         }
     }
     
-    var photo:SWPhoto?
+    var photo:SWPVPhoto?
     {
         didSet
         {
@@ -113,9 +111,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
                 }
                 else if let url = photo.largeImageURL
                 {
-                    let cacheFilenameHash:String = MD5.md532BitUpper(url)
-                    _cachePath = FileUtility.imageCachePath(cacheFilenameHash)
-                    largeImage = FileUtility.imageDataFromPath(_cachePath!)
+                    largeImage = SWImageCacheManager.sharedManager().getImage(url)
                     if largeImage != nil
                     {
                         setupImage(largeImage!)
@@ -207,16 +203,16 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         }
         
         //长按弹出菜单选择保存到手机相册或分享
-        let longPressGestureRecognizer:UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: "imageLongPress:")
+        let longPressGestureRecognizer:UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(imageLongPress(_:)))
         longPressGestureRecognizer.minimumPressDuration = 1
         
         //单击
-        let singleTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "imageSingleTap:")
-        let doubleTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "imageDoubleTap:")
+        let singleTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageSingleTap(_:)))
+        let doubleTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageDoubleTap(_:)))
         doubleTapGestureRecognizer.numberOfTapsRequired = 2
         singleTapGestureRecognizer.requireGestureRecognizerToFail(doubleTapGestureRecognizer)
         
-        let pinchGestureRecognizer:UIPinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: "imagePinch:")
+        let pinchGestureRecognizer:UIPinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(imagePinch(_:)))
         
         _imageView.userInteractionEnabled = true
         _imageView.addGestureRecognizer(longPressGestureRecognizer)
@@ -227,22 +223,22 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         _imageView.addObserver(self, forKeyPath: "frame", options: NSKeyValueObservingOptions.New, context: nil)
         
         _scrollView.delegate = self
-        _scrollView.bounces = false
+        _scrollView.bounces = true
         contentView.addSubview(_scrollView)
         _scrollView.addSubview(_imageView)
         
         
         
-        let cellTapGesture:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "cellTapped:")
+        let cellTapGesture:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(cellTapped(_:)))
         addGestureRecognizer(cellTapGesture)
         //cellTapGesture.requireGestureRecognizerToFail(singleTapGestureRecognizer)
     }
     
     private func loadStartCallback()
     {
-        //trace("startAnimating")
         progressView?.view.hidden = false
         progressView?.startAnimating()
+        print(progressView?.view.frame)
     }
     
     private func loadFailCallback(error:NSError)
@@ -260,11 +256,11 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
     
     private func loadCompleteCallback(data:NSData)
     {
-        if let image = UIImage(data:data),let path = _cachePath
+        if let image = UIImage(data:data)
         {
             let replace:Bool = _imageView.image != nil
             setupImage(image, replace: replace)
-            FileUtility.saveImageCacheToPath(path, image:data)
+            SWImageCacheManager.sharedManager().saveOriginImage(data, url: _downloader.url)
         }
         progressView?.view.hidden = true
         progressView?.stopAnimating()
@@ -455,7 +451,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         }
         //为两根手指的中点
         let targetScale:CGFloat = _startScale + (recognizer.scale - 1)
-        var location:CGPoint = recognizer.locationInView(self)
+        let location:CGPoint = recognizer.locationInView(self)
         
         targetX = _superPinchCenter.x - _pinchCenter.x * targetScale
         targetY = _superPinchCenter.y - _pinchCenter.y * targetScale

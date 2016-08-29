@@ -14,7 +14,8 @@ public class ImageUtil:NSObject
     public class func resize(image:UIImage, size:CGSize) -> UIImage
     {
         // Create a graphics image size
-        UIGraphicsBeginImageContext(size)
+        //UIGraphicsBeginImageContext(size)
+        UIGraphicsBeginImageContextWithOptions(size, true, UIScreen.mainScreen().scale)
         
         // Tell the old image to draw in this new context, with the desired new size
         let rect:CGRect = CGRectMake(0, 0, size.width, size.height)
@@ -34,17 +35,14 @@ public class ImageUtil:NSObject
     
     public class func crop(image:UIImage, rect:CGRect) -> UIImage
     {
-        
-        //UIGraphicsBeginImageContext(rect.size)
-        UIGraphicsBeginImageContextWithOptions(rect.size, false, 0)
+        UIGraphicsBeginImageContextWithOptions(rect.size, false, UIScreen.mainScreen().scale)
         let context = UIGraphicsGetCurrentContext()
-        if let subImageRef = CGImageCreateWithImageInRect(image.CGImage, rect)
-        {
-            CGContextDrawImage(context, CGRectMake(0, 0, rect.width, rect.height), subImageRef)
-            UIGraphicsEndImageContext()
-            return UIImage(CGImage: subImageRef)
-        }
-        return UIImage()
+        let drawRect = CGRectMake(-rect.origin.x, -rect.origin.y, image.size.width, image.size.height)
+        CGContextClipToRect(context, CGRectMake(0, 0, rect.size.width, rect.size.height))
+        image.drawInRect(drawRect)
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return newImage
     }
     
     //取得某个大小的图片

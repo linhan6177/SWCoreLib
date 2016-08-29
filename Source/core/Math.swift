@@ -35,9 +35,15 @@ class Math: NSObject
     }
     
     //角度转弧度
-    class func angleToRadian(angle:CGFloat) -> CGFloat
+    class func degreeToRadian(degree:CGFloat) -> CGFloat
     {
-        return angle * CGFloat(M_PI) / 180
+        return degree * CGFloat(M_PI) / 180
+    }
+    
+    //弧度转角度
+    class func radianToDegree(radian:CGFloat) -> CGFloat
+    {
+        return radian / CGFloat(M_PI) * 180
     }
     
 }

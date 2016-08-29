@@ -37,6 +37,15 @@ extension Double
 
 extension String
 {
+    var length:Int
+    {
+        return characters.count
+    }
+    
+}
+
+extension String
+{
     public var intValue:Int {
         return (self as NSString).integerValue
     }

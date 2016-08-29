@@ -9,6 +9,13 @@
 import Foundation
 import UIKit
 
+
+//获取对角线两点所构成的区域
+func CGRectDiagonalRect(point1:CGPoint, point2:CGPoint) -> CGRect
+{
+    return CGRectMake(min(point1.x, point2.x), min(point1.y, point2.y), abs(point2.x - point1.x), abs(point2.y - point1.y))
+}
+
 extension CGFloat
 {
     var roundValue:CGFloat{
@@ -165,13 +172,42 @@ extension UIImage
     }
     
     //将另一张图片绘入自身并返回一张新图片
-    func draw(image:UIImage, rect:CGRect) -> UIImage
+    func draw(image:UIImage, rect:CGRect, alpha: CGFloat = 1) -> UIImage
     {
         UIGraphicsBeginImageContextWithOptions(size, false,
             UIScreen.mainScreen().scale)
         drawInRect(CGRectMake(0, 0, size.width, size.height))
-        image.drawInRect(rect)
-        return UIGraphicsGetImageFromCurrentImageContext()
+        //image.drawInRect(rect)
+        image.drawInRect(rect, blendMode: CGBlendMode.Normal, alpha: alpha)
+        let result = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return result
+    }
+    
+    func clone() -> UIImage
+    {
+        UIGraphicsBeginImageContextWithOptions(size, false,
+                                               UIScreen.mainScreen().scale)
+        drawInRect(CGRectMake(0, 0, size.width, size.height))
+        let result = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return result
+    }
+}
+
+extension UIImage
+{
+    var retinaImage:UIImage?
+    {
+        guard let cgImage = CGImage else{
+            return nil
+        }
+        
+        if scale > 1{
+            return self
+        }
+        
+        return UIImage(CGImage: cgImage, scale: UIScreen.mainScreen().scale, orientation: imageOrientation)
     }
 }
 
@@ -224,6 +260,15 @@ extension UIViewController
         viewController.didMoveToParentViewController(nil)
     }
     
+    //创建左侧 文字导航按钮
+    func createNavigationLeftButton(title:String, target:AnyObject, action:Selector) -> UIBarButtonItem
+    {
+        let button:UIBarButtonItem = UIBarButtonItem(title: title, style: .Plain, target: target, action: action)
+        navigationItem.leftBarButtonItem = button
+        return button
+    }
+    
+    //创建右侧 文字导航按钮
     func createNavigationRightButton(title:String, target:AnyObject, action:Selector) -> UIBarButtonItem
     {
         let button:UIBarButtonItem = UIBarButtonItem(title: title, style: .Plain, target: target, action: action)
@@ -231,41 +276,45 @@ extension UIViewController
         return button
     }
     
-    func createNavigationRightCustomButton(title:String, target:AnyObject, action:Selector) -> UIButton
+    //创建一个自定义右侧导航按钮
+    func createNavigationRightCustomButton(title:String?, image:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
-        let button = createNavigationCustomButton(title, target: target, action: action)
+        let button = createNavigationCustomButton(title, image: image, highlightedImage: nil, target: target, action: action)
         let barButton = UIBarButtonItem(customView: button)
         navigationItem.rightBarButtonItem = barButton
         return button
     }
     
-    func createNavigationLeftCustomButton(image:UIImage?, target:AnyObject, action:Selector) -> UIButton
+    //创建一个自定义右侧导航按钮
+    func createNavigationRightCustomButton(title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
-        return createNavigationLeftCustomButton(image, highlightedImage: nil, target: target, action: action)
+        let button = createNavigationCustomButton(title, image: image, highlightedImage: highlightedImage, target: target, action: action)
+        let barButton = UIBarButtonItem(customView: button)
+        navigationItem.rightBarButtonItem = barButton
+        return button
     }
     
-    func createNavigationLeftCustomButton(image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
+    //创建一个自定义左侧导航按钮
+    func createNavigationLeftCustomButton(title:String?, image:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
-        let button = createNavigationCustomButton(image, highlightedImage: highlightedImage, target: target, action: action)
+        return createNavigationLeftCustomButton(title, image:image, highlightedImage: nil, target: target, action: action)
+    }
+    
+    //创建一个自定义左侧导航按钮
+    func createNavigationLeftCustomButton(title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
+    {
+        let button = createNavigationCustomButton(title, image: image, highlightedImage: highlightedImage, target: target, action: action)
         let barButton = UIBarButtonItem(customView: button)
         navigationItem.leftBarButtonItem = barButton
         return button
     }
     
-    private func createNavigationCustomButton(image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
-    {
-        let button = UIButton(type: .System)
-        button.setBackgroundImage(image, forState: .Normal)
-        button.setBackgroundImage(highlightedImage, forState: .Highlighted)
-        button.addTarget(target, action: action, forControlEvents: .TouchUpInside)
-        button.sizeToFit()
-        return button
-    }
-    
-    private func createNavigationCustomButton(title:String, target:AnyObject, action:Selector) -> UIButton
+    private func createNavigationCustomButton(title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
         let button = UIButton(type: .System)
         button.setTitle(title, forState: .Normal)
+        button.setBackgroundImage(image, forState: .Normal)
+        button.setBackgroundImage(highlightedImage, forState: .Highlighted)
         button.addTarget(target, action: action, forControlEvents: .TouchUpInside)
         button.sizeToFit()
         return button

@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-protocol SWPhoto
+protocol SWPVPhoto
 {
     var largeImage:UIImage? {get set}
     var largeImageURL:String? {get set}
@@ -22,6 +22,27 @@ protocol SWPhotoViewerProgressView:class
     var view:UIView {get}
     func startAnimating()
     func stopAnimating()
+}
+
+class SWPhotoViewerDefaultProgressView:NSObject,SWPhotoViewerProgressView
+{
+    lazy private var _indicatorView:UIActivityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .White)
+    
+    var progress:Double = 0
+    
+    var view:UIView{
+        return _indicatorView
+    }
+    
+    func startAnimating()
+    {
+        _indicatorView.startAnimating()
+    }
+    
+    func stopAnimating()
+    {
+        _indicatorView.stopAnimating()
+    }
 }
 
 /**
@@ -54,7 +75,7 @@ protocol SWPhotoViewerDelegate:class
     func numberOfPhotosInPhotoViewer(photoViewer: SWPhotoViewer) -> Int
     
     //对应位置的照片
-    func photoViewer(photoViewer: SWPhotoViewer, photoAtIndex index: Int) -> SWPhoto?
+    func photoViewer(photoViewer: SWPhotoViewer, photoAtIndex index: Int) -> SWPVPhoto?
     
     //进度条
     func progressViewForPhotoViewer(photoViewer: SWPhotoViewer) -> SWPhotoViewerProgressView?
@@ -166,7 +187,7 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
         
         _tableView.delegate = self
         _tableView.dataSource = self
-        _tableView.bounces = false
+        _tableView.bounces = true
         _tableView.showsVerticalScrollIndicator = false
         _tableView.transform = CGAffineTransformMakeRotation(-CGFloat(M_PI) / 2)
         _tableView.frame = CGRectMake(0, 0, width + grid, height)
@@ -201,11 +222,11 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
         {
             cell = SWPhotoViewerCell(style: UITableViewCellStyle.Default, reuseIdentifier: identifier)
             cell?.contentView.transform = CGAffineTransformMakeRotation(CGFloat(M_PI) / 2)
+            cell?.progressView = delegate?.progressViewForPhotoViewer(self) ?? SWPhotoViewerDefaultProgressView()
         }
         cell?.size = bounds.size
         cell?.indexPath = indexPath
         cell?.delegate = self
-        cell?.progressView = delegate?.progressViewForPhotoViewer(self)
         let imagesCount:Int = delegate?.numberOfPhotosInPhotoViewer(self) ?? 0
         let index:Int = indexPath.row
         if index >= 0 && index < imagesCount
