@@ -201,31 +201,31 @@ class WebLoader: NSObject,NSURLSessionDataDelegate
     
     
     
-    class func query(parameters: [String: AnyObject]) -> String {
+    class func query(parameters: [String: AnyObject], URLEncode:Bool = true) -> String {
         var components: [(String, String)] = []
         
         for key in parameters.keys.sort(<) {
             let value = parameters[key]!
-            components += queryComponents(key, value)
+            components += queryComponents(key, value, URLEncode:URLEncode)
         }
         
         return (components.map { "\($0)=\($1)" } as [String]).joinWithSeparator("&")
     }
     
-    class func queryComponents(key: String, _ value: AnyObject) -> [(String, String)] {
+    class func queryComponents(key: String, _ value: AnyObject, URLEncode:Bool = true) -> [(String, String)] {
         var components: [(String, String)] = []
         
         if let dictionary = value as? [String: AnyObject] {
             for (nestedKey, value) in dictionary {
-                components += queryComponents("\(key)[\(nestedKey)]", value)
+                components += queryComponents("\(key)[\(nestedKey)]", value, URLEncode:URLEncode)
             }
         } else if let array = value as? [AnyObject] {
             for value in array {
-                components += queryComponents("\(key)[]", value)
+                components += queryComponents("\(key)[]", value, URLEncode:URLEncode)
             }
         } else {
             let valueString:String = "\(value)"
-            components.append((key.URLEncoded, valueString.URLEncoded))
+            components.append((URLEncode ? key.URLEncoded : key, URLEncode ? valueString.URLEncoded : valueString))
         }
         
         return components

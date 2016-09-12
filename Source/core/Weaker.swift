@@ -53,3 +53,59 @@ extension Array where Element : SWWeakWrapper
 
 
 
+class WeakObject<T: AnyObject>: Equatable, Hashable {
+    weak var object: T?
+    init(object: T) {
+        self.object = object
+    }
+    
+    var hashValue: Int {
+        if let object = self.object { return unsafeAddressOf(object).hashValue }
+        else { return 0 }
+    }
+}
+
+func == <T> (lhs: WeakObject<T>, rhs: WeakObject<T>) -> Bool {
+    return lhs.object === rhs.object
+}
+
+
+class WeakObjectSet<T: AnyObject> {
+    var objects: Set<WeakObject<T>>
+    
+    init() {
+        self.objects = Set<WeakObject<T>>([])
+    }
+    
+    init(objects: [T]) {
+        self.objects = Set<WeakObject<T>>(objects.map { WeakObject(object: $0) })
+    }
+    
+    var allObjects: [T] {
+        return objects.flatMap { $0.object }
+    }
+    
+    func contains(object: T) -> Bool {
+        return self.objects.contains(WeakObject(object: object))
+    }
+    
+    func addObject(object: T) {
+        self.objects.unionInPlace([WeakObject(object: object)])
+        
+    }
+    
+    func addObjects(objects: [T]) {
+        self.objects.unionInPlace(objects.map { WeakObject(object: $0) })
+    }
+    
+    func removeObject(object: T) {
+        if let index = objects.indexOf(WeakObject(object: object)){
+            objects.removeAtIndex(index)
+        }
+    }
+    
+    
+    
+    
+}
+

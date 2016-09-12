@@ -23,6 +23,15 @@ extension CGFloat
     }
 }
 
+
+extension CGPoint
+{
+    //整数值
+    var integral:CGPoint{
+        return CGPointMake(ceil(x), ceil(y))
+    }
+}
+
 extension CGRect
 {
     var x:CGFloat {
@@ -197,6 +206,7 @@ extension UIImage
 
 extension UIImage
 {
+    
     var retinaImage:UIImage?
     {
         guard let cgImage = CGImage else{
@@ -208,6 +218,18 @@ extension UIImage
         }
         
         return UIImage(CGImage: cgImage, scale: UIScreen.mainScreen().scale, orientation: imageOrientation)
+    }
+    
+    //视网膜屏下的尺寸
+    var retinaSize:CGSize{
+        let aSize = originSize
+        let ScreenScale = UIScreen.mainScreen().scale
+        return CGSizeMake(aSize.width / ScreenScale, aSize.height / ScreenScale)
+    }
+    
+    //1倍图的尺寸
+    var originSize:CGSize{
+        return CGSizeMake(CGFloat(CGImageGetWidth(CGImage)), CGFloat(CGImageGetHeight(CGImage)))
     }
 }
 

@@ -57,7 +57,7 @@ class FileUtility: NSObject {
     //通过文件名获取文件的hash缓存路径
     class func getHashPath(name:String) -> String
     {
-        let hash:String = MD5.md532BitUpper(name)
+        let hash:String = SWMD5.md532BitUpper(name)
         return fileCachePath(hash)
     }
     

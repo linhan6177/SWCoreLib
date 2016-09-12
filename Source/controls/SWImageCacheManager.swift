@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import UIKit
+
 private let _cacheManager:SWImageCacheManager = SWImageCacheManager()
 class SWImageCacheManager:NSObject
 {
@@ -63,7 +65,7 @@ class SWImageCacheManager:NSObject
     //获取原图存储路径
     func fetchOriginStorePath(url:String) -> String
     {
-        let URLHash:String = MD5.md532BitUpper(url)
+        let URLHash:String = SWMD5.md532BitUpper(url)
         let path:String = "\(cacheDirectory)/\(URLHash)"
         return path
     }
@@ -71,7 +73,7 @@ class SWImageCacheManager:NSObject
     //根据图片的URL以及图片保存的相关参数，生成保存到本地的一个key
     func getStoreKey(URL:String, options:ImageLoaderOptions) -> String
     {
-        var key:String = MD5.md532BitUpper(URL)
+        var key:String = SWMD5.md532BitUpper(URL)
         var params:[[String:String]] = []
         for (key,value) in options.dictionary
         {
@@ -107,7 +109,7 @@ class SWImageCacheManager:NSObject
     //是否有某图片的缓存
     func hasCache(url:String) -> Bool
     {
-        //        let cacheFilenameHash:String = MD5.md532BitUpper(url)
+        //        let cacheFilenameHash:String = SWMD5.md532BitUpper(url)
         //        if let _ = NSCache().objectForKey(cacheFilenameHash) as? UIImage
         //        {
         //            return true

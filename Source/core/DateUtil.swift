@@ -111,5 +111,13 @@ class DateUtil: NSObject
         return string
     }
     
+    //根据特定日期文字格式返回日期
+    func dateFromString(dateString:String, dateFormat:String = "YYYY-MM-dd HH:mm:SS") -> NSDate?
+    {
+        let formatter:NSDateFormatter = NSDateFormatter()
+        formatter.dateFormat = dateFormat
+        return formatter.dateFromString(dateString)
+    }
+    
     
 }

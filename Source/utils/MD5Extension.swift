@@ -8,15 +8,15 @@
 
 import Foundation
 
-extension MD5
+extension SWMD5
 {
     class func md516BitLower(string:String) -> String
     {
-        return MD5.md532BitLower(string).substringWithRange(NSMakeRange(8, 16))
+        return SWMD5.md532BitLower(string).substringWithRange(NSMakeRange(8, 16))
     }
     
     class func md516BitUpper(string:String) -> String
     {
-        return MD5.md532BitUpper(string).substringWithRange(NSMakeRange(8, 16))
+        return SWMD5.md532BitUpper(string).substringWithRange(NSMakeRange(8, 16))
     }
 }

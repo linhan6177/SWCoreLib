@@ -6,10 +6,10 @@
 //  Copyright (c) 2014年 Arlexovincy. All rights reserved.
 //
 
-#import "MD5.h"
+#import "SWMD5.h"
 #import <CommonCrypto/CommonDigest.h>
 
-@implementation MD5
+@implementation SWMD5
 
 /**
  *  把字符串加密成32位小写md5字符串
