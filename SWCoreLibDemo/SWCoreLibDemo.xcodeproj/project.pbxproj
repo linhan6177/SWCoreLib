@@ -66,11 +66,17 @@
 		A72156EE1D1A464D00FEF774 /* Base64.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156B21D1A464D00FEF774 /* Base64.swift */; };
 		A72156EF1D1A464D00FEF774 /* FileUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156B31D1A464D00FEF774 /* FileUtility.swift */; };
 		A72156F01D1A464D00FEF774 /* JSONHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156B41D1A464D00FEF774 /* JSONHelper.swift */; };
-		A72156F11D1A464D00FEF774 /* MD5.m in Sources */ = {isa = PBXBuildFile; fileRef = A72156B61D1A464D00FEF774 /* MD5.m */; };
 		A72156F21D1A464D00FEF774 /* OCHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = A72156B81D1A464D00FEF774 /* OCHelper.m */; };
 		A72156F31D1A464D00FEF774 /* PinYin.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156B91D1A464D00FEF774 /* PinYin.swift */; };
 		A72156F41D1A464D00FEF774 /* POAPinyin.m in Sources */ = {isa = PBXBuildFile; fileRef = A72156BB1D1A464D00FEF774 /* POAPinyin.m */; };
 		A72156F51D1A464D00FEF774 /* SimpleCookie.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156BC1D1A464D00FEF774 /* SimpleCookie.swift */; };
+		A7231D281D89562300A7795C /* SWSequenceAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D241D89562300A7795C /* SWSequenceAnimation.swift */; };
+		A7231D291D89562300A7795C /* SWSoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D251D89562300A7795C /* SWSoundPlayer.swift */; };
+		A7231D2A1D89562300A7795C /* SWImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D261D89562300A7795C /* SWImageCacheManager.swift */; };
+		A7231D2B1D89562300A7795C /* SWAssetsLibraryHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D271D89562300A7795C /* SWAssetsLibraryHelper.swift */; };
+		A7231D2D1D89564400A7795C /* CGUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D2C1D89564400A7795C /* CGUtil.swift */; };
+		A7231D311D89567800A7795C /* SWMD5.m in Sources */ = {isa = PBXBuildFile; fileRef = A7231D2E1D89567800A7795C /* SWMD5.m */; };
+		A7231D321D89567800A7795C /* MD5Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D2F1D89567800A7795C /* MD5Extension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -156,14 +162,20 @@
 		A72156B21D1A464D00FEF774 /* Base64.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Base64.swift; sourceTree = "<group>"; };
 		A72156B31D1A464D00FEF774 /* FileUtility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FileUtility.swift; sourceTree = "<group>"; };
 		A72156B41D1A464D00FEF774 /* JSONHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JSONHelper.swift; sourceTree = "<group>"; };
-		A72156B51D1A464D00FEF774 /* MD5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MD5.h; sourceTree = "<group>"; };
-		A72156B61D1A464D00FEF774 /* MD5.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MD5.m; sourceTree = "<group>"; };
 		A72156B71D1A464D00FEF774 /* OCHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCHelper.h; sourceTree = "<group>"; };
 		A72156B81D1A464D00FEF774 /* OCHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OCHelper.m; sourceTree = "<group>"; };
 		A72156B91D1A464D00FEF774 /* PinYin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinYin.swift; sourceTree = "<group>"; };
 		A72156BA1D1A464D00FEF774 /* POAPinyin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = POAPinyin.h; sourceTree = "<group>"; };
 		A72156BB1D1A464D00FEF774 /* POAPinyin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = POAPinyin.m; sourceTree = "<group>"; };
 		A72156BC1D1A464D00FEF774 /* SimpleCookie.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SimpleCookie.swift; sourceTree = "<group>"; };
+		A7231D241D89562300A7795C /* SWSequenceAnimation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWSequenceAnimation.swift; sourceTree = "<group>"; };
+		A7231D251D89562300A7795C /* SWSoundPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWSoundPlayer.swift; sourceTree = "<group>"; };
+		A7231D261D89562300A7795C /* SWImageCacheManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWImageCacheManager.swift; sourceTree = "<group>"; };
+		A7231D271D89562300A7795C /* SWAssetsLibraryHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWAssetsLibraryHelper.swift; sourceTree = "<group>"; };
+		A7231D2C1D89564400A7795C /* CGUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGUtil.swift; sourceTree = "<group>"; };
+		A7231D2E1D89567800A7795C /* SWMD5.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWMD5.m; sourceTree = "<group>"; };
+		A7231D2F1D89567800A7795C /* MD5Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MD5Extension.swift; sourceTree = "<group>"; };
+		A7231D301D89567800A7795C /* SWMD5.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SWMD5.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -262,6 +274,10 @@
 		A72156781D1A464D00FEF774 /* controls */ = {
 			isa = PBXGroup;
 			children = (
+				A7231D241D89562300A7795C /* SWSequenceAnimation.swift */,
+				A7231D251D89562300A7795C /* SWSoundPlayer.swift */,
+				A7231D261D89562300A7795C /* SWImageCacheManager.swift */,
+				A7231D271D89562300A7795C /* SWAssetsLibraryHelper.swift */,
 				A72156791D1A464D00FEF774 /* Alert.swift */,
 				A721567A1D1A464D00FEF774 /* BannerTips.swift */,
 				A721567B1D1A464D00FEF774 /* ButtonUtil.swift */,
@@ -312,6 +328,7 @@
 		A72156971D1A464D00FEF774 /* display */ = {
 			isa = PBXGroup;
 			children = (
+				A7231D2C1D89564400A7795C /* CGUtil.swift */,
 				A72156981D1A464D00FEF774 /* ImageUtil.swift */,
 				A72156991D1A464D00FEF774 /* Toucan.swift */,
 				A721569A1D1A464D00FEF774 /* VideoUtil.swift */,
@@ -368,11 +385,12 @@
 		A72156B11D1A464D00FEF774 /* utils */ = {
 			isa = PBXGroup;
 			children = (
+				A7231D2E1D89567800A7795C /* SWMD5.m */,
+				A7231D2F1D89567800A7795C /* MD5Extension.swift */,
+				A7231D301D89567800A7795C /* SWMD5.h */,
 				A72156B21D1A464D00FEF774 /* Base64.swift */,
 				A72156B31D1A464D00FEF774 /* FileUtility.swift */,
 				A72156B41D1A464D00FEF774 /* JSONHelper.swift */,
-				A72156B51D1A464D00FEF774 /* MD5.h */,
-				A72156B61D1A464D00FEF774 /* MD5.m */,
 				A72156B71D1A464D00FEF774 /* OCHelper.h */,
 				A72156B81D1A464D00FEF774 /* OCHelper.m */,
 				A72156B91D1A464D00FEF774 /* PinYin.swift */,
@@ -529,6 +547,7 @@
 				A72156DF1D1A464D00FEF774 /* CoreMediaExtension.swift in Sources */,
 				A72156CB1D1A464D00FEF774 /* SWPhotoViewer.swift in Sources */,
 				A72156D31D1A464D00FEF774 /* GlobalClass.swift in Sources */,
+				A7231D2D1D89564400A7795C /* CGUtil.swift in Sources */,
 				A72156BE1D1A464D00FEF774 /* BannerTips.swift in Sources */,
 				A72156CD1D1A464D00FEF774 /* SystemVolumeManager.swift in Sources */,
 				A72156CA1D1A464D00FEF774 /* StrokeLabel.swift in Sources */,
@@ -537,10 +556,11 @@
 				A72156C01D1A464D00FEF774 /* ChatInput.swift in Sources */,
 				A72156E41D1A464D00FEF774 /* UIKitExtension.swift in Sources */,
 				A72156F01D1A464D00FEF774 /* JSONHelper.swift in Sources */,
-				A72156F11D1A464D00FEF774 /* MD5.m in Sources */,
+				A7231D2B1D89562300A7795C /* SWAssetsLibraryHelper.swift in Sources */,
 				A72156F51D1A464D00FEF774 /* SimpleCookie.swift in Sources */,
 				A72156CE1D1A464D00FEF774 /* ArrayUtil.swift in Sources */,
 				A72156DE1D1A464D00FEF774 /* CoreFoundationExtension.swift in Sources */,
+				A7231D281D89562300A7795C /* SWSequenceAnimation.swift in Sources */,
 				A72156E51D1A464D00FEF774 /* UIViewController+TopMostViewController.swift in Sources */,
 				A72156E61D1A464D00FEF774 /* Downloader.swift in Sources */,
 				A72156EB1D1A464D00FEF774 /* SWDevice.swift in Sources */,
@@ -562,13 +582,17 @@
 				A72156C51D1A464D00FEF774 /* LayoutUtil.swift in Sources */,
 				A72156D21D1A464D00FEF774 /* DeviceUtil.swift in Sources */,
 				A72156C81D1A464D00FEF774 /* ScrollADImage.swift in Sources */,
+				A7231D291D89562300A7795C /* SWSoundPlayer.swift in Sources */,
 				A72156DD1D1A464D00FEF774 /* CGNSValueConvertible.swift in Sources */,
 				A721564A1D1A461D00FEF774 /* AppDelegate.swift in Sources */,
+				A7231D321D89567800A7795C /* MD5Extension.swift in Sources */,
 				A72156D91D1A464D00FEF774 /* ImageUtil.swift in Sources */,
 				A72156C41D1A464D00FEF774 /* LabelUtil.swift in Sources */,
+				A7231D2A1D89562300A7795C /* SWImageCacheManager.swift in Sources */,
 				A72156C61D1A464D00FEF774 /* PopupContainer.swift in Sources */,
 				A72156BF1D1A464D00FEF774 /* ButtonUtil.swift in Sources */,
 				A72156E01D1A464D00FEF774 /* OperatorExtension.swift in Sources */,
+				A7231D311D89567800A7795C /* SWMD5.m in Sources */,
 				A72156D81D1A464D00FEF774 /* Weaker.swift in Sources */,
 				A72156D11D1A464D00FEF774 /* DateUtil.swift in Sources */,
 				A72156ED1D1A464D00FEF774 /* SWTextViewInternal.swift in Sources */,
@@ -801,6 +825,7 @@
 				A72156701D1A461D00FEF774 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A72156711D1A461D00FEF774 /* Build configuration list for PBXNativeTarget "SWCoreLibDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -809,6 +834,7 @@
 				A72156731D1A461D00FEF774 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		A72156741D1A461D00FEF774 /* Build configuration list for PBXNativeTarget "SWCoreLibDemoUITests" */ = {
 			isa = XCConfigurationList;
@@ -817,6 +843,7 @@
 				A72156761D1A461D00FEF774 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
