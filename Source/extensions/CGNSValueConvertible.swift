@@ -21,7 +21,7 @@ protocol CGNSValueConvertible
 extension CGPoint:CGNSValueConvertible
 {
     public var toNSValue:NSValue{
-        return NSValue(CGPoint: self)
+        return NSValue(cgPoint: self)
     }
 }
 
@@ -29,7 +29,7 @@ extension CGSize:CGNSValueConvertible
 {
     
     public var toNSValue:NSValue{
-        return NSValue(CGSize: self)
+        return NSValue(cgSize: self)
     }
     
 }
@@ -37,35 +37,35 @@ extension CGSize:CGNSValueConvertible
 extension CGRect:CGNSValueConvertible
 {
     public var toNSValue:NSValue {
-        return NSValue(CGRect: self)
+        return NSValue(cgRect: self)
     }
 }
 
 extension CGVector:CGNSValueConvertible
 {
     public var toNSValue:NSValue{
-        return NSValue(CGVector: self)
+        return NSValue(cgVector: self)
     }
 }
 
 extension CGAffineTransform:CGNSValueConvertible
 {
     public var toNSValue:NSValue{
-        return NSValue(CGAffineTransform: self)
+        return NSValue(cgAffineTransform: self)
     }
 }
 
 extension UIEdgeInsets:CGNSValueConvertible
 {
     public var toNSValue:NSValue{
-        return NSValue(UIEdgeInsets: self)
+        return NSValue(uiEdgeInsets: self)
     }
 }
 
 extension UIOffset:CGNSValueConvertible
 {
     public var toNSValue:NSValue{
-        return NSValue(UIOffset: self)
+        return NSValue(uiOffset: self)
     }
 }
 

@@ -10,42 +10,42 @@ import Foundation
 class NetUtil: NSObject
 {
     //type=guichu&a=b
-    class func stringToObject(string:String, separator:String = "&") -> [String:AnyObject]
+    class func stringToObject(_ string:String, separator:String = "&") -> [String:AnyObject]
     {
         var o:[String:AnyObject] = [:]
-        var nsstring:NSString = string
-        var arr:[String] = nsstring.componentsSeparatedByString(separator) as! [String]
-        var n:Int = arr.count
+        let nsstring:NSString = string as NSString
+        var arr:[String] = nsstring.components(separatedBy: separator) 
+        let n:Int = arr.count
         for i in 0..<n
         {
-            var pieces:[String] = arr[i].componentsSeparatedByString("=") as [String]
+            var pieces:[String] = arr[i].components(separatedBy: "=") as [String]
             if pieces.count > 1
             {
-                var name:String = pieces[0]
-                var value:String = pieces[1]
+                let name:String = pieces[0]
+                let value:String = pieces[1]
                 if value == "true"
                 {
-                    o[name] = true
+                    o[name] = true as AnyObject?
                 }
                 else if value == "false"
                 {
-                    o[name] = false
+                    o[name] = false as AnyObject?
                 }
                 else
                 {
-                    var tempInt:Int = (value as NSString).integerValue
-                    var tempDouble:Double = (value as NSString).doubleValue
+                    let tempInt:Int = (value as NSString).integerValue
+                    let tempDouble:Double = (value as NSString).doubleValue
                     if value == "\(tempInt)"
                     {
-                        o[name] = tempInt
+                        o[name] = tempInt as AnyObject?
                     }
                     else if value == "\(tempDouble)"
                     {
-                        o[name] = tempDouble
+                        o[name] = tempDouble as AnyObject?
                     }
                     else
                     {
-                        o[name] = value
+                        o[name] = value as AnyObject?
                     }
                 }
                 
@@ -55,11 +55,11 @@ class NetUtil: NSObject
         
     }
     
-    class func getQuery(url:NSURL) -> [String:String]
+    class func getQuery(_ url:URL) -> [String:String]
     {
         var params:[String:String] = [:]
         if #available(iOS 8.0, *) {
-            let component:NSURLComponents? = NSURLComponents(URL: url, resolvingAgainstBaseURL: false)
+            let component:URLComponents? = URLComponents(url: url, resolvingAgainstBaseURL: false)
             if let queryItems = component?.queryItems
             {
                 for queryItem in queryItems

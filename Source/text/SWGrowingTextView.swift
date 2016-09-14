@@ -11,20 +11,20 @@ import UIKit
 
 @objc protocol SWGrowingTextViewDelegate:NSObjectProtocol
 {
-    optional func growingTextViewShouldBeginEditing(growingTextView:SWGrowingTextView) -> Bool
-    optional func growingTextViewShouldEndEditing(growingTextView:SWGrowingTextView) -> Bool
+    @objc optional func growingTextViewShouldBeginEditing(_ growingTextView:SWGrowingTextView) -> Bool
+    @objc optional func growingTextViewShouldEndEditing(_ growingTextView:SWGrowingTextView) -> Bool
     
-    optional func growingTextViewDidBeginEditing(growingTextView:SWGrowingTextView)
-    optional func growingTextViewDidEndEditing(growingTextView:SWGrowingTextView)
+    @objc optional func growingTextViewDidBeginEditing(_ growingTextView:SWGrowingTextView)
+    @objc optional func growingTextViewDidEndEditing(_ growingTextView:SWGrowingTextView)
     
-    optional func growingTextView(growingTextView: SWGrowingTextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool
-    optional func growingTextViewDidChange(growingTextView:SWGrowingTextView)
+    @objc optional func growingTextView(_ growingTextView: SWGrowingTextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool
+    @objc optional func growingTextViewDidChange(_ growingTextView:SWGrowingTextView)
     
-    optional func growingTextView(growingTextView: SWGrowingTextView, willChangeHeight height: CGFloat)
-    optional func growingTextView(growingTextView: SWGrowingTextView, didChangeHeight height: CGFloat)
+    @objc optional func growingTextView(_ growingTextView: SWGrowingTextView, willChangeHeight height: CGFloat)
+    @objc optional func growingTextView(_ growingTextView: SWGrowingTextView, didChangeHeight height: CGFloat)
     
-    optional func growingTextViewDidChangeSelection(growingTextView:SWGrowingTextView)
-    optional func growingTextViewShouldReturn(growingTextView:SWGrowingTextView) -> Bool
+    @objc optional func growingTextViewDidChangeSelection(_ growingTextView:SWGrowingTextView)
+    @objc optional func growingTextViewShouldReturn(_ growingTextView:SWGrowingTextView) -> Bool
 }
 
 
@@ -38,19 +38,19 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     weak var delegate:SWGrowingTextViewDelegate?
     var animateHeightChange:Bool = false
     var animationDuration:Double = 0.1
-    private var _maxHeight:CGFloat = 0
-    private var _minHeight:CGFloat = 0
-    private var _maxNumberOfLines:Int = 0
-    private var _minNumberOfLines:Int = 0
-    private var _contentInset:UIEdgeInsets = UIEdgeInsetsZero
+    fileprivate var _maxHeight:CGFloat = 0
+    fileprivate var _minHeight:CGFloat = 0
+    fileprivate var _maxNumberOfLines:Int = 0
+    fileprivate var _minNumberOfLines:Int = 0
+    fileprivate var _contentInset:UIEdgeInsets = UIEdgeInsets.zero
     
     //var placeholder
     
     
     init()
     {
-        super.init(frame:CGRectZero)
-        internalTextView = SWTextViewInternal(frame:CGRectZero)
+        super.init(frame:CGRect.zero)
+        internalTextView = SWTextViewInternal(frame:CGRect.zero)
         commonInitialiser()
     }
     
@@ -72,15 +72,15 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func commonInitialiser()
+    fileprivate func commonInitialiser()
     {
         internalTextView!.delegate = self
-        internalTextView!.scrollEnabled = false
+        internalTextView!.isScrollEnabled = false
         internalTextView!.font = UIFont(name: "Helvetica", size: 13)
-        internalTextView!.contentInset = UIEdgeInsetsZero
+        internalTextView!.contentInset = UIEdgeInsets.zero
         internalTextView!.showsHorizontalScrollIndicator = false
         internalTextView!.text = "-";
-        internalTextView!.contentMode = UIViewContentMode.Redraw
+        internalTextView!.contentMode = UIViewContentMode.redraw
         internalTextView!.enablesReturnKeyAutomatically = true
         self.addSubview(internalTextView!)
         
@@ -98,7 +98,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         internalTextView!.displayPlaceHolder = true
     }
     
-    override func sizeThatFits(size: CGSize) -> CGSize
+    override func sizeThatFits(_ size: CGSize) -> CGSize
     {
         var newSize:CGSize = size
         if text.length == 0
@@ -166,8 +166,8 @@ class SWGrowingTextView: UIView,UITextViewDelegate
             let saveText:String = internalTextView!.text
             var newText = "-"
             internalTextView!.delegate = nil
-            internalTextView!.hidden = true
-            for (var i:Int = 1;i < newValue;++i)
+            internalTextView!.isHidden = true
+            for i in 1..<(newValue + 1)
             {
                 newText += "\n|W|"
             }
@@ -175,7 +175,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
             _maxHeight = self.measureHeight
             
             internalTextView!.text = saveText
-            internalTextView!.hidden = false
+            internalTextView!.isHidden = false
             internalTextView!.delegate = self
             
             self.sizeToFit()
@@ -212,8 +212,8 @@ class SWGrowingTextView: UIView,UITextViewDelegate
             let saveText:String = internalTextView!.text
             var newText = "-"
             internalTextView!.delegate = nil
-            internalTextView!.hidden = true
-            for (var i:Int = 1;i < newValue;++i)
+            internalTextView!.isHidden = true
+            for i in 1..<(newValue + 1)
             {
                 newText += "\n|W|"
             }
@@ -222,7 +222,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
             _minHeight = self.measureHeight
             
             internalTextView!.text = saveText
-            internalTextView!.hidden = false
+            internalTextView!.isHidden = false
             internalTextView!.delegate = self
             
             sizeToFit()
@@ -249,7 +249,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         get
         {
             var h:CGFloat = 0
-            if self.respondsToSelector("snapshotViewAfterScreenUpdates:")
+            if self.responds(to: #selector(UIView.snapshotView(afterScreenUpdates:)))
             {
                 h = ceil(internalTextView!.sizeThatFits(self.internalTextView!.frame.size).height)
             }
@@ -285,15 +285,15 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         }
     }
     
-    func textViewDidChange(textView: UITextView)
+    func textViewDidChange(_ textView: UITextView)
     {
         self.refreshHeight()
     }
     
-    private func refreshHeight()
+    fileprivate func refreshHeight()
     {
         var newSizeH:CGFloat = measureHeight
-        if (newSizeH < minHeight || !internalTextView!.hasText())
+        if (newSizeH < minHeight || !internalTextView!.hasText)
         {
             newSizeH = minHeight
         }
@@ -309,13 +309,13 @@ class SWGrowingTextView: UIView,UITextViewDelegate
             // around and enable scrolling
             if (newSizeH >= maxHeight)
             {
-                if(!internalTextView!.scrollEnabled){
-                    internalTextView!.scrollEnabled = true;
+                if(!internalTextView!.isScrollEnabled){
+                    internalTextView!.isScrollEnabled = true;
                     internalTextView!.flashScrollIndicators()
                 }
                 
             } else {
-                internalTextView!.scrollEnabled = false
+                internalTextView!.isScrollEnabled = false
             }
             
             // [fixed] Pasting too much text into the view failed to fire the height change,
@@ -325,7 +325,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
                 if(animateHeightChange)
                 {
                     //UIViewAnimationOptions(.BeginFromCurrentState.rawValue | .AllowUserInteraction.rawValue)
-                    UIView.animateWithDuration(animationDuration, delay: 0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: {
+                    UIView.animate(withDuration: animationDuration, delay: 0, options: UIViewAnimationOptions.beginFromCurrentState, animations: {
                     
                             self.resizeTextView(newSizeH)
                     
@@ -369,7 +369,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         }
         
         // scroll to caret (needed on iOS7)
-        if self.respondsToSelector("snapshotViewAfterScreenUpdates:")
+        if self.responds(to: #selector(UIView.snapshotView(afterScreenUpdates:)))
         {
             resetScrollPositionForIOS7()
         }
@@ -380,17 +380,17 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         
     }
     
-    private func resetScrollPositionForIOS7()
+    fileprivate func resetScrollPositionForIOS7()
     {
-        let r:CGRect = internalTextView!.caretRectForPosition(internalTextView!.selectedTextRange!.end)
+        let r:CGRect = internalTextView!.caretRect(for: internalTextView!.selectedTextRange!.end)
         let caretY:CGFloat = max(r.origin.y - internalTextView!.frame.size.height + r.size.height + 8, 0)
-        if (internalTextView!.contentOffset.y < caretY && r.origin.y != CGFloat.max)
+        if (internalTextView!.contentOffset.y < caretY && r.origin.y != CGFloat.greatestFiniteMagnitude)
         {
-            internalTextView!.contentOffset = CGPointMake(0, caretY)
+            internalTextView!.contentOffset = CGPoint(x: 0, y: caretY)
         }
     }
     
-    private func resizeTextView(newSizeH:CGFloat)
+    fileprivate func resizeTextView(_ newSizeH:CGFloat)
     {
         delegate?.growingTextView?(self, willChangeHeight: newSizeH)
         var internalTextViewFrame:CGRect = self.frame
@@ -400,19 +400,19 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         internalTextViewFrame.origin.y = contentInset.top - contentInset.bottom;
         internalTextViewFrame.origin.x = contentInset.left;
         
-        if(!CGRectEqualToRect(internalTextView!.frame, internalTextViewFrame))
+        if(!internalTextView!.frame.equalTo(internalTextViewFrame))
         {
             internalTextView!.frame = internalTextViewFrame;
         }
     }
     
-    @objc private func growDidStop()
+    @objc fileprivate func growDidStop()
     {
         resetScrollPositionForIOS7()
         delegate?.growingTextView?(self, didChangeHeight: self.frame.size.height)
     }
     
-    override func touchesEnded(touches: Set<UITouch>, withEvent event: UIEvent?) {
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         internalTextView?.becomeFirstResponder()
     }
     
@@ -426,8 +426,8 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         return internalTextView!.resignFirstResponder()
     }
     
-    override func isFirstResponder() -> Bool {
-        return internalTextView!.isFirstResponder()
+    override var isFirstResponder : Bool {
+        return internalTextView!.isFirstResponder
     }
     
     
@@ -457,7 +457,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     {
         get
         {
-            return internalTextView!.font ?? UIFont.systemFontOfSize(14)
+            return internalTextView!.font ?? UIFont.systemFont(ofSize: 14)
         }
         set
         {
@@ -473,7 +473,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     {
         get
         {
-            return internalTextView!.textColor ?? UIColor.blackColor()
+            return internalTextView!.textColor ?? UIColor.black
         }
         set
         {
@@ -530,11 +530,11 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     {
         get
         {
-            return internalTextView!.scrollEnabled
+            return internalTextView!.isScrollEnabled
         }
         set
         {
-            internalTextView!.scrollEnabled = true
+            internalTextView!.isScrollEnabled = true
         }
     }
     
@@ -544,11 +544,11 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     {
         get
         {
-            return internalTextView!.editable
+            return internalTextView!.isEditable
         }
         set
         {
-            internalTextView!.editable = newValue
+            internalTextView!.isEditable = newValue
         }
     }
     
@@ -627,10 +627,10 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     
     func hasText()->Bool
     {
-        return internalTextView!.hasText()
+        return internalTextView!.hasText
     }
     
-    func scrollRangeToVisible(range:NSRange)
+    func scrollRangeToVisible(_ range:NSRange)
     {
         internalTextView!.scrollRangeToVisible(range)
     }
@@ -640,7 +640,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     //#pragma mark UITextViewDelegate
     /////////////////////////////////////////////////////////////////////////////////////////////////////
     
-    func textViewShouldBeginEditing(textView: UITextView) -> Bool
+    func textViewShouldBeginEditing(_ textView: UITextView) -> Bool
     {
         if delegate != nil && delegate!.growingTextViewShouldBeginEditing != nil
         {
@@ -652,7 +652,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         }
     }
     
-    func textViewShouldEndEditing(textView: UITextView) -> Bool
+    func textViewShouldEndEditing(_ textView: UITextView) -> Bool
     {
         if delegate != nil && delegate!.growingTextViewShouldEndEditing != nil
         {
@@ -664,24 +664,24 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         }
     }
     
-    func textViewDidBeginEditing(textView: UITextView)
+    func textViewDidBeginEditing(_ textView: UITextView)
     {
         delegate?.growingTextViewDidBeginEditing?(self)
     }
     
-    func textViewDidEndEditing(textView: UITextView)
+    func textViewDidEndEditing(_ textView: UITextView)
     {
         delegate?.growingTextViewDidEndEditing?(self)
     }
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     
-    func textView(textView: UITextView, shouldChangeTextInRange range: NSRange, replacementText text: String) -> Bool {
-        if !textView.hasText() && text == ""
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if !textView.hasText && text == ""
         {
             return false
         }
-        if delegate != nil && delegate!.respondsToSelector("growingTextView:shouldChangeTextInRange:replacementText:")
+        if delegate != nil && delegate!.responds(to: #selector(SWGrowingTextViewDelegate.growingTextView(_:shouldChangeTextInRange:replacementText:)))
         {
             return delegate!.growingTextView!(self, shouldChangeTextInRange: range, replacementText: text)
         }
@@ -709,7 +709,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     
-    func textViewDidChangeSelection(textView: UITextView)
+    func textViewDidChangeSelection(_ textView: UITextView)
     {
         if delegate != nil && delegate!.growingTextViewDidChangeSelection != nil
         {

@@ -24,7 +24,7 @@ extension SWColor
         var rgb:UInt32 = 0
         if hex is String
         {
-            let scanner = NSScanner(string: hex as! String)
+            let scanner = Scanner(string: hex as! String)
             if (hex as! String).hasPrefix("#")
             {
                 scanner.scanLocation = 1
@@ -33,7 +33,7 @@ extension SWColor
             {
                 scanner.scanLocation = 2
             }
-            scanner.scanHexInt(&rgb)
+            scanner.scanHexInt32(&rgb)
         }
         else if hex is Int
         {
@@ -77,7 +77,7 @@ class ColorUtil: NSObject
     * 24位色彩合成     alpha,red,green,blue都是0~255之间的数
     * @return
     */
-    static func colorComposite(r:Int, g:Int, b:Int)-> Int
+    static func colorComposite(_ r:Int, g:Int, b:Int)-> Int
     {
         return r << 16 | g << 8 | b
     }
@@ -87,7 +87,7 @@ class ColorUtil: NSObject
     * 32位色彩合成     alpha,red,green,blue都是0~255之间的数
     * @return
     */
-    static func colorComposite32(a:Int,r:Int,g:Int,b:Int)-> Int
+    static func colorComposite32(_ a:Int,r:Int,g:Int,b:Int)-> Int
     {
         return a << 24 | r << 16 | g << 8 | b
     }

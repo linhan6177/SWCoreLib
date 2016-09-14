@@ -11,74 +11,74 @@ import Foundation
 
 @objc protocol WebLoaderDelegate:NSObjectProtocol
 {
-    optional func webLoaderDidFail(webLoader:WebLoader, error:NSError?, bindArgs:AnyObject?)
+    @objc optional func webLoaderDidFail(_ webLoader:WebLoader, error:NSError?, bindArgs:AnyObject?)
     
-    optional func webLoaderCacheDataDidFinishLoading(webLoader:WebLoader, data:NSData, bindArgs:AnyObject?)
+    @objc optional func webLoaderCacheDataDidFinishLoading(_ webLoader:WebLoader, data:Data, bindArgs:AnyObject?)
     
-    func webLoaderDidFinishLoading(webLoader:WebLoader, data:NSData, bindArgs:AnyObject?)
+    func webLoaderDidFinishLoading(_ webLoader:WebLoader, data:Data, bindArgs:AnyObject?)
 }
 
 //NSURLSession Delegate是强引用，因此中间加入一个弱引用层来打破引用循环
-class WebLoaderSessionHandler: NSObject, NSURLSessionDataDelegate
+class WebLoaderSessionHandler: NSObject, URLSessionDataDelegate
 {
-    weak var delegate:NSURLSessionDataDelegate?
+    weak var delegate:URLSessionDataDelegate?
     
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData)
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data)
     {
-        delegate?.URLSession?(session, dataTask: dataTask, didReceiveData:data)
+        delegate?.urlSession?(session, dataTask: dataTask, didReceive:data)
     }
 
     
     //加载完成
-    func URLSession(
-        session: NSURLSession,
-        dataTask: NSURLSessionDataTask,
-        willCacheResponse proposedResponse: NSCachedURLResponse,
-        completionHandler: ((NSCachedURLResponse?) -> Void))
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        willCacheResponse proposedResponse: CachedURLResponse,
+        completionHandler: (@escaping (CachedURLResponse?) -> Void))
     {
         completionHandler(proposedResponse)
     }
     
     //加载失败
-    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?)
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)
     {
-        delegate?.URLSession?(session, task: task, didCompleteWithError: error)
+        delegate?.urlSession?(session, task: task, didCompleteWithError: error)
     }
     
-    func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void)
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
     {
-        delegate?.URLSession?(session, didReceiveChallenge: challenge, completionHandler: completionHandler)
+        delegate?.urlSession?(session, didReceive: challenge, completionHandler: completionHandler)
     }
 }
 
-class WebLoader: NSObject,NSURLSessionDataDelegate
+class WebLoader: NSObject,URLSessionDataDelegate
 {
     weak var delegate:WebLoaderDelegate?
     
     var bindArgs:AnyObject?
     
-    private var _session:NSURLSession?
-    private var _task:NSURLSessionDataTask?
-    private var _sessionHandler:WebLoaderSessionHandler?
+    fileprivate var _session:Foundation.URLSession?
+    fileprivate var _task:URLSessionDataTask?
+    fileprivate var _sessionHandler:WebLoaderSessionHandler?
     
-    private var _responseData:NSMutableData = NSMutableData()
+    fileprivate var _responseData:NSMutableData = NSMutableData()
     
-    private var _url:String = ""
+    fileprivate var _url:String = ""
     var url:String
     {
         return _url
     }
     
-    var localCertData: NSData?
+    var localCertData: Data?
     var SSLValidateErrorCallBack: (() -> Void)?
     
     
     
-    private var _requestData:AnyObject?
-    private var _method:String = "GET"
-    private var _headers:[String:String]?
+    fileprivate var _requestData:AnyObject?
+    fileprivate var _method:String = "GET"
+    fileprivate var _headers:[String:String]?
     
-    var cachePolicy:NSURLRequestCachePolicy = .UseProtocolCachePolicy
+    var cachePolicy:NSURLRequest.CachePolicy = .useProtocolCachePolicy
     
     override init()
     {
@@ -87,9 +87,9 @@ class WebLoader: NSObject,NSURLSessionDataDelegate
         _sessionHandler = WebLoaderSessionHandler()
         _sessionHandler?.delegate = self
         
-        let configuration = NSURLSession.sharedSession().configuration
-        let queue = NSURLSession.sharedSession().delegateQueue
-        _session = NSURLSession(configuration: configuration, delegate: _sessionHandler, delegateQueue: queue)
+        let configuration = Foundation.URLSession.shared.configuration
+        let queue = Foundation.URLSession.shared.delegateQueue
+        _session = Foundation.URLSession(configuration: configuration, delegate: _sessionHandler, delegateQueue: queue)
     }
     
     deinit
@@ -101,7 +101,7 @@ class WebLoader: NSObject,NSURLSessionDataDelegate
     //==============================            Public Method           ===============================
     //=================================================================================================
     
-    func load(url:String, data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil, returnCacheData:Bool = false)
+    func load(_ url:String, data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil, returnCacheData:Bool = false)
     {
         
         if url != _url
@@ -115,19 +115,19 @@ class WebLoader: NSObject,NSURLSessionDataDelegate
         //如果本地有缓存
         if returnCacheData
         {
-            let response:NSCachedURLResponse? = NSURLCache.sharedURLCache().cachedResponseForRequest(request)
+            let response:CachedURLResponse? = URLCache.shared.cachedResponse(for: request)
             //println("response:\(response?.data.length)")
-            if let data = response?.data where data.length > 0
+            if let data = response?.data , data.count > 0
             {
                 delegate?.webLoaderCacheDataDidFinishLoading?(self, data:data, bindArgs:bindArgs)
             }
         }
         
-        _task = _session?.dataTaskWithRequest(request)
+        _task = _session?.dataTask(with: request)
         _task?.resume()
     }
     
-    func addSSLPinning(LocalCertData data: NSData, SSLValidateErrorCallBack: (()->Void)? = nil) {
+    func addSSLPinning(LocalCertData data: Data, SSLValidateErrorCallBack: (()->Void)? = nil) {
         self.localCertData = data
         self.SSLValidateErrorCallBack = SSLValidateErrorCallBack
     }
@@ -143,28 +143,28 @@ class WebLoader: NSObject,NSURLSessionDataDelegate
     //=================================================================================================
     
     //接收响应数据
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData)
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data)
     {
-        _responseData.appendData(data)
+        _responseData.append(data)
     }
     
     //加载失败
-    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?)
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)
     {
         if let error = error
         {
-            dispatch_async(dispatch_get_main_queue(), {
-                self.delegate?.webLoaderDidFail?(self, error:error, bindArgs:self.bindArgs)
+            DispatchQueue.main.async(execute: {
+                self.delegate?.webLoaderDidFail?(self, error:error as NSError?, bindArgs:self.bindArgs)
             })
         }
         else
         {
-            dispatch_async(dispatch_get_main_queue(), {
+            DispatchQueue.main.async(execute: {
                 
-                var data:NSData = self._responseData
-                if let statusCode = (task.response as? NSHTTPURLResponse)?.statusCode where statusCode == 304,
+                var data:Data = self._responseData as Data
+                if let statusCode = (task.response as? HTTPURLResponse)?.statusCode , statusCode == 304,
                    let request = task.currentRequest,
-                   let cachedData = NSURLCache.sharedURLCache().cachedResponseForRequest(request)?.data
+                   let cachedData = URLCache.shared.cachedResponse(for: request)?.data
                 {
                     data = cachedData
                 }
@@ -174,19 +174,19 @@ class WebLoader: NSObject,NSURLSessionDataDelegate
     }
     
     //证书验证
-    func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void) {
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
         if let localCertificateData = self.localCertData
         {
             if let serverTrust = challenge.protectionSpace.serverTrust,
-                certificate = SecTrustGetCertificateAtIndex(serverTrust, 0),
-                remoteCertificateData: NSData = SecCertificateCopyData(certificate) {
-                    if localCertificateData.isEqualToData(remoteCertificateData) {
-                        let credential = NSURLCredential(forTrust: serverTrust)
-                        challenge.sender?.useCredential(credential, forAuthenticationChallenge: challenge)
-                        completionHandler(NSURLSessionAuthChallengeDisposition.UseCredential, credential)
+                let certificate = SecTrustGetCertificateAtIndex(serverTrust, 0),
+                let remoteCertificateData: Data = SecCertificateCopyData(certificate) as Data {
+                    if localCertificateData == remoteCertificateData {
+                        let credential = URLCredential(trust: serverTrust)
+                        challenge.sender?.use(credential, for: challenge)
+                        completionHandler(Foundation.URLSession.AuthChallengeDisposition.useCredential, credential)
                     } else {
-                        challenge.sender?.cancelAuthenticationChallenge(challenge)
-                        completionHandler(NSURLSessionAuthChallengeDisposition.CancelAuthenticationChallenge, nil)
+                        challenge.sender?.cancel(challenge)
+                        completionHandler(Foundation.URLSession.AuthChallengeDisposition.cancelAuthenticationChallenge, nil)
                         self.SSLValidateErrorCallBack?()
                     }
             } else {
@@ -194,25 +194,25 @@ class WebLoader: NSObject,NSURLSessionDataDelegate
             }
         }
         else {
-            completionHandler(NSURLSessionAuthChallengeDisposition.UseCredential, nil)
+            completionHandler(Foundation.URLSession.AuthChallengeDisposition.useCredential, nil)
         }
     }
     
     
     
     
-    class func query(parameters: [String: AnyObject], URLEncode:Bool = true) -> String {
+    class func query(_ parameters: [String: AnyObject], URLEncode:Bool = true) -> String {
         var components: [(String, String)] = []
         
-        for key in parameters.keys.sort(<) {
+        for key in parameters.keys.sorted(by: <) {
             let value = parameters[key]!
             components += queryComponents(key, value, URLEncode:URLEncode)
         }
         
-        return (components.map { "\($0)=\($1)" } as [String]).joinWithSeparator("&")
+        return (components.map { "\($0)=\($1)" } as [String]).joined(separator: "&")
     }
     
-    class func queryComponents(key: String, _ value: AnyObject, URLEncode:Bool = true) -> [(String, String)] {
+    class func queryComponents(_ key: String, _ value: AnyObject, URLEncode:Bool = true) -> [(String, String)] {
         var components: [(String, String)] = []
         
         if let dictionary = value as? [String: AnyObject] {
@@ -235,10 +235,10 @@ class WebLoader: NSObject,NSURLSessionDataDelegate
     
     
     //创建一个请求头
-    class func buildRequest(url:String, data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil) -> NSURLRequest
+    class func buildRequest(_ url:String, data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil) -> URLRequest
     {
         let HTTPMethod = method ?? "GET"
-        var HTTPBody:NSData?
+        var HTTPBody:Data?
         var HTTPHeaders:[String:String] = headers ?? [String:String]()
         var contentType:String? = HTTPHeaders["Content-Type"]
         var requestURL:String = url
@@ -259,21 +259,21 @@ class WebLoader: NSObject,NSURLSessionDataDelegate
             if HTTPMethod == "GET"
             {
                 //requestURL += (url.indexOf("?") == -1 ? "?" : "&") + queryString
-                requestURL += (url.containsString("?") ? "&" : "?") + queryString
+                requestURL += (url.contains("?") ? "&" : "?") + queryString
             }
             else if HTTPMethod == "POST"
             {
-                HTTPBody = queryString.dataUsingEncoding(NSUTF8StringEncoding)
+                HTTPBody = queryString.data(using: String.Encoding.utf8)
             }
         }
         //println("requestURL:\(requestURL)")
-        let nsurl:NSURL = NSURL(string: requestURL) ?? NSURL(string: requestURL.URLEncoded)!
-        let request:NSMutableURLRequest = NSMutableURLRequest(URL: nsurl, cachePolicy: NSURLRequestCachePolicy.UseProtocolCachePolicy, timeoutInterval: 25)
-        request.HTTPMethod = HTTPMethod
+        let nsurl:URL = URL(string: requestURL) ?? URL(string: requestURL.URLEncoded)!
+        let request:NSMutableURLRequest = NSMutableURLRequest(url: nsurl, cachePolicy: NSURLRequest.CachePolicy.useProtocolCachePolicy, timeoutInterval: 25)
+        request.httpMethod = HTTPMethod
         
         if HTTPMethod == "POST"
         {
-            request.HTTPBody = HTTPBody
+            request.httpBody = HTTPBody
         }
         
         //设置标头
@@ -285,46 +285,46 @@ class WebLoader: NSObject,NSURLSessionDataDelegate
             }
         }
         
-        return request
+        return request as URLRequest
     }
     
     
-    class func loadLocalElseRemote(url:String, localCompletionHandler:((data:NSData?)->Void), remoteCompletionHandler:((data:NSData?)->Void), errorHandler:((error:NSError)->Void), data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil) -> NSURLRequest
+    class func loadLocalElseRemote(_ url:String, localCompletionHandler:((_ data:Data?)->Void), remoteCompletionHandler:@escaping ((_ data:Data?)->Void), errorHandler:@escaping ((_ error:NSError)->Void), data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil) -> URLRequest
     {
         
         
         let request = WebLoader.load(url, completionHandler: {data in
         
-            remoteCompletionHandler(data:data)
+            remoteCompletionHandler(data)
         
         }, errorHandler: errorHandler, data: data, method: method, headers: headers)
         
         //如果本地有缓存
-        let response:NSCachedURLResponse? = NSURLCache.sharedURLCache().cachedResponseForRequest(request)
-        if let data = response?.data where data.length > 0
+        let response:CachedURLResponse? = URLCache.shared.cachedResponse(for: request)
+        if let data = response?.data , data.count > 0
         {
-            localCompletionHandler(data: data)
+            localCompletionHandler(data)
         }
         
         return request
     }
 
     
-    class func load(url:String, completionHandler:((data:NSData?)->Void), errorHandler:((error:NSError)->Void), data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil) -> NSURLRequest
+    class func load(_ url:String, completionHandler:@escaping ((_ data:Data?)->Void), errorHandler:@escaping ((_ error:NSError)->Void), data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil) -> URLRequest
     {
         
         let request = buildRequest(url, data:data, method:method, headers:headers)
         
-        let queue = NSOperationQueue()
+        let queue = OperationQueue()
         
         NSURLConnection.sendAsynchronousRequest(request, queue: queue, completionHandler: { response, data, error in
             if let error = error
             {
-                errorHandler(error:error)
+                errorHandler(error as NSError)
             }
             else
             {
-                completionHandler(data:data)
+                completionHandler(data)
             }
         })
         

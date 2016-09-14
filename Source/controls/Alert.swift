@@ -21,7 +21,7 @@ class Alert:NSObject,UIAlertViewDelegate
     }
     
     
-    class func show(title:String = "", message:String = "", buttons:[String] = [], closeHandler:((Int)->Void)? = nil)
+    class func show(_ title:String = "", message:String = "", buttons:[String] = [], closeHandler:((Int)->Void)? = nil)
     {
         let alertDelegate:Alert = Alert()
         Alerts.alerts.append(alertDelegate)
@@ -36,18 +36,18 @@ class Alert:NSObject,UIAlertViewDelegate
         {
             for i in 0..<buttons.count
             {
-                alertView.addButtonWithTitle(buttons[i])
+                alertView.addButton(withTitle: buttons[i])
             }
         }
         else
         {
-            alertView.addButtonWithTitle("确定")
+            alertView.addButton(withTitle: "确定")
         }
         alertView.show()
     }
     
     //prompt为输入框的placeholder
-    class func input(title:String = "", message:String = "", prompt:String = "", buttons:[String] = [], type:UIAlertViewStyle = UIAlertViewStyle.PlainTextInput, closeHandler:((Int, [String])->Void)? = nil)
+    class func input(_ title:String = "", message:String = "", prompt:String = "", buttons:[String] = [], type:UIAlertViewStyle = UIAlertViewStyle.plainTextInput, closeHandler:((Int, [String])->Void)? = nil)
     {
         let alertDelegate:Alert = Alert()
         Alerts.alerts.append(alertDelegate)
@@ -63,15 +63,15 @@ class Alert:NSObject,UIAlertViewDelegate
         {
             for i in 0..<buttons.count
             {
-                alertView.addButtonWithTitle(buttons[i])
+                alertView.addButton(withTitle: buttons[i])
             }
         }
         else
         {
-            alertView.addButtonWithTitle("确定")
+            alertView.addButton(withTitle: "确定")
         }
         
-        if let textField = alertView.textFieldAtIndex(0)
+        if let textField = alertView.textField(at: 0)
         {
             textField.placeholder = prompt
         }
@@ -84,11 +84,11 @@ class Alert:NSObject,UIAlertViewDelegate
         //println("Alert Deinit")
     }
     
-    func alertView(alertView: UIAlertView, clickedButtonAtIndex buttonIndex: Int)
+    func alertView(_ alertView: UIAlertView, clickedButtonAt buttonIndex: Int)
     {
-        if let alert = view where alert.alertViewStyle != UIAlertViewStyle.Default
+        if let alert = view , alert.alertViewStyle != UIAlertViewStyle.default
         {
-            let text:String? = alert.textFieldAtIndex(0)?.text ?? ""
+            let text:String? = alert.textField(at: 0)?.text ?? ""
             inputCloseHandler?(buttonIndex, [text!])
         }
         else
@@ -97,19 +97,19 @@ class Alert:NSObject,UIAlertViewDelegate
         }
     }
     
-    func alertView(alertView: UIAlertView, didDismissWithButtonIndex buttonIndex: Int) // after animation
+    func alertView(_ alertView: UIAlertView, didDismissWithButtonIndex buttonIndex: Int) // after animation
     {
         showCloseHandler = nil
         inputCloseHandler = nil
         view?.delegate = nil
         view = nil
         
-        for i in (0..<Alerts.alerts.count).reverse()
+        for i in (0..<Alerts.alerts.count).reversed()
         {
             if Alerts.alerts[i] == self
             {
                 //移除
-                Alerts.alerts.removeAtIndex(i)
+                Alerts.alerts.remove(at: i)
             }
         }
     }
@@ -128,7 +128,7 @@ class ActionSheet:NSObject,UIActionSheetDelegate
     }
     
     
-    class func show(title:String, buttons:[String], closeHandler:((Int)->Void), destructiveButtonIndex:Int = -1, cancelButtonIndex:Int = -1, container:UIView? = nil)
+    class func show(_ title:String, buttons:[String], closeHandler:@escaping ((Int)->Void), destructiveButtonIndex:Int = -1, cancelButtonIndex:Int = -1, container:UIView? = nil)
     {
         let delegate:ActionSheet = ActionSheet()
         ActionSheets.actionSheets.append(delegate)
@@ -137,18 +137,18 @@ class ActionSheet:NSObject,UIActionSheetDelegate
         let actionSheet:UIActionSheet = UIActionSheet()
         actionSheet.title = title
         actionSheet.delegate = delegate
-        actionSheet.actionSheetStyle = UIActionSheetStyle.Default;
+        actionSheet.actionSheetStyle = UIActionSheetStyle.default;
         delegate.view = actionSheet
         if buttons.count > 0
         {
             for i in 0..<buttons.count
             {
-                actionSheet.addButtonWithTitle(buttons[i])
+                actionSheet.addButton(withTitle: buttons[i])
             }
         }
         else
         {
-            actionSheet.addButtonWithTitle("确定")
+            actionSheet.addButton(withTitle: "确定")
         }
         
         if destructiveButtonIndex >= 0 && destructiveButtonIndex < buttons.count
@@ -160,9 +160,9 @@ class ActionSheet:NSObject,UIActionSheetDelegate
             actionSheet.cancelButtonIndex = cancelButtonIndex
         }
         
-        if let container = container ?? UIApplication.sharedApplication().keyWindow
+        if let container = container ?? UIApplication.shared.keyWindow
         {
-            actionSheet.showInView(container)
+            actionSheet.show(in: container)
         }
     }
     
@@ -171,12 +171,12 @@ class ActionSheet:NSObject,UIActionSheetDelegate
         //println("ActionSheet Deinit")
     }
     
-    func actionSheet(actionSheet: UIActionSheet, clickedButtonAtIndex buttonIndex: Int)
+    func actionSheet(_ actionSheet: UIActionSheet, clickedButtonAt buttonIndex: Int)
     {
         //showCloseHandler?(buttonIndex)
     }
     
-    func actionSheet(actionSheet: UIActionSheet, didDismissWithButtonIndex buttonIndex: Int)
+    func actionSheet(_ actionSheet: UIActionSheet, didDismissWithButtonIndex buttonIndex: Int)
     {
         showCloseHandler?(buttonIndex)
         
@@ -184,12 +184,12 @@ class ActionSheet:NSObject,UIActionSheetDelegate
         view?.delegate = nil
         view = nil
         
-        for i in (0..<ActionSheets.actionSheets.count).reverse()
+        for i in (0..<ActionSheets.actionSheets.count).reversed()
         {
             if ActionSheets.actionSheets[i] == self
             {
                 //移除
-                ActionSheets.actionSheets.removeAtIndex(i)
+                ActionSheets.actionSheets.remove(at: i)
             }
         }
     }

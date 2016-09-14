@@ -7,20 +7,20 @@
 //
 
 import Foundation
-public class Base64:NSObject
+open class Base64:NSObject
 {
-    class func encode(string:String)->String
+    class func encode(_ string:String)->String
     {
-        let data:NSData = string.dataUsingEncoding(NSUTF8StringEncoding)!
-        let baseData:NSData = data.base64EncodedDataWithOptions(NSDataBase64EncodingOptions.EncodingEndLineWithLineFeed)
+        let data:Data = string.data(using: String.Encoding.utf8)!
+        let baseData:Data = data.base64EncodedData(options: NSData.Base64EncodingOptions.endLineWithLineFeed)
         
-        return  NSString(data:baseData, encoding:NSUTF8StringEncoding)! as String
+        return  NSString(data:baseData, encoding:String.Encoding.utf8.rawValue)! as String
     }
     
-    class func decode(string:String)->String
+    class func decode(_ string:String)->String
     {
-        let data:NSData = NSData(base64EncodedString: string, options: NSDataBase64DecodingOptions.IgnoreUnknownCharacters)!
+        let data:Data = Data(base64Encoded: string, options: NSData.Base64DecodingOptions.ignoreUnknownCharacters)!
         
-        return NSString(data:data, encoding:NSUTF8StringEncoding) as? String ?? ""
+        return NSString(data:data, encoding:String.Encoding.utf8.rawValue) as? String ?? ""
     }
 }

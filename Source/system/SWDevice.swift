@@ -12,7 +12,7 @@ import UIKit
 
 @objc public enum ScreenSize:Int
 {
-    case UnknownSize
+    case unknownSize
     case iPhone35inch
     case iPhone4inch
     case iPhone47inch
@@ -51,14 +51,14 @@ class SWDevice: NSObject
 {
     class var UDID:String
     {
-        return UIDevice.currentDevice().identifierForVendor?.UUIDString ?? ""
+        return UIDevice.current.identifierForVendor?.uuidString ?? ""
     }
     
     //当前屏幕尺寸
     class var size:ScreenSize
     {
-        let w: Double = Double(UIScreen.mainScreen().bounds.size.width)
-        let h: Double = Double(UIScreen.mainScreen().bounds.size.height)
+        let w: Double = Double(UIScreen.main.bounds.size.width)
+        let h: Double = Double(UIScreen.main.bounds.size.height)
         let screenHeight: Double = max(w, h)
         
         switch screenHeight {
@@ -67,11 +67,11 @@ class SWDevice: NSObject
         case 568:
             return ScreenSize.iPhone4inch
         case 667:
-            return UIScreen.mainScreen().scale == 3.0 ? ScreenSize.iPhone55inch : ScreenSize.iPhone47inch
+            return UIScreen.main.scale == 3.0 ? ScreenSize.iPhone55inch : ScreenSize.iPhone47inch
         case 736:
             return ScreenSize.iPhone55inch
         default:
-            return ScreenSize.UnknownSize
+            return ScreenSize.unknownSize
         }
     }
     

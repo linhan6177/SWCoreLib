@@ -9,13 +9,13 @@
 import Foundation
 class JSONHelper: NSObject
 {
-    class func JSONEncode(obj:AnyObject) -> String
+    class func JSONEncode(_ obj:AnyObject) -> String
     {
         var returnString:String = ""
-        let jsonData:NSData? = try? NSJSONSerialization.dataWithJSONObject(obj, options: .PrettyPrinted)
+        let jsonData:Data? = try? JSONSerialization.data(withJSONObject: obj, options: .prettyPrinted)
         if let data = jsonData
         {
-            returnString = NSString(data: data, encoding: NSUTF8StringEncoding) as? String ?? ""
+            returnString = NSString(data: data, encoding: String.Encoding.utf8.rawValue) as? String ?? ""
         }
         return returnString
     }

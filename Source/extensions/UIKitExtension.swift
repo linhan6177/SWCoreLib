@@ -11,9 +11,9 @@ import UIKit
 
 
 //获取对角线两点所构成的区域
-func CGRectDiagonalRect(point1:CGPoint, point2:CGPoint) -> CGRect
+func CGRectDiagonalRect(_ point1:CGPoint, point2:CGPoint) -> CGRect
 {
-    return CGRectMake(min(point1.x, point2.x), min(point1.y, point2.y), abs(point2.x - point1.x), abs(point2.y - point1.y))
+    return CGRect(x: min(point1.x, point2.x), y: min(point1.y, point2.y), width: abs(point2.x - point1.x), height: abs(point2.y - point1.y))
 }
 
 extension CGFloat
@@ -28,7 +28,7 @@ extension CGPoint
 {
     //整数值
     var integral:CGPoint{
-        return CGPointMake(ceil(x), ceil(y))
+        return CGPoint(x: ceil(x), y: ceil(y))
     }
 }
 
@@ -52,7 +52,7 @@ extension CGRect
     
     public var center:CGPoint
     {
-        return CGPointMake(midX, midY)
+        return CGPoint(x: midX, y: midY)
     }
     
 }
@@ -68,15 +68,15 @@ extension CGSize
 extension UIView
 {
     //进行快照并返回截图,scale:截图是原始对象的倍数
-    func snapshotImage(scale:CGFloat = 1) -> UIImage?
+    func snapshotImage(_ scale:CGFloat = 1) -> UIImage?
     {
-        let size = CGSizeMake(frame.width * scale, frame.height * scale)
+        let size = CGSize(width: frame.width * scale, height: frame.height * scale)
         UIGraphicsBeginImageContextWithOptions(size, false,
-            UIScreen.mainScreen().scale)
+            UIScreen.main.scale)
         var image:UIImage?
         if let context = UIGraphicsGetCurrentContext()
         {
-            layer.renderInContext(context)
+            layer.render(in: context)
             image = UIGraphicsGetImageFromCurrentImageContext()
             UIGraphicsEndImageContext()
         }
@@ -86,7 +86,7 @@ extension UIView
     //移除所有子视图
     func removeAllSubview()
     {
-        for(var i = subviews.count - 1; i > -1; i -= 1)
+        for i in (0..<subviews.count).reversed
         {
             subviews[i].removeFromSuperview()
         }
@@ -161,19 +161,19 @@ extension UIView
         return y + height
     }
     
-    func setSize(width:CGFloat, height:CGFloat)
+    func setSize(_ width:CGFloat, height:CGFloat)
     {
         var rect:CGRect = self.frame
-        rect.size = CGSizeMake(width, height)
+        rect.size = CGSize(width: width, height: height)
         self.frame = rect
     }
 }
 
 extension UIImage
 {
-    convenience init?(contentsOfURL:NSURL?)
+    convenience init?(contentsOfURL:URL?)
     {
-        guard let url = contentsOfURL,let data = NSData(contentsOfURL:url) else
+        guard let url = contentsOfURL,let data = try? Data(contentsOf: url) else
         {
             return nil
         }
@@ -181,26 +181,26 @@ extension UIImage
     }
     
     //将另一张图片绘入自身并返回一张新图片
-    func draw(image:UIImage, rect:CGRect, alpha: CGFloat = 1) -> UIImage
+    func draw(_ image:UIImage, rect:CGRect, alpha: CGFloat = 1) -> UIImage
     {
         UIGraphicsBeginImageContextWithOptions(size, false,
-            UIScreen.mainScreen().scale)
-        drawInRect(CGRectMake(0, 0, size.width, size.height))
+            UIScreen.main.scale)
+        self.draw(in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
         //image.drawInRect(rect)
-        image.drawInRect(rect, blendMode: CGBlendMode.Normal, alpha: alpha)
+        image.draw(in: rect, blendMode: CGBlendMode.normal, alpha: alpha)
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return result
+        return result!
     }
     
     func clone() -> UIImage
     {
         UIGraphicsBeginImageContextWithOptions(size, false,
-                                               UIScreen.mainScreen().scale)
-        drawInRect(CGRectMake(0, 0, size.width, size.height))
+                                               UIScreen.main.scale)
+        self.draw(in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return result
+        return result!
     }
 }
 
@@ -209,7 +209,7 @@ extension UIImage
     
     var retinaImage:UIImage?
     {
-        guard let cgImage = CGImage else{
+        guard let cgImage = cgImage else{
             return nil
         }
         
@@ -217,19 +217,19 @@ extension UIImage
             return self
         }
         
-        return UIImage(CGImage: cgImage, scale: UIScreen.mainScreen().scale, orientation: imageOrientation)
+        return UIImage(cgImage: cgImage, scale: UIScreen.main.scale, orientation: imageOrientation)
     }
     
     //视网膜屏下的尺寸
     var retinaSize:CGSize{
         let aSize = originSize
-        let ScreenScale = UIScreen.mainScreen().scale
-        return CGSizeMake(aSize.width / ScreenScale, aSize.height / ScreenScale)
+        let ScreenScale = UIScreen.main.scale
+        return CGSize(width: aSize.width / ScreenScale, height: aSize.height / ScreenScale)
     }
     
     //1倍图的尺寸
     var originSize:CGSize{
-        return CGSizeMake(CGFloat(CGImageGetWidth(CGImage)), CGFloat(CGImageGetHeight(CGImage)))
+        return CGSize(width: CGFloat(cgImage!.width), height: CGFloat(cgImage!.height))
     }
 }
 
@@ -242,13 +242,13 @@ extension UIViewController
         let isPortrait = UIInterfaceOrientationIsPortrait(interfaceOrientation)
         let minEdge:CGFloat = min(view.width, view.height)
         let maxEdge:CGFloat = max(view.width, view.height)
-        return isPortrait ? CGSizeMake(minEdge, maxEdge) : CGSizeMake(maxEdge, minEdge)
+        return isPortrait ? CGSize(width: minEdge, height: maxEdge) : CGSize(width: maxEdge, height: minEdge)
     }
     
     var viewFrame:CGRect
     {
         let size = viewSize
-        return CGRectMake(0, 0, size.width, size.height)
+        return CGRect(x: 0, y: 0, width: size.width, height: size.height)
     }
     
     var statusBarHeight:CGFloat {
@@ -265,41 +265,41 @@ extension UIViewController
         return 49
     }
     
-    func easyAddChildViewController(viewController:UIViewController, container:UIView? = nil)
+    func easyAddChildViewController(_ viewController:UIViewController, container:UIView? = nil)
     {
-        viewController.willMoveToParentViewController(self)
+        viewController.willMove(toParentViewController: self)
         addChildViewController(viewController)
         (container ?? view).addSubview(viewController.view)
         viewController.view.frame = view.bounds
-        viewController.didMoveToParentViewController(self)
+        viewController.didMove(toParentViewController: self)
     }
     
-    func easyRemoveChildViewController(viewController:UIViewController)
+    func easyRemoveChildViewController(_ viewController:UIViewController)
     {
-        viewController.willMoveToParentViewController(nil)
+        viewController.willMove(toParentViewController: nil)
         viewController.removeFromParentViewController()
         viewController.view.removeFromSuperview()
-        viewController.didMoveToParentViewController(nil)
+        viewController.didMove(toParentViewController: nil)
     }
     
     //创建左侧 文字导航按钮
-    func createNavigationLeftButton(title:String, target:AnyObject, action:Selector) -> UIBarButtonItem
+    func createNavigationLeftButton(_ title:String, target:AnyObject, action:Selector) -> UIBarButtonItem
     {
-        let button:UIBarButtonItem = UIBarButtonItem(title: title, style: .Plain, target: target, action: action)
+        let button:UIBarButtonItem = UIBarButtonItem(title: title, style: .plain, target: target, action: action)
         navigationItem.leftBarButtonItem = button
         return button
     }
     
     //创建右侧 文字导航按钮
-    func createNavigationRightButton(title:String, target:AnyObject, action:Selector) -> UIBarButtonItem
+    func createNavigationRightButton(_ title:String, target:AnyObject, action:Selector) -> UIBarButtonItem
     {
-        let button:UIBarButtonItem = UIBarButtonItem(title: title, style: .Plain, target: target, action: action)
+        let button:UIBarButtonItem = UIBarButtonItem(title: title, style: .plain, target: target, action: action)
         navigationItem.rightBarButtonItem = button
         return button
     }
     
     //创建一个自定义右侧导航按钮
-    func createNavigationRightCustomButton(title:String?, image:UIImage?, target:AnyObject, action:Selector) -> UIButton
+    func createNavigationRightCustomButton(_ title:String?, image:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
         let button = createNavigationCustomButton(title, image: image, highlightedImage: nil, target: target, action: action)
         let barButton = UIBarButtonItem(customView: button)
@@ -308,7 +308,7 @@ extension UIViewController
     }
     
     //创建一个自定义右侧导航按钮
-    func createNavigationRightCustomButton(title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
+    func createNavigationRightCustomButton(_ title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
         let button = createNavigationCustomButton(title, image: image, highlightedImage: highlightedImage, target: target, action: action)
         let barButton = UIBarButtonItem(customView: button)
@@ -317,13 +317,13 @@ extension UIViewController
     }
     
     //创建一个自定义左侧导航按钮
-    func createNavigationLeftCustomButton(title:String?, image:UIImage?, target:AnyObject, action:Selector) -> UIButton
+    func createNavigationLeftCustomButton(_ title:String?, image:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
         return createNavigationLeftCustomButton(title, image:image, highlightedImage: nil, target: target, action: action)
     }
     
     //创建一个自定义左侧导航按钮
-    func createNavigationLeftCustomButton(title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
+    func createNavigationLeftCustomButton(_ title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
         let button = createNavigationCustomButton(title, image: image, highlightedImage: highlightedImage, target: target, action: action)
         let barButton = UIBarButtonItem(customView: button)
@@ -331,13 +331,13 @@ extension UIViewController
         return button
     }
     
-    private func createNavigationCustomButton(title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
+    fileprivate func createNavigationCustomButton(_ title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
-        let button = UIButton(type: .System)
-        button.setTitle(title, forState: .Normal)
-        button.setBackgroundImage(image, forState: .Normal)
-        button.setBackgroundImage(highlightedImage, forState: .Highlighted)
-        button.addTarget(target, action: action, forControlEvents: .TouchUpInside)
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: UIControlState())
+        button.setBackgroundImage(image, for: UIControlState())
+        button.setBackgroundImage(highlightedImage, for: .highlighted)
+        button.addTarget(target, action: action, for: .touchUpInside)
         button.sizeToFit()
         return button
     }

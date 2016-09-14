@@ -11,8 +11,8 @@ import UIKit
 
 protocol SWPhotoViewerCellDelegate:NSObjectProtocol
 {
-    func photoViewerCell(cell:SWPhotoViewerCell, didSingleTapAtIndexPath indexPath: NSIndexPath)
-    func photoViewerCell(cell:SWPhotoViewerCell, didLongPressAtIndexPath indexPath: NSIndexPath)
+    func photoViewerCell(_ cell:SWPhotoViewerCell, didSingleTapAtIndexPath indexPath: IndexPath)
+    func photoViewerCell(_ cell:SWPhotoViewerCell, didLongPressAtIndexPath indexPath: IndexPath)
 }
 
 class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
@@ -25,46 +25,46 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         {
             if let progressView = progressView?.view
             {
-                progressView.hidden = true
+                progressView.isHidden = true
                 contentView.insertSubview(progressView, aboveSubview: _scrollView)
-                progressView.frame = CGRectMake((size.width - progressView.width) * 0.5, (size.height - progressView.height) * 0.5, progressView.width, progressView.height)
+                progressView.frame = CGRect(x: (size.width - progressView.width) * 0.5, y: (size.height - progressView.height) * 0.5, width: progressView.width, height: progressView.height)
             }
         }
     }
     
-    var indexPath:NSIndexPath!
+    var indexPath:IndexPath!
     
-    private var selfFrame:CGRect = CGRectZero
+    fileprivate var selfFrame:CGRect = CGRect.zero
     
-    private var _downloader:Downloader = Downloader()
+    fileprivate var _downloader:Downloader = Downloader()
     
     //图片打开前的位置及大小
     var startFrame:CGRect?
     
-    private var _startX:CGFloat = 0
-    private var _startY:CGFloat = 0
+    fileprivate var _startX:CGFloat = 0
+    fileprivate var _startY:CGFloat = 0
     
     //最合适比例，双击时，如果图片大于此比例，则缩小
-    private var _adaptiveScale:CGFloat = 1
+    fileprivate var _adaptiveScale:CGFloat = 1
     
-    private var _adaptivePoint:CGPoint = CGPoint(x: 0, y: 0)
+    fileprivate var _adaptivePoint:CGPoint = CGPoint(x: 0, y: 0)
     
     //图片最大缩放程度
-    private var _maxScale:CGFloat = 0
+    fileprivate var _maxScale:CGFloat = 0
     
-    private var _lastRotation:CGFloat = 0
+    fileprivate var _lastRotation:CGFloat = 0
     
     
-    private var _startScale:CGFloat = 1
+    fileprivate var _startScale:CGFloat = 1
     //捏合时相对imageview的两手指间坐标点
-    private var _pinchCenter:CGPoint = CGPointZero
+    fileprivate var _pinchCenter:CGPoint = CGPoint.zero
     //捏合时相对整个父级容器的两手指间坐标点
-    private var _superPinchCenter:CGPoint = CGPointZero
+    fileprivate var _superPinchCenter:CGPoint = CGPoint.zero
     
     
-    private var _imageView:UIImageView = UIImageView()
+    fileprivate var _imageView:UIImageView = UIImageView()
     
-    lazy private var _scrollView:UIScrollView = UIScrollView()
+    lazy fileprivate var _scrollView:UIScrollView = UIScrollView()
     
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?)
@@ -82,15 +82,15 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         _imageView.removeObserver(self, forKeyPath: "frame")
     }
     
-    var size:CGSize = CGSizeZero
+    var size:CGSize = CGSize.zero
     {
         didSet
         {
-            selfFrame = CGRectMake(0, 0, size.width, size.height)
+            selfFrame = CGRect(x: 0, y: 0, width: size.width, height: size.height)
             _scrollView.frame = selfFrame
             if let progressView = progressView?.view
             {
-                progressView.frame = CGRectMake((size.width - progressView.width) * 0.5, (size.height - progressView.height) * 0.5, progressView.width, progressView.height)
+                progressView.frame = CGRect(x: (size.width - progressView.width) * 0.5, y: (size.height - progressView.height) * 0.5, width: progressView.width, height: progressView.height)
             }
         }
     }
@@ -123,7 +123,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
                 }
                 
                 //大图还没加载完成，则先用小图代替
-                if let thumbImage = photo.thumbImage where largeImage == nil
+                if let thumbImage = photo.thumbImage , largeImage == nil
                 {
                     setupImage(thumbImage)
                 }
@@ -133,11 +133,11 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
     }
     
     //收起消失
-    func dismiss(targetFrame:CGRect? = nil)
+    func dismiss(_ targetFrame:CGRect? = nil)
     {
         if let targetFrame = targetFrame
         {
-            UIView.animateWithDuration(0.3, delay: 0, options: UIViewAnimationOptions.CurveEaseInOut, animations: {
+            UIView.animate(withDuration: 0.3, delay: 0, options: UIViewAnimationOptions(), animations: {
                 self._imageView.frame = targetFrame
                 }, completion: {finish in
                     //self._imageView.image = nil
@@ -146,9 +146,9 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         else
         {
             let scaleOffset:Double = 3 - Double(_imageView.width / _imageView.bounds.width)
-            UIView.animateWithDuration(scaleOffset * 0.2, animations: {
+            UIView.animate(withDuration: scaleOffset * 0.2, animations: {
                 
-                self._imageView.transform = CGAffineTransformMakeScale(3, 3)
+                self._imageView.transform = CGAffineTransform(scaleX: 3, y: 3)
                 self._imageView.alpha = 0
                 
                 }, completion: {(finish:Bool) in
@@ -158,7 +158,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         }
     }
     
-    private func setupImage(image:UIImage, replace:Bool = false)
+    fileprivate func setupImage(_ image:UIImage, replace:Bool = false)
     {
         var replaceFrame:CGRect?
         if replace && _imageView.image != nil && !_imageView.frame.isEmpty
@@ -169,25 +169,25 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         _imageView.alpha = 1
         _imageView.image = image
         let imageSize:CGSize = image.size
-        _imageView.frame = CGRectMake(0, 0, imageSize.width, imageSize.height)
-        _scrollView.contentSize = CGSizeMake(imageSize.width, imageSize.height)
-        _scrollView.contentOffset = CGPointZero
+        _imageView.frame = CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height)
+        _scrollView.contentSize = CGSize(width: imageSize.width, height: imageSize.height)
+        _scrollView.contentOffset = CGPoint.zero
         imageViewSuitSize()
         
         if startFrame != nil || replaceFrame != nil
         {
             let targetFrame:CGRect = _imageView.frame
             _imageView.frame = replaceFrame ?? startFrame!
-            UIView.animateWithDuration(0.3, animations:{
+            UIView.animate(withDuration: 0.3, animations:{
                 //self._imageView.transform = newTransform
                 self._imageView.frame = targetFrame
             })
         }
     }
     
-    private func setup()
+    fileprivate func setup()
     {
-        backgroundColor = UIColor.clearColor()
+        backgroundColor = UIColor.clear
         
         _downloader.startCallback = {[weak self] in
             self?.loadStartCallback()
@@ -199,7 +199,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
             self?.loadProgressCallback(current, totalBytes: total)
         }
         _downloader.completeCallback = {[weak self] data in
-            self?.loadCompleteCallback(data)
+            self?.loadCompleteCallback(data as Data)
         }
         
         //长按弹出菜单选择保存到手机相册或分享
@@ -210,17 +210,17 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         let singleTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageSingleTap(_:)))
         let doubleTapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(imageDoubleTap(_:)))
         doubleTapGestureRecognizer.numberOfTapsRequired = 2
-        singleTapGestureRecognizer.requireGestureRecognizerToFail(doubleTapGestureRecognizer)
+        singleTapGestureRecognizer.require(toFail: doubleTapGestureRecognizer)
         
         let pinchGestureRecognizer:UIPinchGestureRecognizer = UIPinchGestureRecognizer(target: self, action: #selector(imagePinch(_:)))
         
-        _imageView.userInteractionEnabled = true
+        _imageView.isUserInteractionEnabled = true
         _imageView.addGestureRecognizer(longPressGestureRecognizer)
         _imageView.addGestureRecognizer(singleTapGestureRecognizer)
         _imageView.addGestureRecognizer(doubleTapGestureRecognizer)
         _imageView.addGestureRecognizer(pinchGestureRecognizer)
         //_imageView.addGestureRecognizer(rotationGestureRecognizer)
-        _imageView.addObserver(self, forKeyPath: "frame", options: NSKeyValueObservingOptions.New, context: nil)
+        _imageView.addObserver(self, forKeyPath: "frame", options: NSKeyValueObservingOptions.new, context: nil)
         
         _scrollView.delegate = self
         _scrollView.bounces = true
@@ -234,27 +234,27 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         //cellTapGesture.requireGestureRecognizerToFail(singleTapGestureRecognizer)
     }
     
-    private func loadStartCallback()
+    fileprivate func loadStartCallback()
     {
-        progressView?.view.hidden = false
+        progressView?.view.isHidden = false
         progressView?.startAnimating()
         print(progressView?.view.frame)
     }
     
-    private func loadFailCallback(error:NSError)
+    fileprivate func loadFailCallback(_ error:NSError)
     {
-        progressView?.view.hidden = true
+        progressView?.view.isHidden = true
         progressView?.stopAnimating()
     }
     
-    private func loadProgressCallback(loadedBytes:Int, totalBytes:Int)
+    fileprivate func loadProgressCallback(_ loadedBytes:Int, totalBytes:Int)
     {
         var progress:Double = Double(loadedBytes) / Double(totalBytes)
         progress = max(min(progress, 1), 0)
         progressView?.progress = progress
     }
     
-    private func loadCompleteCallback(data:NSData)
+    fileprivate func loadCompleteCallback(_ data:Data)
     {
         if let image = UIImage(data:data)
         {
@@ -262,12 +262,12 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
             setupImage(image, replace: replace)
             SWImageCacheManager.sharedManager().saveOriginImage(data, url: _downloader.url)
         }
-        progressView?.view.hidden = true
+        progressView?.view.isHidden = true
         progressView?.stopAnimating()
     }
     
     //图片尺寸自适应缩放到容器内
-    private func imageViewSuitSize()
+    fileprivate func imageViewSuitSize()
     {
         if _imageView.image != nil
         {
@@ -287,11 +287,11 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
             let imageHeight:CGFloat = image.size.height * _adaptiveScale
             if tooLong
             {
-                _adaptivePoint = CGPointMake(0, 0)
+                _adaptivePoint = CGPoint(x: 0, y: 0)
             }
             else
             {
-                _adaptivePoint = CGPointMake((selfFrame.width - imageWidth) * 0.5, (selfFrame.height - imageHeight) * 0.5)
+                _adaptivePoint = CGPoint(x: (selfFrame.width - imageWidth) * 0.5, y: (selfFrame.height - imageHeight) * 0.5)
             }
             
             _maxScale = 2
@@ -303,50 +303,50 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
                     _maxScale = ViewUtil.getAdaptiveScale(image.size.width, targetH: image.size.height, containerW: selfFrame.width, containerH: selfFrame.height, inscribed: false)
                 }
             }
-            _imageView.transform = CGAffineTransformMakeScale(_adaptiveScale, _adaptiveScale)
-            _imageView.frame = CGRectMake(_adaptivePoint.x, _adaptivePoint.y, imageWidth, imageHeight)
+            _imageView.transform = CGAffineTransform(scaleX: _adaptiveScale, y: _adaptiveScale)
+            _imageView.frame = CGRect(x: _adaptivePoint.x, y: _adaptivePoint.y, width: imageWidth, height: imageHeight)
         }
         
     }
     
-    override func observeValueForKeyPath(keyPath: String?, ofObject object: AnyObject?, change: [String : AnyObject]?, context: UnsafeMutablePointer<Void>) {
-        if let imageView = object as? NSObject where imageView == _imageView && keyPath == "frame"
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if let imageView = object as? NSObject , imageView == _imageView && keyPath == "frame"
         {
-            _scrollView.contentSize = CGSizeMake(_imageView.frame.width, _imageView.frame.height)
+            _scrollView.contentSize = CGSize(width: _imageView.frame.width, height: _imageView.frame.height)
         }
     }
     
     //图片长按保存
-    @objc private func imageLongPress(recognizer:UILongPressGestureRecognizer)
+    @objc fileprivate func imageLongPress(_ recognizer:UILongPressGestureRecognizer)
     {
         //会触发两次长按事件，一次是长按开始的时候，一次是长按结束的时候
-        if recognizer.state == UIGestureRecognizerState.Began
+        if recognizer.state == UIGestureRecognizerState.began
         {
             delegate?.photoViewerCell(self, didLongPressAtIndexPath: indexPath)
         }
     }
     
-    @objc private func cellTapped(recognizer:UITapGestureRecognizer)
+    @objc fileprivate func cellTapped(_ recognizer:UITapGestureRecognizer)
     {
         //println("cellTapped")
         delegate?.photoViewerCell(self, didSingleTapAtIndexPath: indexPath)
     }
     
     //图片单击关闭
-    @objc private func imageSingleTap(recognizer:UITapGestureRecognizer)
+    @objc fileprivate func imageSingleTap(_ recognizer:UITapGestureRecognizer)
     {
         //println("imageSingleTap")
         delegate?.photoViewerCell(self, didSingleTapAtIndexPath: indexPath)
     }
     
     //图片双击
-    @objc private func imageDoubleTap(recognizer:UITapGestureRecognizer)
+    @objc fileprivate func imageDoubleTap(_ recognizer:UITapGestureRecognizer)
     {
         if _imageView.image == nil
         {
             return
         }
-        let touchPoint:CGPoint = recognizer.locationInView(self._imageView)
+        let touchPoint:CGPoint = recognizer.location(in: self._imageView)
         //println("doubleTapPoint:\(touchPoint)")
         let scale:CGFloat = _imageView.transform.a
         let image:UIImage = _imageView.image!
@@ -362,7 +362,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         if zoomIn
         {
             targetScale = _maxScale
-            newTransform = CGAffineTransformMakeScale(targetScale, targetScale)
+            newTransform = CGAffineTransform(scaleX: targetScale, y: targetScale)
             targetWidth = image.size.width * targetScale
             targetHeight = image.size.height * targetScale
             //双击时，双击的点移动到屏幕中间
@@ -409,17 +409,17 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         else
         {
             targetScale = _adaptiveScale
-            newTransform = CGAffineTransformMakeScale(_adaptiveScale, _adaptiveScale)
+            newTransform = CGAffineTransform(scaleX: _adaptiveScale, y: _adaptiveScale)
             targetX = _adaptivePoint.x
             targetY = _adaptivePoint.y
             targetWidth = image.size.width * targetScale
             targetHeight = image.size.height * targetScale
         }
         
-        newFrame = CGRectMake(targetWidth > selfFrame.width ? 0 : targetX, targetHeight > selfFrame.height ? 0 : targetY, targetWidth, targetHeight)
+        newFrame = CGRect(x: targetWidth > selfFrame.width ? 0 : targetX, y: targetHeight > selfFrame.height ? 0 : targetY, width: targetWidth, height: targetHeight)
         //println("newFrame:\(newFrame)")
         
-        UIView.animateWithDuration(0.3, animations:{
+        UIView.animate(withDuration: 0.3, animations:{
             self._imageView.transform = newTransform
             self._imageView.frame = newFrame
             if targetWidth > self.selfFrame.width || targetHeight > self.selfFrame.height
@@ -433,7 +433,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
     
     
     //图片捏合缩放
-    @objc private func imagePinch(recognizer:UIPinchGestureRecognizer)
+    @objc fileprivate func imagePinch(_ recognizer:UIPinchGestureRecognizer)
     {
         let rectView:UIView = recognizer.view! as UIView
         var newFrame:CGRect
@@ -442,25 +442,25 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         var targetHeight:CGFloat = 0
         var targetX:CGFloat = 0
         var targetY:CGFloat = 0
-        if recognizer.state == .Began
+        if recognizer.state == .began
         {
             _startScale = rectView.transform.a
-            _pinchCenter = recognizer.locationInView(_imageView)
-            _superPinchCenter = recognizer.locationInView(self.contentView)
+            _pinchCenter = recognizer.location(in: _imageView)
+            _superPinchCenter = recognizer.location(in: self.contentView)
            //println("_superPinchCenter:\(_superPinchCenter)")
         }
         //为两根手指的中点
         let targetScale:CGFloat = _startScale + (recognizer.scale - 1)
-        let location:CGPoint = recognizer.locationInView(self)
+        let location:CGPoint = recognizer.location(in: self)
         
         targetX = _superPinchCenter.x - _pinchCenter.x * targetScale
         targetY = _superPinchCenter.y - _pinchCenter.y * targetScale
         
-        rectView.transform = CGAffineTransformMakeScale(targetScale, targetScale);
+        rectView.transform = CGAffineTransform(scaleX: targetScale, y: targetScale);
         targetWidth = rectView.frame.width
         targetHeight = rectView.frame.height
         
-        newFrame = CGRectMake(targetWidth >= selfFrame.width ? 0 : targetX, targetHeight >= selfFrame.height ? 0 : targetY, targetWidth, targetHeight)
+        newFrame = CGRect(x: targetWidth >= selfFrame.width ? 0 : targetX, y: targetHeight >= selfFrame.height ? 0 : targetY, width: targetWidth, height: targetHeight)
         
         _imageView.frame = newFrame
         if targetWidth >= self.selfFrame.width || targetHeight >= self.selfFrame.height
@@ -469,7 +469,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         }
         
         //手指捏合完毕，捏合过小或者过大的进行复原
-        if recognizer.state == .Ended
+        if recognizer.state == .ended
         {
             let scale:CGFloat = _imageView.transform.a
             let image:UIImage = _imageView.image!
@@ -484,7 +484,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
                 resize = true
                 relocate = true
                 targetScale = _maxScale
-                newTransform = CGAffineTransformMakeScale(targetScale, targetScale)
+                newTransform = CGAffineTransform(scaleX: targetScale, y: targetScale)
                 targetX = size.width * 0.5 - _pinchCenter.x * targetScale
                 targetY = size.height * 0.5 - _pinchCenter.y * targetScale
                 targetWidth = image.size.width * targetScale
@@ -496,7 +496,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
             {
                 resize = true
                 targetScale = _adaptiveScale
-                newTransform = CGAffineTransformMakeScale(_adaptiveScale, _adaptiveScale)
+                newTransform = CGAffineTransform(scaleX: _adaptiveScale, y: _adaptiveScale)
                 targetX = _adaptivePoint.x
                 targetY = _adaptivePoint.y
                 targetWidth = image.size.width * _adaptiveScale
@@ -505,7 +505,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
             else
             {
                 relocate = true
-                newTransform = CGAffineTransformIdentity
+                newTransform = CGAffineTransform.identity
                 targetWidth = _imageView.frame.width
                 targetHeight = _imageView.frame.height
                 targetX = targetWidth >= selfFrame.width ? -self._scrollView.contentOffset.x : _imageView.frame.origin.x
@@ -548,11 +548,11 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
                     targetY = (selfFrame.height - targetHeight) * 0.5
                 }
             }
-            newFrame = CGRectMake(targetWidth >= selfFrame.width ? 0 : targetX, targetHeight >= selfFrame.height ? 0 : targetY, targetWidth, targetHeight)
+            newFrame = CGRect(x: targetWidth >= selfFrame.width ? 0 : targetX, y: targetHeight >= selfFrame.height ? 0 : targetY, width: targetWidth, height: targetHeight)
             if resize
             {
                 
-                UIView.animateWithDuration(0.3, animations:{
+                UIView.animate(withDuration: 0.3, animations:{
                     self._imageView.transform = newTransform
                     self._imageView.frame = newFrame
                     })
@@ -564,7 +564,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
             }
             else if relocate
             {
-                UIView.animateWithDuration(0.3, animations:{
+                UIView.animate(withDuration: 0.3, animations:{
                     
                     self._imageView.frame = newFrame
                     if targetWidth >= self.selfFrame.width || targetHeight >= self.selfFrame.height

@@ -11,26 +11,26 @@ import UIKit
 class ImageTextField: UITextField
 {
     
-    var leftViewInset:UIEdgeInsets = UIEdgeInsetsZero
-    var textInset:UIEdgeInsets = UIEdgeInsetsZero
+    var leftViewInset:UIEdgeInsets = UIEdgeInsets.zero
+    var textInset:UIEdgeInsets = UIEdgeInsets.zero
     
-    override func leftViewRectForBounds(bounds: CGRect) -> CGRect
+    override func leftViewRect(forBounds bounds: CGRect) -> CGRect
     {
-        var iconRect:CGRect = super.leftViewRectForBounds(bounds)
+        var iconRect:CGRect = super.leftViewRect(forBounds: bounds)
         iconRect.origin.x += (leftView == nil ? 0 : leftViewInset.left)
         return iconRect
     }
     
-    override func textRectForBounds(bounds: CGRect) -> CGRect
+    override func textRect(forBounds bounds: CGRect) -> CGRect
     {
-        var textRect:CGRect = super.textRectForBounds(bounds)
+        var textRect:CGRect = super.textRect(forBounds: bounds)
         textRect.origin.x += (leftView == nil ? 0 : leftViewInset.right) + textInset.left
         return textRect
     }
     
-    override func editingRectForBounds(bounds: CGRect) -> CGRect
+    override func editingRect(forBounds bounds: CGRect) -> CGRect
     {
-        var textRect:CGRect = super.editingRectForBounds(bounds)
+        var textRect:CGRect = super.editingRect(forBounds: bounds)
         textRect.origin.x += (leftView == nil ? 0 : leftViewInset.right) + textInset.left
         return textRect
     }

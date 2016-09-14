@@ -24,24 +24,24 @@ class Math: NSObject
         return Double(arc4random_uniform(UInt32.max)) / Double(UInt32.max)
     }
     
-    class func random(range:Range<Int>) -> Int
+    class func random(_ range:Range<Int>) -> Int
     {
-        return range.startIndex + Int(arc4random_uniform(UInt32(range.endIndex - range.startIndex)))
+        return range.lowerBound + Int(arc4random_uniform(UInt32(range.upperBound - range.lowerBound)))
     }
     
-    class func random(value:Int) -> Int
+    class func random(_ value:Int) -> Int
     {
         return Int(arc4random_uniform(UInt32(value)))
     }
     
     //角度转弧度
-    class func degreeToRadian(degree:CGFloat) -> CGFloat
+    class func degreeToRadian(_ degree:CGFloat) -> CGFloat
     {
         return degree * CGFloat(M_PI) / 180
     }
     
     //弧度转角度
-    class func radianToDegree(radian:CGFloat) -> CGFloat
+    class func radianToDegree(_ radian:CGFloat) -> CGFloat
     {
         return radian / CGFloat(M_PI) * 180
     }

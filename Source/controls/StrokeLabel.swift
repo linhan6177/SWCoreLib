@@ -21,26 +21,26 @@ class StrokeLabel: UILabel
         }
     }
     
-    override func drawTextInRect(rect: CGRect)
+    override func drawText(in rect: CGRect)
     {
         let TempTextColor:UIColor = textColor
         
         if let context = UIGraphicsGetCurrentContext()
         {
-            CGContextSetLineWidth(context, strokeSize);
-            CGContextSetLineJoin(context, CGLineJoin.Round);
+            context.setLineWidth(strokeSize);
+            context.setLineJoin(CGLineJoin.round);
             
             
-            CGContextSetTextDrawingMode(context, CGTextDrawingMode.Stroke)
+            context.setTextDrawingMode(CGTextDrawingMode.stroke)
             if strokeColor != nil
             {
                 textColor = strokeColor
-                super.drawTextInRect(rect)
+                super.drawText(in: rect)
             }
             
-            CGContextSetTextDrawingMode(context, CGTextDrawingMode.Fill)
+            context.setTextDrawingMode(CGTextDrawingMode.fill)
             textColor = TempTextColor
-            super.drawTextInRect(rect)
+            super.drawText(in: rect)
         }
         
     }

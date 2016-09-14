@@ -12,25 +12,25 @@ extension UITabBarController
 {
     
     //控制各子ViewController的状态栏 样式（白色、黑色）
-    public override func childViewControllerForStatusBarStyle() -> UIViewController?
+    open override var childViewControllerForStatusBarStyle : UIViewController?
     {
         //print("UITabBarController childViewControllerForStatusBarStyle")
         return selectedViewController
     }
     
-    public override func preferredStatusBarStyle() -> UIStatusBarStyle
+    open override var preferredStatusBarStyle : UIStatusBarStyle
     {
-        return selectedViewController?.preferredStatusBarStyle() ?? UIStatusBarStyle.Default
+        return selectedViewController?.preferredStatusBarStyle ?? UIStatusBarStyle.default
     }
     
-    public override func prefersStatusBarHidden()->Bool
+    open override var prefersStatusBarHidden:Bool
     {
-        return selectedViewController?.prefersStatusBarHidden() ??  false
+        return selectedViewController?.prefersStatusBarHidden ??  false
     }
     
-    public override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation
+    open override var preferredStatusBarUpdateAnimation : UIStatusBarAnimation
     {
-        return selectedViewController?.preferredStatusBarUpdateAnimation() ?? UIStatusBarAnimation.Fade
+        return selectedViewController?.preferredStatusBarUpdateAnimation ?? UIStatusBarAnimation.fade
     }
 }
 
@@ -38,25 +38,25 @@ extension UINavigationController
 {
     
     //控制各子ViewController的状态栏 样式（白色、黑色）
-    public override func childViewControllerForStatusBarStyle() -> UIViewController?
+    open override var childViewControllerForStatusBarStyle : UIViewController?
     {
         //print("UINavigationController childViewControllerForStatusBarStyle")
         return topViewController
     }
     
-    public override func preferredStatusBarStyle() -> UIStatusBarStyle
+    open override var preferredStatusBarStyle : UIStatusBarStyle
     {
-        return topViewController?.preferredStatusBarStyle() ?? UIStatusBarStyle.Default
+        return topViewController?.preferredStatusBarStyle ?? UIStatusBarStyle.default
     }
     
-    public override func prefersStatusBarHidden()->Bool
+    open override var prefersStatusBarHidden:Bool
     {
-        return topViewController?.prefersStatusBarHidden() ??  false
+        return topViewController?.prefersStatusBarHidden ??  false
     }
     
-    public override func preferredStatusBarUpdateAnimation() -> UIStatusBarAnimation
+    open override var preferredStatusBarUpdateAnimation : UIStatusBarAnimation
     {
-        return topViewController?.preferredStatusBarUpdateAnimation() ?? UIStatusBarAnimation.Fade
+        return topViewController?.preferredStatusBarUpdateAnimation ?? UIStatusBarAnimation.fade
     }
 
 }

@@ -11,7 +11,7 @@ import Foundation
    import UIKit 
 #endif
 
-public class ViewUtil:NSObject
+open class ViewUtil:NSObject
 {
     
     /**
@@ -23,7 +23,7 @@ public class ViewUtil:NSObject
     * @param	inscribed		是否是内切缩放(分为最大内切跟最小外切两种方法)
     * @return	自适应缩放比例
     */
-    class func getAdaptiveScale(targetW:CGFloat, targetH:CGFloat, containerW:CGFloat, containerH:CGFloat, inscribed:Bool = true)->CGFloat
+    class func getAdaptiveScale(_ targetW:CGFloat, targetH:CGFloat, containerW:CGFloat, containerH:CGFloat, inscribed:Bool = true)->CGFloat
     {
         let widthRate:CGFloat = targetW / containerW;
         let heightRate:CGFloat = targetH / containerH;

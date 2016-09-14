@@ -10,14 +10,14 @@ import Foundation
 import UIKit
 class IncrementProgressView: UIView
 {
-    private var _color:UIColor = UIColor()
+    fileprivate var _color:UIColor = UIColor()
     
-    private var _running:Bool = false
-    private var _finished:Bool = false
-    private var _loaded:CGFloat = 0
-    private var _increment:CGFloat = 0.1
+    fileprivate var _running:Bool = false
+    fileprivate var _finished:Bool = false
+    fileprivate var _loaded:CGFloat = 0
+    fileprivate var _increment:CGFloat = 0.1
     
-    private var _progressView:UIView = UIView()
+    fileprivate var _progressView:UIView = UIView()
     
     var color:UIColor
     {
@@ -40,10 +40,10 @@ class IncrementProgressView: UIView
     override init(frame: CGRect)
     {
         super.init(frame: frame)
-        self.backgroundColor = UIColor.clearColor()
-        _progressView.frame = CGRectMake(0, 0, 0, frame.height)
+        self.backgroundColor = UIColor.clear
+        _progressView.frame = CGRect(x: 0, y: 0, width: 0, height: frame.height)
         self.addSubview(_progressView)
-        color = UIColor.blueColor()
+        color = UIColor.blue
     }
 
     required init(coder aDecoder: NSCoder) {
@@ -82,9 +82,9 @@ class IncrementProgressView: UIView
         
     }
     
-    private func run()
+    fileprivate func run()
     {
-        UIView.animateWithDuration(0.4, animations: {
+        UIView.animate(withDuration: 0.4, animations: {
             
                 self._progressView.width = self._loaded * self.width
             
@@ -94,7 +94,7 @@ class IncrementProgressView: UIView
                 if self._finished
                 {
                     self._running = false
-                    UIView.animateWithDuration(0.4, animations: {
+                    UIView.animate(withDuration: 0.4, animations: {
                         
                         self._progressView.width = self.width
                         self._progressView.alpha = 0

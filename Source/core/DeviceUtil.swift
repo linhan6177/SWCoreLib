@@ -14,7 +14,7 @@ class DeviceUtil: NSObject
     
     class var UDID:String
     {
-        return UIDevice.currentDevice().identifierForVendor?.UUIDString ?? ""
+        return UIDevice.current.identifierForVendor?.uuidString ?? ""
     }
     
     

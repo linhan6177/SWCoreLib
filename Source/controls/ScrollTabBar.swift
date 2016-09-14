@@ -10,14 +10,14 @@ import Foundation
 import UIKit
 @objc protocol ScrollTabBarDelegate:NSObjectProtocol
 {
-    func scrollTabBar(tabBar: ScrollTabBar, didSelectIndex index: Int)
+    func scrollTabBar(_ tabBar: ScrollTabBar, didSelectIndex index: Int)
 }
 
 class ScrollTabBar:UIView
 {
-    private var tabbar:UITabBar?
+    fileprivate var tabbar:UITabBar?
     
-    var selectedColor:UIColor = UIColor.redColor()
+    var selectedColor:UIColor = UIColor.red
     {
         didSet
         {
@@ -25,7 +25,7 @@ class ScrollTabBar:UIView
         }
     }
     
-    var unselectedColor:UIColor = UIColor.darkGrayColor()
+    var unselectedColor:UIColor = UIColor.darkGray
     
     //当内容宽度小于容器宽度的时候，内容是左对齐还是居中对齐
     var alignment:NSTextAlignment?
@@ -38,13 +38,13 @@ class ScrollTabBar:UIView
     
     weak var delegate:ScrollTabBarDelegate?
     
-    private var _selectedIndex:Int = -1
+    fileprivate var _selectedIndex:Int = -1
     
-    private var _overflow:Bool = false
+    fileprivate var _overflow:Bool = false
     
-    private var tab:UITabBar?
+    fileprivate var tab:UITabBar?
     
-    private var _defaultFont:UIFont = UIFont.systemFontOfSize(14)
+    fileprivate var _defaultFont:UIFont = UIFont.systemFont(ofSize: 14)
     var font:UIFont
     {
         get
@@ -57,22 +57,22 @@ class ScrollTabBar:UIView
         }
     }
     
-    private var _items:[String]?
+    fileprivate var _items:[String]?
     
-    private var _buttons:[UILabel] = []
+    fileprivate var _buttons:[UILabel] = []
     
-    private var _cacheButtons:[UILabel] = []
+    fileprivate var _cacheButtons:[UILabel] = []
     
-    private var _scrollView:UIScrollView
+    fileprivate var _scrollView:UIScrollView
     
-    private var _buttonContainer:UIView
+    fileprivate var _buttonContainer:UIView
     
-    lazy private var _signView:UIView = UIView()
+    lazy fileprivate var _signView:UIView = UIView()
     
     override init(frame: CGRect)
     {
-        _buttonContainer = UIView(frame: CGRectMake(0, 0, 0, frame.height))
-        _scrollView = UIScrollView(frame: CGRectMake(0, 0, frame.width, frame.height))
+        _buttonContainer = UIView(frame: CGRect(x: 0, y: 0, width: 0, height: frame.height))
+        _scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: frame.width, height: frame.height))
         super.init(frame: frame)
         
         
@@ -84,7 +84,7 @@ class ScrollTabBar:UIView
     }
     
     //是否显示下划线
-    private var _underline:Bool = false
+    fileprivate var _underline:Bool = false
     var underline:Bool
     {
         get
@@ -94,7 +94,7 @@ class ScrollTabBar:UIView
         set
         {
             _underline = newValue
-            _signView.hidden = !newValue
+            _signView.isHidden = !newValue
         }
     }
     
@@ -102,7 +102,7 @@ class ScrollTabBar:UIView
     {
         didSet
         {
-            _signView.frame = CGRectMake(0, 0, 0, underlineBorderWidth)
+            _signView.frame = CGRect(x: 0, y: 0, width: 0, height: underlineBorderWidth)
         }
     }
     
@@ -123,14 +123,14 @@ class ScrollTabBar:UIView
             //先移除全部
             for i in 0..<_buttons.count
             {
-                button = _buttons.removeAtIndex(i)
+                button = _buttons.remove(at: i)
                 button.removeFromSuperview()
                 
                 _cacheButtons.append(button)
             }
             
             
-            if let items = _items where items.count > 0
+            if let items = _items , items.count > 0
             {
                 //不够用时进行创建
                 var numNeedCreate:Int = items.count - _cacheButtons.count
@@ -141,10 +141,10 @@ class ScrollTabBar:UIView
                     button = UILabel()
                     button.font = _defaultFont
                     button.textColor = unselectedColor
-                    button.textAlignment = .Center
-                    button.userInteractionEnabled = true
+                    button.textAlignment = .center
+                    button.isUserInteractionEnabled = true
                     //button.addTarget(self, action: "buttonTouched:", forControlEvents: UIControlEvents.TouchUpInside)
-                    let gesture:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: "buttonTaped:")
+                    let gesture:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(ScrollTabBar.buttonTaped(_:)))
                     button.addGestureRecognizer(gesture)
                     _cacheButtons.append(button)
                 }
@@ -156,14 +156,14 @@ class ScrollTabBar:UIView
                     button.text = items[i]
                     button.sizeToFit()
                     let ButtonWidth:CGFloat = max(button.width, 44)
-                    button.frame = CGRectMake(lastRight + (i > 0 ? itemSpacing : 0), 0, ButtonWidth, _buttonContainer.height)
+                    button.frame = CGRect(x: lastRight + (i > 0 ? itemSpacing : 0), y: 0, width: ButtonWidth, height: _buttonContainer.height)
                     lastRight = button.x + ButtonWidth
                     lastBottom = button.y + button.height
                     _buttons.append(button)
                     _buttonContainer.addSubview(button)
                 }
                 button = _cacheButtons[0]
-                _signView.frame = CGRectMake(button.x, _buttonContainer.height - _signView.height, button.width, underlineBorderWidth)
+                _signView.frame = CGRect(x: button.x, y: _buttonContainer.height - _signView.height, width: button.width, height: underlineBorderWidth)
             }
             let contentWidth:CGFloat = lastRight + rightMargin
             _overflow = contentWidth > self.width
@@ -171,12 +171,12 @@ class ScrollTabBar:UIView
             _buttonContainer.width = contentWidth
             var buttonContainerX:CGFloat = 0
             //当内容宽度小于容器宽度，可选择内容是居中对齐还是左对齐
-            if !_overflow && alignment != nil && alignment == NSTextAlignment.Center
+            if !_overflow && alignment != nil && alignment == NSTextAlignment.center
             {
                 buttonContainerX = (self.width - contentWidth) * 0.5
             }
             _buttonContainer.x = buttonContainerX
-            _scrollView.contentSize = CGSizeMake(contentWidth, self.height)
+            _scrollView.contentSize = CGSize(width: contentWidth, height: self.height)
             selectedIndex = _selectedIndex
         }
     }
@@ -190,7 +190,7 @@ class ScrollTabBar:UIView
         set
         {
             var button:UILabel
-            if let items = _items where items.count > 0 && _selectedIndex >= 0 && _selectedIndex < items.count
+            if let items = _items , items.count > 0 && _selectedIndex >= 0 && _selectedIndex < items.count
             {
                 button = _buttons[_selectedIndex]
                 button.textColor = unselectedColor
@@ -198,11 +198,11 @@ class ScrollTabBar:UIView
             
             _selectedIndex = newValue
             
-            if let items = _items where items.count > 0 && _selectedIndex >= 0 && _selectedIndex < items.count
+            if let items = _items , items.count > 0 && _selectedIndex >= 0 && _selectedIndex < items.count
             {
                 if underline
                 {
-                    _signView.hidden = false
+                    _signView.isHidden = false
                 }
                 
                 button = _buttons[_selectedIndex]
@@ -216,30 +216,30 @@ class ScrollTabBar:UIView
                     let offsetX:CGFloat = min(max(button.center.x -  width * 0.5, 0), _buttonContainer.width - width)
                     if offsetX != _scrollView.contentOffset.x
                     {
-                        UIView.animateWithDuration(0.3, animations: {
-                            self._scrollView.contentOffset = CGPointMake(offsetX, 0)
+                        UIView.animate(withDuration: 0.3, animations: {
+                            self._scrollView.contentOffset = CGPoint(x: offsetX, y: 0)
                         })
                     }
                 }
                 
-                UIView.animateWithDuration(0.3, animations: {
-                    self._signView.frame = CGRectMake(buttonRect.origin.x, self._signView.y, buttonRect.width, self.underlineBorderWidth)
+                UIView.animate(withDuration: 0.3, animations: {
+                    self._signView.frame = CGRect(x: buttonRect.origin.x, y: self._signView.y, width: buttonRect.width, height: self.underlineBorderWidth)
                 })
             }
             else
             {
-                _signView.hidden = true
+                _signView.isHidden = true
             }
             
             
         }//end of set
     }
     
-    private func setup()
+    fileprivate func setup()
     {
         underlineBorderWidth = 1.5
-        _signView.backgroundColor = UIColor.redColor()
-        _signView.hidden = !underline
+        _signView.backgroundColor = UIColor.red
+        _signView.isHidden = !underline
         _buttonContainer.addSubview(_signView)
         _scrollView.addSubview(_buttonContainer)
         _scrollView.showsHorizontalScrollIndicator = false
@@ -247,20 +247,20 @@ class ScrollTabBar:UIView
     }
     
     //按钮
-    @objc private func buttonTouched(button:UIButton)
+    @objc fileprivate func buttonTouched(_ button:UIButton)
     {
         let index:Int = button.tag
         selectedIndex = index
     }
     
-    @objc private func buttonTaped(gesture:UITapGestureRecognizer)
+    @objc fileprivate func buttonTaped(_ gesture:UITapGestureRecognizer)
     {
         if let label = gesture.view as? UILabel
         {
             let index:Int = label.tag
             let oldSelectedIndex:Int = _selectedIndex
             selectedIndex = index
-            if let items = _items where items.count > 0 && _selectedIndex >= 0 && _selectedIndex < items.count
+            if let items = _items , items.count > 0 && _selectedIndex >= 0 && _selectedIndex < items.count
             {
                 if oldSelectedIndex != index
                 {

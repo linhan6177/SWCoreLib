@@ -17,14 +17,14 @@ public var iOS8:Bool
 {
     if _ios8 == nil
     {
-        _ios8 = (UIDevice.currentDevice().systemVersion as NSString).floatValue >= 8
+        _ios8 = (UIDevice.current.systemVersion as NSString).floatValue >= 8
     }
     return _ios8!
 }
 #endif
 
 typealias SetTimeoutCallbackHandler = () -> Void
-typealias SetTimeoutWithArgsCallbackHandler = ([NSObject:AnyObject]?) -> Void
+typealias SetTimeoutWithArgsCallbackHandler = ([AnyHashable: Any]?) -> Void
 struct SWGlobalStaticClass
 {
     
@@ -36,7 +36,7 @@ class TimerObject
     var id:String
     var callback:SetTimeoutCallbackHandler?
     var callbackWithArgs:SetTimeoutWithArgsCallbackHandler?
-    weak var timer:NSTimer?
+    weak var timer:Timer?
     
     init(id:String, callback:SetTimeoutCallbackHandler?, callbackWithArgs:SetTimeoutWithArgsCallbackHandler?)
     {
@@ -56,9 +56,9 @@ class TimerObject
         timer = nil
     }
     
-    @objc private func delay(timer:NSTimer)
+    @objc fileprivate func delay(_ timer:Timer)
     {
-        let args:[NSObject:AnyObject]? = timer.userInfo as? [NSObject:AnyObject]
+        let args:[AnyHashable: Any]? = timer.userInfo as? [AnyHashable: Any]
         if args != nil
         {
             callbackWithArgs?(args!)
@@ -70,9 +70,9 @@ class TimerObject
         clearTimeout(id)
     }
     
-    @objc private func interval(timer:NSTimer)
+    @objc fileprivate func interval(_ timer:Timer)
     {
-        let args:[NSObject:AnyObject]? = timer.userInfo as? [NSObject:AnyObject]
+        let args:[AnyHashable: Any]? = timer.userInfo as? [AnyHashable: Any]
         if args != nil
         {
             callbackWithArgs?(args!)
@@ -84,67 +84,67 @@ class TimerObject
     }
 }
 
-func setTimeout(delay:Double, closure:SetTimeoutCallbackHandler) -> String
+func setTimeout(_ delay:Double, closure:@escaping SetTimeoutCallbackHandler) -> String
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: closure, callbackWithArgs:nil)
-    dispatch_async(dispatch_get_main_queue(), {
-        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: nil, repeats: false)
+    DispatchQueue.main.async(execute: {
+        timerObject.timer = Timer.scheduledTimer(timeInterval: delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: nil, repeats: false)
     })
     SWGlobalStaticClass.timers.append(timerObject)
     return id
 }
 
-func setTimeoutWithArgs(delay:Double, closure:SetTimeoutWithArgsCallbackHandler, args:[NSObject:AnyObject]) -> String
+func setTimeoutWithArgs(_ delay:Double, closure:@escaping SetTimeoutWithArgsCallbackHandler, args:[AnyHashable: Any]) -> String
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: nil, callbackWithArgs:closure)
-    dispatch_async(dispatch_get_main_queue(), {
-        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: args, repeats: false)
+    DispatchQueue.main.async(execute: {
+        timerObject.timer = Timer.scheduledTimer(timeInterval: delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: args, repeats: false)
     })
     SWGlobalStaticClass.timers.append(timerObject)
     return id
 }
 
-func setInterval(delay:Double, closure:SetTimeoutCallbackHandler) -> String
+func setInterval(_ delay:Double, closure:@escaping SetTimeoutCallbackHandler) -> String
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: closure, callbackWithArgs:nil)
-    dispatch_async(dispatch_get_main_queue(), {
-        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: nil, repeats: true)
+    DispatchQueue.main.async(execute: {
+        timerObject.timer = Timer.scheduledTimer(timeInterval: delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: nil, repeats: true)
     })
     SWGlobalStaticClass.timers.append(timerObject)
     return id
 }
 
-func setIntervalWithArgs(delay:Double, closure:SetTimeoutWithArgsCallbackHandler, args:[NSObject:AnyObject]) -> String
+func setIntervalWithArgs(_ delay:Double, closure:@escaping SetTimeoutWithArgsCallbackHandler, args:[AnyHashable: Any]) -> String
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: nil, callbackWithArgs:closure)
-    dispatch_async(dispatch_get_main_queue(), {
-        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: args, repeats: true)
+    DispatchQueue.main.async(execute: {
+        timerObject.timer = Timer.scheduledTimer(timeInterval: delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: args, repeats: true)
     })
     SWGlobalStaticClass.timers.append(timerObject)
     return id
 }
 
-func clearInterval(id:String)
+func clearInterval(_ id:String)
 {
     clearTimeout(id)
 }
 
-func clearTimeout(id:String)
+func clearTimeout(_ id:String)
 {
     if id != ""
     {
         let count:Int = SWGlobalStaticClass.timers.count
-        for i in (0..<count).reverse()
+        for i in (0..<count).reversed()
         {
             let timerObject = SWGlobalStaticClass.timers[i]
             if timerObject.id == id
             {
                 timerObject.invalidate()
-                SWGlobalStaticClass.timers.removeAtIndex(i)
+                SWGlobalStaticClass.timers.remove(at: i)
             }
         }
     }

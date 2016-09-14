@@ -11,21 +11,21 @@ import UIKit
 
 class ButtonUtil
 {
-    class func createTextImageVerticalButton(title:String, imageSize:CGSize, fontSize:CGFloat, gap:CGFloat = 10)->UIButton
+    class func createTextImageVerticalButton(_ title:String, imageSize:CGSize, fontSize:CGFloat, gap:CGFloat = 10)->UIButton
     {
-        let button:UIButton = UIButton(type:.Custom)
+        let button:UIButton = UIButton(type:.custom)
         //button.backgroundColor = UIColor.darkGrayColor()
-        let font:UIFont = UIFont.systemFontOfSize(fontSize)
+        let font:UIFont = UIFont.systemFont(ofSize: fontSize)
         let ImageWidth:CGFloat = imageSize.width
         let ImageHeight:CGFloat = imageSize.height
         let TextWidth:CGFloat = StringUtil.getStringWidth(title, font: font)
         let height = imageSize.height + gap + font.lineHeight
         let width = max(ImageWidth, TextWidth)
-        button.frame = CGRectMake(0, 0, width, height)
+        button.frame = CGRect(x: 0, y: 0, width: width, height: height)
         button.imageEdgeInsets = UIEdgeInsets(top: -((height - imageSize.height) * 1), left: (width - ImageWidth) * 0.5, bottom: 0, right: 0)
         button.titleEdgeInsets = UIEdgeInsets(top: ImageHeight + gap, left: -TextWidth - (ImageWidth - TextWidth), bottom: 0, right: 0)
         button.titleLabel?.font = font
-        button.setTitle(title, forState: .Normal)
+        button.setTitle(title, for: UIControlState())
         return button
     }
 }
@@ -34,7 +34,7 @@ extension UIButton
 {
     
     
-    public func setImageURL(url:String, forState state:UIControlState)
+    public func setImageURL(_ url:String, forState state:UIControlState)
     {
         /**
         var loader:Downloader = Downloader()
@@ -53,16 +53,14 @@ extension UIButton
         loader.load(url, data: nil)
 **/
         
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-            {
-                let nsurl:NSURL? = NSURL(string:url)
-                let nsData:NSData? = nsurl != nil ? NSData(contentsOfURL:nsurl!) : nil
+        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: {
+                let nsurl:URL? = URL(string:url)
+                let nsData:Data? = nsurl != nil ? (try? Data(contentsOf: nsurl!)) : nil
                 if nsData != nil
                 {
                     let image:UIImage? = UIImage(data:nsData!, scale:2)
-                    dispatch_async(dispatch_get_main_queue(),
-                        {
-                            self.setImage(image, forState: state)
+                    DispatchQueue.main.async(execute: {
+                            self.setImage(image, for: state)
                     });
                 }
         });

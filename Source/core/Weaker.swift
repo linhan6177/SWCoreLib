@@ -60,7 +60,7 @@ class WeakObject<T: AnyObject>: Equatable, Hashable {
     }
     
     var hashValue: Int {
-        if let object = self.object { return unsafeAddressOf(object).hashValue }
+        if let object = self.object { return Unmanaged.passUnretained(object).toOpaque().hashValue }
         else { return 0 }
     }
 }
@@ -85,22 +85,22 @@ class WeakObjectSet<T: AnyObject> {
         return objects.flatMap { $0.object }
     }
     
-    func contains(object: T) -> Bool {
+    func contains(_ object: T) -> Bool {
         return self.objects.contains(WeakObject(object: object))
     }
     
-    func addObject(object: T) {
-        self.objects.unionInPlace([WeakObject(object: object)])
+    func addObject(_ object: T) {
+        self.objects.formUnion([WeakObject(object: object)])
         
     }
     
-    func addObjects(objects: [T]) {
-        self.objects.unionInPlace(objects.map { WeakObject(object: $0) })
+    func addObjects(_ objects: [T]) {
+        self.objects.formUnion(objects.map { WeakObject(object: $0) })
     }
     
-    func removeObject(object: T) {
-        if let index = objects.indexOf(WeakObject(object: object)){
-            objects.removeAtIndex(index)
+    func removeObject(_ object: T) {
+        if let index = objects.index(of: WeakObject(object: object)){
+            objects.remove(at: index)
         }
     }
     

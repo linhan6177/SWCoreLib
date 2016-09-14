@@ -15,19 +15,19 @@ import UIKit
 //在询问UITabBarController，将转向控制权交由当前选中的ViewController自行处理
 extension UITabBarController
 {
-    override public func supportedInterfaceOrientations() -> UIInterfaceOrientationMask
+    override open var supportedInterfaceOrientations : UIInterfaceOrientationMask
     {
-        return selectedViewController?.supportedInterfaceOrientations() ?? super.supportedInterfaceOrientations()
+        return selectedViewController?.supportedInterfaceOrientations ?? super.supportedInterfaceOrientations
     }
     
-    override public func shouldAutorotate()->Bool
+    override open var shouldAutorotate:Bool
     {
-        return selectedViewController?.shouldAutorotate() ?? true
+        return selectedViewController?.shouldAutorotate ?? true
     }
     
-    override public func preferredInterfaceOrientationForPresentation() -> UIInterfaceOrientation
+    override open var preferredInterfaceOrientationForPresentation : UIInterfaceOrientation
     {
-        return selectedViewController?.preferredInterfaceOrientationForPresentation() ?? super.preferredInterfaceOrientationForPresentation()
+        return selectedViewController?.preferredInterfaceOrientationForPresentation ?? super.preferredInterfaceOrientationForPresentation
     }
 }
 
@@ -36,19 +36,19 @@ extension UITabBarController
 //注意：AppDelegate 中需加上 supportedInterfaceOrientationsForWindow
 extension UINavigationController
 {
-    override public func supportedInterfaceOrientations() -> UIInterfaceOrientationMask
+    override open var supportedInterfaceOrientations : UIInterfaceOrientationMask
     {
-        return topViewController?.supportedInterfaceOrientations() ?? super.supportedInterfaceOrientations()
+        return topViewController?.supportedInterfaceOrientations ?? super.supportedInterfaceOrientations
     }
     
-    override public func shouldAutorotate()->Bool
+    override open var shouldAutorotate:Bool
     {
-        return topViewController?.shouldAutorotate() ?? true
+        return topViewController?.shouldAutorotate ?? true
     }
     
-    override public func preferredInterfaceOrientationForPresentation() -> UIInterfaceOrientation
+    override open var preferredInterfaceOrientationForPresentation : UIInterfaceOrientation
     {
-        return topViewController?.preferredInterfaceOrientationForPresentation() ?? super.preferredInterfaceOrientationForPresentation()
+        return topViewController?.preferredInterfaceOrientationForPresentation ?? super.preferredInterfaceOrientationForPresentation
     }
 }
 

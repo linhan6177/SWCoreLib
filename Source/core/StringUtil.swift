@@ -52,12 +52,12 @@ extension String
     
     //文字替换
     //"aaBBcc".replaceString("aa", with:"dd") //ddBBcc
-    func replaceString(val:String, with replacement:String, greed:Bool = true) -> String
+    func replaceString(_ val:String, with replacement:String, greed:Bool = true) -> String
     {
         var returnString:String = self
-        if let range:Range<String.Index> = returnString.rangeOfString(val)
+        if let range:Range<String.Index> = returnString.range(of: val)
         {
-            returnString.replaceRange(range, with: replacement)
+            returnString.replaceSubrange(range, with: replacement)
             if greed
             {
                 returnString = returnString.replaceString(val, with: replacement, greed: true)
@@ -68,10 +68,10 @@ extension String
     
 }
 
-public class StringUtil:NSObject
+open class StringUtil:NSObject
 {
     //获取随机字符
-    class func getUniqid(length:Int)->String
+    class func getUniqid(_ length:Int)->String
     {
         let CHARS:[String] = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9"]
         var uniqid:String = "";
@@ -89,45 +89,45 @@ public class StringUtil:NSObject
     //版本号比较
     //operation操作符(< <= == >= >)
     //如果符合条件，返回true
-    public class func versionCompare(lhs:String, rhs:String, operation:String) -> Bool
+    open class func versionCompare(_ lhs:String, rhs:String, operation:String) -> Bool
     {
-        let result:NSComparisonResult = lhs.compare(rhs, options: NSStringCompareOptions.NumericSearch)
+        let result:ComparisonResult = lhs.compare(rhs, options: NSString.CompareOptions.numeric)
         switch operation
         {
         case "<":
-            return result == NSComparisonResult.OrderedAscending
+            return result == ComparisonResult.orderedAscending
         case "<=":
-            return result == NSComparisonResult.OrderedAscending || result == NSComparisonResult.OrderedSame
+            return result == ComparisonResult.orderedAscending || result == ComparisonResult.orderedSame
         case "==":
-            return result == NSComparisonResult.OrderedSame
+            return result == ComparisonResult.orderedSame
         case ">=":
-            return result == NSComparisonResult.OrderedDescending || result == NSComparisonResult.OrderedSame
+            return result == ComparisonResult.orderedDescending || result == ComparisonResult.orderedSame
         case ">" :
-            return result == NSComparisonResult.OrderedDescending
+            return result == ComparisonResult.orderedDescending
         default:
             return false
         }
     }
     
     //获取已知文字在限定宽度内布局后的高度
-    class func getStringHeight(text:String, font:SWFont, width:CGFloat, lineSpacing:CGFloat = 2) -> CGFloat
+    class func getStringHeight(_ text:String, font:SWFont, width:CGFloat, lineSpacing:CGFloat = 2) -> CGFloat
     {
-        let size = CGSizeMake(width, CGFloat.max)
+        let size = CGSize(width: width, height: CGFloat.greatestFiniteMagnitude)
         let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineBreakMode = .ByWordWrapping;
+        paragraphStyle.lineBreakMode = .byWordWrapping;
         paragraphStyle.lineSpacing = lineSpacing
         let  attributes = [NSFontAttributeName:font,
             NSParagraphStyleAttributeName:paragraphStyle.copy()]
-        let rect = text.boundingRectWithSize(size, options:.UsesLineFragmentOrigin, attributes: attributes, context:nil)
+        let rect = text.boundingRect(with: size, options:.usesLineFragmentOrigin, attributes: attributes, context:nil)
         return rect.size.height
     }
     
     //获取已知文字单行的宽度
-    class func getStringWidth(text:String, font:SWFont) -> CGFloat
+    class func getStringWidth(_ text:String, font:SWFont) -> CGFloat
     {
-        let size = CGSizeMake(CGFloat.max, CGFloat.max)
+        let size = CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)
         let attributes = [NSFontAttributeName:font]
-        let rect = text.boundingRectWithSize(size, options:.UsesLineFragmentOrigin, attributes: attributes, context:nil)
+        let rect = text.boundingRect(with: size, options:.usesLineFragmentOrigin, attributes: attributes, context:nil)
         return rect.size.width
     }
     

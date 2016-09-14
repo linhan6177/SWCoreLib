@@ -11,34 +11,34 @@ import UIKit
 class FileUtility: NSObject {
    
     
-    class func imageCachePath(fileName:String)->String
+    class func imageCachePath(_ fileName:String)->String
     {
-      var arr =  NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+      var arr =  NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)
        let path = arr[0] 
         return "\(path)/\(fileName)"
     }
     
-    class func documentPath(fileName:String)->String?
+    class func documentPath(_ fileName:String)->String?
     {
-        let array:[AnyObject]? = NSSearchPathForDirectoriesInDomains(.DocumentDirectory, .UserDomainMask, true)
-        if let array = array where array.count > 0,let basePath = array[0] as? String
+        let array:[AnyObject]? = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true) as [AnyObject]?
+        if let array = array , array.count > 0,let basePath = array[0] as? String
         {
             return "\(basePath)/\(fileName)"
         }
         return nil
     }
     
-    class func saveImageCacheToPath(path:String,image:NSData)->Bool
+    class func saveImageCacheToPath(_ path:String,image:Data)->Bool
     {
-       return image.writeToFile(path, atomically: true)
+       return ((try? image.write(to: URL(fileURLWithPath: path), options: [.atomic])) != nil)
     }
     
-    class func imageDataFromPath(path:String)->UIImage?
+    class func imageDataFromPath(_ path:String)->UIImage?
     {
-        let exist = NSFileManager.defaultManager().fileExistsAtPath(path)
+        let exist = FileManager.default.fileExists(atPath: path)
         if exist
         {
-            if let data = NSData(contentsOfFile: path),image = UIImage(data: data, scale: UIScreen.mainScreen().scale)
+            if let data = try? Data(contentsOf: URL(fileURLWithPath: path)),let image = UIImage(data: data, scale: UIScreen.main.scale)
             {
                 return image
             }
@@ -47,35 +47,35 @@ class FileUtility: NSObject {
     }
     
     //通过文件名获取文件缓存路径
-    class func fileCachePath(name:String) -> String
+    class func fileCachePath(_ name:String) -> String
     {
-        var arr =  NSSearchPathForDirectoriesInDomains(.CachesDirectory, .UserDomainMask, true)
+        var arr =  NSSearchPathForDirectoriesInDomains(.cachesDirectory, .userDomainMask, true)
         let path = arr[0] 
         return "\(path)/\(name)"
     }
     
     //通过文件名获取文件的hash缓存路径
-    class func getHashPath(name:String) -> String
+    class func getHashPath(_ name:String) -> String
     {
         let hash:String = SWMD5.md532BitUpper(name)
         return fileCachePath(hash)
     }
     
     //通过文件路径获取文件内容
-    class func getFileFromPath(path:String) -> NSData?
+    class func getFileFromPath(_ path:String) -> Data?
     {
-        let exist = NSFileManager.defaultManager().fileExistsAtPath(path)
-        var data:NSData?
+        let exist = FileManager.default.fileExists(atPath: path)
+        var data:Data?
         if exist
         {
-            data = NSData(contentsOfFile: path)
+            data = try? Data(contentsOf: URL(fileURLWithPath: path))
         }
         return data
     }
     
     
     //容量字符化
-    class func memoryFormatter(diskSpace:Double)->String
+    class func memoryFormatter(_ diskSpace:Double)->String
     {
         var formatted:String = ""
         let KB:Double = 1024
@@ -105,36 +105,36 @@ class FileUtility: NSObject {
     }
     
     //获取某个文件大小
-    class func fileSizeAtPath(path:String) -> Int
+    class func fileSizeAtPath(_ path:String) -> Int
     {
-        let manager:NSFileManager = NSFileManager.defaultManager()
-        if manager.fileExistsAtPath(path)
+        let manager:FileManager = FileManager.default
+        if manager.fileExists(atPath: path)
         {
-            var attributes:[NSObject : AnyObject]?
+            var attributes:[AnyHashable: Any]?
             do
             {
-                attributes = try manager.attributesOfItemAtPath(path)
+                attributes = try manager.attributesOfItem(atPath: path)
             }
             catch {}
             if let attributes = attributes
             {
-                return attributes[NSFileSize] as? Int ?? 0
+                return attributes[FileAttributeKey.size] as? Int ?? 0
             }
         }
         return 0
     }
     
     //获取某个文件夹下文件大小总和
-    class func folderSizeAtPath(path:String)-> Int
+    class func folderSizeAtPath(_ path:String)-> Int
     {
-        let manager:NSFileManager = NSFileManager.defaultManager()
-        if !manager.fileExistsAtPath(path)
+        let manager:FileManager = FileManager.default
+        if !manager.fileExists(atPath: path)
         {
             return 0
         }
         
         var folderSize:Int = 0
-        if let files = manager.subpathsAtPath(path) where files.count > 0
+        if let files = manager.subpaths(atPath: path) , files.count > 0
         {
             for file in files
             {
@@ -147,10 +147,10 @@ class FileUtility: NSObject {
     }
     
     //清除缓存
-    class func removeAll(path:String)
+    class func removeAll(_ path:String)
     {
-        let manager:NSFileManager = NSFileManager.defaultManager()
-        if let files = manager.subpathsAtPath(path) where files.count > 0
+        let manager:FileManager = FileManager.default
+        if let files = manager.subpaths(atPath: path) , files.count > 0
         {
             for i in 0..<files.count
             {
@@ -158,11 +158,11 @@ class FileUtility: NSObject {
                 if name != ""
                 {
                     let filePath:String = path + "/" + name
-                    if manager.fileExistsAtPath(filePath)
+                    if manager.fileExists(atPath: filePath)
                     {
                         do
                         {
-                            try manager.removeItemAtPath(filePath)
+                            try manager.removeItem(atPath: filePath)
                         }
                         catch{}
                     }

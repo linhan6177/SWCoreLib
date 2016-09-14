@@ -8,7 +8,7 @@
 
 import Foundation
 
-infix operator =~ {}
+infix operator =~
 
 
 /**
@@ -23,14 +23,14 @@ public extension String
     /**
      Searches the receiving `String` with the regex given in `pattern`, returning the match results.
      */
-    public func grep (pattern:String) -> Regex.MatchResult {
+    public func grep (_ pattern:String) -> Regex.MatchResult {
         return self =~ Regex(pattern)
     }
     
     /**
      Searches the receiving string with the regex given in `pattern`, replaces the match(es) with `replacement`, and returns the resulting string.
      */
-    public func replaceRegex(pattern:String, with replacement:String) -> String {
+    public func replaceRegex(_ pattern:String, with replacement:String) -> String {
         return map(self =~ Regex(pattern), replacementTemplate: replacement)
     }
 }
@@ -40,8 +40,8 @@ extension String
     var fullRange:   Range<String.Index> { return startIndex ..< endIndex }
     var fullNSRange: NSRange             { return NSRange(location:0, length:self.characters.count) }
     
-    func substringWithRange (range:NSRange) -> String {
-        return (self as NSString).substringWithRange(range)
+    func substringWithRange (_ range:NSRange) -> String {
+        return (self as NSString).substring(with: range)
         //return substringWithRange(convertRange(range))
     }
     
@@ -59,7 +59,7 @@ extension String
     }**/
 }
 
-public struct RegexMatchCaptureGenerator : GeneratorType {
+public struct RegexMatchCaptureGenerator : IteratorProtocol {
     var items: ArraySlice<String>
     mutating public func next() -> String? {
         if items.isEmpty { return nil }
@@ -72,7 +72,7 @@ public struct RegexMatchCaptureGenerator : GeneratorType {
 /**
  An object representing the result of searching a given `String` using a `Regex`.
  */
-public struct RegexMatchResult: SequenceType, BooleanType
+public struct RegexMatchResult: Sequence
 {
     /** Returns `true` if the number of matches is greater than zero. */
     public var boolValue: Bool { return items.count > 0 }
@@ -120,7 +120,7 @@ public struct RegexMatchResult: SequenceType, BooleanType
     /**
      Returns a `Generator` that iterates over the captured matches as `NSTextCheckingResult`s.
      */
-    public func generate() -> RegexMatchCaptureGenerator {
+    public func makeIterator() -> RegexMatchCaptureGenerator {
         return RegexMatchCaptureGenerator(items: [])
     }
     
@@ -152,16 +152,16 @@ public struct Regex
 {
     public typealias MatchResult = RegexMatchResult
     
-    private let pattern: String
-    private let nsRegex: NSRegularExpression
+    fileprivate let pattern: String
+    fileprivate let nsRegex: NSRegularExpression
     
     
     /**
      Attempts to create a `Regex` with the provided `pattern`.  If this fails, a tuple `(nil, NSError)` is returned.  If it succeeds, a tuple `(Regex, nil)` is returned.
      */
-    public static func create(pattern:String) -> (Regex?, NSError?)
+    public static func create(_ pattern:String) -> (Regex?, NSError?)
     {
-        var err: NSError?
+        let err: NSError?
         let regex = Regex(pattern: pattern)
         
         if let err = err            { return (nil, err) }
@@ -182,7 +182,7 @@ public struct Regex
         
         var regex:NSRegularExpression?
         do {
-            regex = try NSRegularExpression(pattern: pattern, options: NSRegularExpressionOptions(rawValue: 0))
+            regex = try NSRegularExpression(pattern: pattern, options: NSRegularExpression.Options(rawValue: 0))
         }
         catch {}
         if let regex = regex {
@@ -205,7 +205,7 @@ public struct Regex
         var regex:NSRegularExpression?
         do
         {
-            regex = try? NSRegularExpression(pattern: pattern, options: NSRegularExpressionOptions(rawValue: 0))
+            regex = try? NSRegularExpression(pattern: pattern, options: NSRegularExpression.Options(rawValue: 0))
         }
         catch {}
         if let regex = regex
@@ -223,14 +223,14 @@ public struct Regex
      Searches in `string` for the regular expression pattern represented by the receiver.
      :param: string The string in which to search for matches.
      */
-    public func match (string:String) -> MatchResult
+    public func match (_ string:String) -> MatchResult
     {
         var matches  = [NSTextCheckingResult]()
         let all      = NSRange(location: 0, length: string.characters.count)
-        let moptions = NSMatchingOptions(rawValue: 0)
+        let moptions = NSRegularExpression.MatchingOptions(rawValue: 0)
         
-        nsRegex.enumerateMatchesInString(string, options:moptions, range:all) {
-            (result: NSTextCheckingResult?, flags: NSMatchingFlags, ptr: UnsafeMutablePointer<ObjCBool>) in
+        nsRegex.enumerateMatches(in: string, options:moptions, range:all) {
+            (result: NSTextCheckingResult?, flags: NSRegularExpression.MatchingFlags, ptr: UnsafeMutablePointer<ObjCBool>) in
             
             if let result = result {
                 matches.append(result)
@@ -240,7 +240,7 @@ public struct Regex
         return MatchResult(regex:nsRegex, searchString:string, items: matches)
     }
     
-    public func test(string:String) -> Bool
+    public func test(_ string:String) -> Bool
     {
         return match(string).boolValue
     }
@@ -252,10 +252,10 @@ public struct Regex
      :param: replacement The replacement pattern to apply to any matches.
      :returns: A 2-tuple containing the number of replacements made and the transformed search string.
      */
-    public func replaceMatchesIn (string:String, with replacement:String) -> (replacements:Int, string:String)
+    public func replaceMatchesIn (_ string:String, with replacement:String) -> (replacements:Int, string:String)
     {
         let mutableString = NSMutableString(string:string)
-        let replacements  = nsRegex.replaceMatchesInString(mutableString, options:NSMatchingOptions(rawValue: 0), range:string.fullNSRange, withTemplate:replacement)
+        let replacements  = nsRegex.replaceMatches(in: mutableString, options:NSRegularExpression.MatchingOptions(rawValue: 0), range:string.fullNSRange, withTemplate:replacement)
         
         return (replacements:replacements, string:String(mutableString))
     }
@@ -267,7 +267,7 @@ public struct Regex
      :param: replacement The replacement pattern to apply to any matches.
      :returns: The transformed search string.
      */
-    public func replaceMatchesIn (string:String, with replacement:String) -> String {
+    public func replaceMatchesIn (_ string:String, with replacement:String) -> String {
         return map((string =~ self), replacementTemplate: replacement)
     }
     
@@ -278,11 +278,11 @@ public struct Regex
 /**
  Returns the `String` created by replacing the regular expression matches in `regexResult` using `replacementTemplate`.
  */
-public func map (regexResult:Regex.MatchResult, replacementTemplate:String) -> String
+public func map (_ regexResult:Regex.MatchResult, replacementTemplate:String) -> String
 {
     let searchString = NSMutableString(string: regexResult.searchString)
     let fullRange    = regexResult.searchString.fullNSRange
-    regexResult.regex.replaceMatchesInString(searchString, options: NSMatchingOptions(rawValue: 0), range:fullRange, withTemplate:replacementTemplate)
+    regexResult.regex.replaceMatches(in: searchString, options: NSRegularExpression.MatchingOptions(rawValue: 0), range:fullRange, withTemplate:replacementTemplate)
     return String(searchString)
 }
 

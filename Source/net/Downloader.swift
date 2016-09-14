@@ -15,18 +15,18 @@ import UIKit
 class Downloader: NSObject,NSURLConnectionDataDelegate
 {
     //NSURLConnectionDownloadDelegate
-    private var _request:NSMutableURLRequest = NSMutableURLRequest()
+    fileprivate var _request:NSMutableURLRequest = NSMutableURLRequest()
     
-    private var _connection:NSURLConnection?
+    fileprivate var _connection:NSURLConnection?
     
-    private var _contentLength:Int = 0
-    private var _responseData:NSMutableData = NSMutableData()
+    fileprivate var _contentLength:Int = 0
+    fileprivate var _responseData:NSMutableData = NSMutableData()
     
     var url:String = ""
     var startCallback:(() -> Void)?
     var failCallback:((NSError) -> Void)?
     var progressCallback:((Int,Int) -> Void)?
-    var completeCallback:((NSData) -> Void)?
+    var completeCallback:((Data) -> Void)?
     
     var timeoutInterval:Double
     {
@@ -44,11 +44,11 @@ class Downloader: NSObject,NSURLConnectionDataDelegate
     {
         super.init()
         _request.timeoutInterval = 30
-        _request.cachePolicy = NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData
+        _request.cachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
         _request.addValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0", forHTTPHeaderField: "User-Agent")
     }
     
-    var cachePolicy:NSURLRequestCachePolicy
+    var cachePolicy:NSURLRequest.CachePolicy
     {
         get
         {
@@ -60,19 +60,19 @@ class Downloader: NSObject,NSURLConnectionDataDelegate
         }
     }
     
-    func load(url:String, data:AnyObject? = nil)
+    func load(_ url:String, data:AnyObject? = nil)
     {
         self.url = url
         _responseData = NSMutableData()
-        _request.URL = NSURL(string: url)
+        _request.url = URL(string: url)
         if _connection != nil
         {
             _connection?.cancel()
             _connection = nil
         }
         //_connection = NSURLConnection(request: _request, delegate: self)
-        _connection = NSURLConnection(request: _request, delegate: self, startImmediately: false)
-        _connection?.scheduleInRunLoop(NSRunLoop.currentRunLoop(), forMode: NSRunLoopCommonModes)
+        _connection = NSURLConnection(request: _request as URLRequest, delegate: self, startImmediately: false)
+        _connection?.schedule(in: RunLoop.current, forMode: RunLoopMode.commonModes)
         _connection?.start()
     }
     
@@ -81,24 +81,24 @@ class Downloader: NSObject,NSURLConnectionDataDelegate
         _connection?.cancel()
     }
     
-    func connection(connection: NSURLConnection, didFailWithError error: NSError)
+    func connection(_ connection: NSURLConnection, didFailWithError error: Error)
     {
-        failCallback?(error)
+        failCallback?(error as NSError)
     }
     
     //开始下载
-    func connection(connection: NSURLConnection, didReceiveResponse response: NSURLResponse)
+    func connection(_ connection: NSURLConnection, didReceive response: URLResponse)
     {
         _contentLength = Int(response.expectedContentLength)
         startCallback?()
     }
     
     
-    func connection(connection: NSURLConnection, didReceiveData data: NSData)
+    func connection(_ connection: NSURLConnection, didReceive data: Data)
     {
-        if data.length > 0
+        if data.count > 0
         {
-            _responseData.appendData(data)
+            _responseData.append(data)
         }
         
         let current:Int = (_responseData.length)
@@ -107,9 +107,9 @@ class Downloader: NSObject,NSURLConnectionDataDelegate
     }
     
     //下载完成
-    func connectionDidFinishLoading(connection: NSURLConnection)
+    func connectionDidFinishLoading(_ connection: NSURLConnection)
     {
-        completeCallback?(_responseData)
+        completeCallback?(_responseData as Data)
     }
     
     

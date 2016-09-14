@@ -14,10 +14,10 @@ class SWSequenceAnimation: UIImageView
     var animateCompleteCallback:((UIView)->Void)?
     
     //private var _images:[UIImage] = []
-    private var _totalFrames:Int = 0
+    fileprivate var _totalFrames:Int = 0
     
     //帧频
-    private var _frameRate:Int = 1
+    fileprivate var _frameRate:Int = 1
     var frameRate:Int{
         get{
             return _frameRate
@@ -37,7 +37,7 @@ class SWSequenceAnimation: UIImageView
     
     init(images:[UIImage], frameRate:Int = 12)
     {
-        super.init(frame:CGRectZero)
+        super.init(frame:CGRect.zero)
         _totalFrames = images.count
         self.frameRate = frameRate
         setAnimationImages(images)
@@ -46,7 +46,7 @@ class SWSequenceAnimation: UIImageView
     
     init(paths:[String], frameRate:Int = 12)
     {
-        super.init(frame:CGRectZero)
+        super.init(frame:CGRect.zero)
         _frameRate = frameRate
         loadImages(paths)
         setup()
@@ -57,13 +57,13 @@ class SWSequenceAnimation: UIImageView
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func setup()
+    fileprivate func setup()
     {
         //animationRepeatCount = 100000
         //animationRepeatCount = 0
     }
     
-    private func setAnimationImages(images:[UIImage])
+    fileprivate func setAnimationImages(_ images:[UIImage])
     {
         animationImages = images
         if images.count > 0
@@ -79,8 +79,8 @@ class SWSequenceAnimation: UIImageView
             {
                 let duration = animationDuration - (1 / Double(_frameRate))
                 let nanoSeconds = Int64((duration) * Double(NSEC_PER_SEC))
-                let time = dispatch_time(DISPATCH_TIME_NOW, nanoSeconds)
-                dispatch_after(time, dispatch_get_main_queue(), {
+                let time = DispatchTime.now() + Double(nanoSeconds) / Double(NSEC_PER_SEC)
+                DispatchQueue.main.asyncAfter(deadline: time, execute: {
                     
                     if let image = self.animationImages?.last
                     {
@@ -98,9 +98,9 @@ class SWSequenceAnimation: UIImageView
         }
     }
     
-    private func loadImages(paths:[String])
+    fileprivate func loadImages(_ paths:[String])
     {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0)) {
+        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async {
             var images:[UIImage] = []
             for path in paths{
                 if let image:UIImage = UIImage(contentsOfFile: path)
@@ -110,7 +110,7 @@ class SWSequenceAnimation: UIImageView
             }
             self._totalFrames = images.count
             self.frameRate = self._frameRate
-            dispatch_async(dispatch_get_main_queue()){
+            DispatchQueue.main.async{
                 
                 self.setAnimationImages(images)
                 self.imagesLoadedCompleteCallback?(images)

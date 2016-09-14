@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 class SWTextViewInternal:UITextView
 {
-    private var _placeholder:String = ""
+    fileprivate var _placeholder:String = ""
     var displayPlaceHolder:Bool = false
     
     override var frame:CGRect
@@ -33,10 +33,10 @@ class SWTextViewInternal:UITextView
         }
         set
         {
-            let originalValue:Bool = self.scrollEnabled
-            scrollEnabled = true
+            let originalValue:Bool = self.isScrollEnabled
+            isScrollEnabled = true
             super.text = newValue
-            scrollEnabled = originalValue
+            isScrollEnabled = originalValue
         }
     }
     
@@ -44,11 +44,11 @@ class SWTextViewInternal:UITextView
     {
         get
         {
-            return self.scrollEnabled
+            return self.isScrollEnabled
         }
         set
         {
-            super.scrollEnabled = newValue
+            super.isScrollEnabled = newValue
         }
     }
     
@@ -60,7 +60,7 @@ class SWTextViewInternal:UITextView
         }
         set
         {
-            if self.tracking || self.decelerating
+            if self.isTracking || self.isDecelerating
             {
                 var insets:UIEdgeInsets = self.contentInset
                 insets.bottom = 0
@@ -70,7 +70,7 @@ class SWTextViewInternal:UITextView
             else
             {
                 let bottomOffset:CGFloat = self.contentSize.height - self.frame.size.height + self.contentInset.bottom
-                if newValue.y < bottomOffset && self.scrollEnabled
+                if newValue.y < bottomOffset && self.isScrollEnabled
                 {
                     var insets:UIEdgeInsets = self.contentInset
                     insets.bottom = 8
@@ -81,9 +81,9 @@ class SWTextViewInternal:UITextView
             
             // Fix "overscrolling" bug
             var offset:CGPoint = newValue
-            if newValue.y > self.contentSize.height - self.frame.size.height && !self.decelerating && !self.tracking && !self.dragging
+            if newValue.y > self.contentSize.height - self.frame.size.height && !self.isDecelerating && !self.isTracking && !self.isDragging
             {
-                offset = CGPointMake(newValue.x, self.contentSize.height - self.frame.size.height);
+                offset = CGPoint(x: newValue.x, y: self.contentSize.height - self.frame.size.height);
             }
             super.contentOffset = offset
         }
@@ -126,7 +126,7 @@ class SWTextViewInternal:UITextView
     }
     
     
-    var placeholderColor:UIColor = UIColor.lightGrayColor()
+    var placeholderColor:UIColor = UIColor.lightGray
     {
         didSet
         {
@@ -148,21 +148,21 @@ class SWTextViewInternal:UITextView
         }
     }
     
-    override func drawRect(rect: CGRect)
+    override func draw(_ rect: CGRect)
     {
-        super.drawRect(rect)
+        super.draw(rect)
         if displayPlaceHolder
         {
-            if self.respondsToSelector("snapshotViewAfterScreenUpdates:")
+            if self.responds(to: #selector(UIView.snapshotView(afterScreenUpdates:)))
             {
                 let paragraphStyle:NSMutableParagraphStyle = NSMutableParagraphStyle()
                 paragraphStyle.alignment = self.textAlignment
-                (placeholder as NSString).drawInRect(CGRectMake(5, 8 + self.contentInset.top, self.frame.size.width-self.contentInset.left, self.frame.size.height - self.contentInset.top), withAttributes: [NSFontAttributeName:self.font!, NSForegroundColorAttributeName:placeholderColor, NSParagraphStyleAttributeName:paragraphStyle])
+                (placeholder as NSString).draw(in: CGRect(x: 5, y: 8 + self.contentInset.top, width: self.frame.size.width-self.contentInset.left, height: self.frame.size.height - self.contentInset.top), withAttributes: [NSFontAttributeName:self.font!, NSForegroundColorAttributeName:placeholderColor, NSParagraphStyleAttributeName:paragraphStyle])
             }
             else
             {
                 placeholderColor.set()
-                (placeholder as NSString).drawInRect(CGRectMake(8.0, 8.0, self.frame.size.width - 16.0, self.frame.size.height - 16.0), withAttributes: [NSFontAttributeName:self.font!])
+                (placeholder as NSString).draw(in: CGRect(x: 8.0, y: 8.0, width: self.frame.size.width - 16.0, height: self.frame.size.height - 16.0), withAttributes: [NSFontAttributeName:self.font!])
                 
             }
         }

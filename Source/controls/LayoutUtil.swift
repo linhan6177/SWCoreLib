@@ -12,7 +12,7 @@ class LayoutUtil: NSObject
 {
     //在容器宽度内绝对平均分布（空白空间相同）
     // |-A-A-|
-    class func distributeHAverageABS(views:[UIView], containerWidth:CGFloat)
+    class func distributeHAverageABS(_ views:[UIView], containerWidth:CGFloat)
     {
         var contentLength:CGFloat = 0
         for i in 0..<views.count
@@ -29,7 +29,7 @@ class LayoutUtil: NSObject
         
     }
     
-    class func distributeVAverageABS(views:[UIView], containerHeight:CGFloat)
+    class func distributeVAverageABS(_ views:[UIView], containerHeight:CGFloat)
     {
         var contentLength:CGFloat = 0
         for i in 0..<views.count
@@ -48,7 +48,7 @@ class LayoutUtil: NSObject
     
     //左右两边靠边，中间宽度内绝对平均分布
     // |A-A-A|
-    class func distributeHAverageWelt(views:[UIView], containerWidth:CGFloat)
+    class func distributeHAverageWelt(_ views:[UIView], containerWidth:CGFloat)
     {
         var contentLength:CGFloat = 0
         for i in 0..<views.count
@@ -79,7 +79,7 @@ class LayoutUtil: NSObject
     
     //在容器宽度内相对平均分布（左右空白小，中间空白大）
     // |-A--A-|
-    class func distributeHAverageRel(views:[UIView], containerWidth:CGFloat)
+    class func distributeHAverageRel(_ views:[UIView], containerWidth:CGFloat)
     {
         let itemWidth:CGFloat = containerWidth / CGFloat(views.count)
         for i in 0..<views.count

@@ -12,39 +12,33 @@ import UIKit
 @objc protocol PulldownContainerDelegate:NSObjectProtocol
 {
     // before animation and showing view
-    optional func willPresentPulldownContainer()
+    @objc optional func willPresentPulldownContainer()
     
     // after animation
-    optional func didPresentPulldownContainer()
+    @objc optional func didPresentPulldownContainer()
     
     // before animation and hiding view
-    optional func willDismissPulldownContainer()
+    @objc optional func willDismissPulldownContainer()
     
     // after animation
-    optional func didDismissPulldownContainer()
+    @objc optional func didDismissPulldownContainer()
 }
 
+fileprivate var _instance:PulldownContainer = PulldownContainer()
 class PulldownContainer:NSObject,SWPopupContainerDelegate
 {
     weak var delegate:PulldownContainerDelegate?
     
     //var modelRect:CGRect = UIScreen.mainScreen().bounds
-    var modelInsets:UIEdgeInsets = UIEdgeInsetsZero
+    var modelInsets:UIEdgeInsets = UIEdgeInsets.zero
     
-    lazy private var _popupContainer:PopupContainer = PopupContainer()
+    lazy fileprivate var _popupContainer:PopupContainer = PopupContainer()
     
-    lazy private var _container:UIView = UIView()
+    lazy fileprivate var _container:UIView = UIView()
     
     class func shared()->PulldownContainer
     {
-        struct Static {
-            static var instance : PulldownContainer? = nil
-            static var token : dispatch_once_t = 0
-        }
-        dispatch_once(&Static.token)
-            { Static.instance = PulldownContainer()}
-        
-        return Static.instance!
+        return _instance
     }
     
     override init() {
@@ -64,11 +58,11 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
     
     
     
-    var offset:CGPoint = CGPointZero
+    var offset:CGPoint = CGPoint.zero
     {
         didSet
         {
-            _container.frame = CGRectMake(offset.x, offset.y, _container.width, _container.height)
+            _container.frame = CGRect(x: offset.x, y: offset.y, width: _container.width, height: _container.height)
         }
     }
     
@@ -80,22 +74,22 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
             if let content = content
             {
                 //如果当前正开着，则替换当前显示的内容
-                if state == .Opened || state == .Opening
+                if state == .opened || state == .opening
                 {
                     if content != oldValue
                     {
                         content.alpha = 0
                     }
                     _container.addSubview(content)
-                    content.frame = CGRectMake(0, 0, content.width, content.height)
-                    UIView.animateWithDuration(0.3, animations: {
+                    content.frame = CGRect(x: 0, y: 0, width: content.width, height: content.height)
+                    UIView.animate(withDuration: 0.3, animations: {
                     
                         if content != oldValue
                         {
                             oldValue?.alpha = 0
                             content.alpha = 1
                         }
-                        self._container.frame = CGRectMake(self.offset.x, self.offset.y, content.width, content.height)
+                        self._container.frame = CGRect(x: self.offset.x, y: self.offset.y, width: content.width, height: content.height)
                         
                         }, completion: {finish in
                     
@@ -109,8 +103,8 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
                 else
                 {
                     _container.addSubview(content)
-                    _container.frame = CGRectMake(offset.x, offset.y, content.width, content.height)
-                    content.frame = CGRectMake(0, -content.height, content.width, content.height)
+                    _container.frame = CGRect(x: offset.x, y: offset.y, width: content.width, height: content.height)
+                    content.frame = CGRect(x: 0, y: -content.height, width: content.width, height: content.height)
                 }
             }//end if let content
         }//end didSet
@@ -120,18 +114,18 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
     {
         if let _ = content
         {
-            _popupContainer.show(_container, modelType: .Black, container: nil, interactionInsets: modelInsets, modelInsets: modelInsets)
+            _popupContainer.show(_container, modelType: .black, container: nil, interactionInsets: modelInsets, modelInsets: modelInsets)
         }
     }
     
-    func close(animated:Bool = true)
+    func close(_ animated:Bool = true)
     {
         _popupContainer.close(animated)
     }
     
     func willPresentPopupContainer()
     {
-        UIView.animateWithDuration(0.3, animations: {
+        UIView.animate(withDuration: 0.3, animations: {
             self._container.alpha = 1
             self.content?.y = 0
         })
@@ -145,7 +139,7 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
     
     func willDismissPopupContainer()
     {
-        UIView.animateWithDuration(0.3, animations: {
+        UIView.animate(withDuration: 0.3, animations: {
             self._container.alpha = 0
             if let content = self.content
             {
@@ -160,7 +154,7 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
         delegate?.didDismissPulldownContainer?()
     }
     
-    private func setup()
+    fileprivate func setup()
     {
         _container.alpha = 0
         _container.clipsToBounds = true

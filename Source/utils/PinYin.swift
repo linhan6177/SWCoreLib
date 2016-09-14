@@ -13,7 +13,7 @@ class PinYin:NSObject
     
     //转换为拼音（转换后,是否成功）
     //stripDiacritics  是否去掉拼音升调降调,去掉升降调非常消耗性能，慎用
-    class func transform(input:String, stripDiacritics:Bool = true) -> (String,Bool)
+    class func transform(_ input:String, stripDiacritics:Bool = true) -> (String,Bool)
     {
         let cf:CFMutableString = NSMutableString(string: input) as CFMutableString
         var success:Bool = CFStringTransform(cf, nil, kCFStringTransformToLatin, false)
@@ -22,19 +22,19 @@ class PinYin:NSObject
             success = CFStringTransform(cf, nil, kCFStringTransformStripDiacritics, false)
         }
         var latin:String = success ? cf as String : input
-        latin = latin.lowercaseString
+        latin = latin.lowercased()
         return (latin, success)
     }
     
     //获取这个字符串拼音的首字母
-    class func getFirstLetter(str:String) -> String
+    class func getFirstLetter(_ str:String) -> String
     {
         let latin:String = transform(str, stripDiacritics:false).0
-        return latin.characters.count > 0 ? (latin as NSString).substringToIndex(1) : ""
+        return latin.characters.count > 0 ? (latin as NSString).substring(to: 1) : ""
     }
     
     //获取每个字的拼音的首字母
-    class func getEveryFirstLetter(str:String)->String
+    class func getEveryFirstLetter(_ str:String)->String
     {
         var returnString:String = ""
         for character in str.characters {

@@ -12,38 +12,38 @@ import UIKit
 //浮出方向
 public enum SurfaceDirection
 {
-    case Up
-    case Down
+    case up
+    case down
 }
 
-public class BannerTips: UIView
+open class BannerTips: UIView
 {
     
     //对齐方式（左对齐居中对齐）
-    public var alignment:NSTextAlignment = .Center
+    open var alignment:NSTextAlignment = .center
     
     
     //多久后自动关闭(单位秒)
-    public var autoCloseDuration:Double = 2
+    open var autoCloseDuration:Double = 2
     
-    private let PresetHeight:CGFloat = 40
+    fileprivate let PresetHeight:CGFloat = 40
     
     //是否自定关闭
-    private var _inited:Bool = false
+    fileprivate var _inited:Bool = false
     
-    private var _state:SWPopupContainerState = .Closed
+    fileprivate var _state:SWPopupContainerState = .closed
     
-    private var _autoCloseIntervalID:String = ""
+    fileprivate var _autoCloseIntervalID:String = ""
     
     //文字
-    private var _label:UILabel = UILabel()
+    fileprivate var _label:UILabel = UILabel()
     
     //主体内容，包含背景、文字、图标
-    private var _contentView:UIView = UIView()
+    fileprivate var _contentView:UIView = UIView()
     
     init()
     {
-        super.init(frame:CGRectMake(0, 0, UIScreen.mainScreen().bounds.width, PresetHeight))
+        super.init(frame:CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: PresetHeight))
         setup()
     }
     
@@ -76,9 +76,9 @@ public class BannerTips: UIView
     }
     
     
-    var titleEdgeInsets:UIEdgeInsets = UIEdgeInsetsZero
+    var titleEdgeInsets:UIEdgeInsets = UIEdgeInsets.zero
     
-    var iconEdgeInsets:UIEdgeInsets = UIEdgeInsetsZero
+    var iconEdgeInsets:UIEdgeInsets = UIEdgeInsets.zero
     
     //文字颜色
     var textColor:UIColor {
@@ -102,21 +102,21 @@ public class BannerTips: UIView
         }
     }
     
-    override public var frame:CGRect
+    override open var frame:CGRect
     {
         get {
             return super.frame
         }
         set {
             super.frame = newValue
-            var contentViewY:CGFloat = direction == .Down ? -newValue.height : newValue.height
-            contentViewY = (_state == .Opened || _state == .Opening) ? 0 : contentViewY
-            _contentView.frame = CGRectMake(0, contentViewY, newValue.width, newValue.height)
+            var contentViewY:CGFloat = direction == .down ? -newValue.height : newValue.height
+            contentViewY = (_state == .opened || _state == .opening) ? 0 : contentViewY
+            _contentView.frame = CGRect(x: 0, y: contentViewY, width: newValue.width, height: newValue.height)
             updateViews()
         }
     }
     
-    override public var backgroundColor:UIColor? {
+    override open var backgroundColor:UIColor? {
         get {
             return _contentView.backgroundColor
         }
@@ -128,35 +128,35 @@ public class BannerTips: UIView
     //
     
     //弹出方向
-    public var direction:SurfaceDirection = .Down {
+    open var direction:SurfaceDirection = .down {
         didSet {
-            _contentView.y = direction == .Down ? -_contentView.height : _contentView.height
+            _contentView.y = direction == .down ? -_contentView.height : _contentView.height
         }
     }
     
     //显示
-    public func show(msg:String, autoClose:Bool = true)
+    open func show(_ msg:String, autoClose:Bool = true)
     {
         _label.text = msg
         _label.sizeToFit()
         
         updateViews()
         
-        if _state == .Closed || _state == .Closing
+        if _state == .closed || _state == .closing
         {
             //根据方向决定起始位置
-            _contentView.y = (direction == .Down ? -_contentView.height : _contentView.height)
-            _state = .Opening
-            UIView.animateWithDuration(0.3, delay: 0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: {
+            _contentView.y = (direction == .down ? -_contentView.height : _contentView.height)
+            _state = .opening
+            UIView.animate(withDuration: 0.3, delay: 0, options: UIViewAnimationOptions.beginFromCurrentState, animations: {
                     self._contentView.y = 0
                 }, completion: {finish in
-                    self._state = .Opened
+                    self._state = .opened
             })
         }
         
         if superview == nil
         {
-            UIApplication.sharedApplication().keyWindow?.addSubview(self)
+            UIApplication.shared.keyWindow?.addSubview(self)
         }
         
         clearTimeout(_autoCloseIntervalID)
@@ -170,17 +170,17 @@ public class BannerTips: UIView
     }
     
     //隐藏
-    public func dismiss()
+    open func dismiss()
     {
-        if _state == .Opened || _state == .Opening
+        if _state == .opened || _state == .opening
         {
-            _state = .Closing
-            UIView.animateWithDuration(0.3, delay: 0, options: UIViewAnimationOptions.BeginFromCurrentState, animations: {
-                self._contentView.y = (self.direction == .Down ? -self._contentView.height : self._contentView.height)
+            _state = .closing
+            UIView.animate(withDuration: 0.3, delay: 0, options: UIViewAnimationOptions.beginFromCurrentState, animations: {
+                self._contentView.y = (self.direction == .down ? -self._contentView.height : self._contentView.height)
                 }, completion: {finish in
-                    if self._state == .Closing
+                    if self._state == .closing
                     {
-                        self._state = .Closed
+                        self._state = .closed
                         //self.removeFromSuperview()
                     }
                     
@@ -188,17 +188,17 @@ public class BannerTips: UIView
         }
     }
     
-    public func dispose()
+    open func dispose()
     {
         dismiss()
         clearTimeout(_autoCloseIntervalID)
         removeFromSuperview()
     }
     
-    private func setup()
+    fileprivate func setup()
     {
         clipsToBounds = true
-        autoresizingMask = [UIViewAutoresizing.FlexibleWidth]
+        autoresizingMask = [UIViewAutoresizing.flexibleWidth]
         //userInteractionEnabled = false
         
         
@@ -206,8 +206,8 @@ public class BannerTips: UIView
         addSubview(_contentView)
         
         
-        _label.font = UIFont.systemFontOfSize(14)
-        _label.textColor = UIColor.whiteColor()
+        _label.font = UIFont.systemFont(ofSize: 14)
+        _label.textColor = UIColor.white
         _contentView.addSubview(_label)
         
         
@@ -215,7 +215,7 @@ public class BannerTips: UIView
     }
     
     
-    private func updateViews()
+    fileprivate func updateViews()
     {
         var iconX:CGFloat = 0
         var iconY:CGFloat = 0
@@ -230,19 +230,19 @@ public class BannerTips: UIView
             let scale:CGFloat = min((height - iconEdgeInsets.top - iconEdgeInsets.bottom) / iconRect.height, 1)
             if scale < 1
             {
-                icon.transform = CGAffineTransformMakeScale(scale, scale)
+                icon.transform = CGAffineTransform(scaleX: scale, y: scale)
             }
             iconY = (height - icon.height) * 0.5
             iconWidth = icon.width
             iconHeight = icon.height
         }
         
-        if alignment == .Left
+        if alignment == .left
         {
             iconX = iconEdgeInsets.left
             labelX = (iconView == nil ? 0 : iconX + iconWidth + iconEdgeInsets.right) + titleEdgeInsets.left
-            iconView?.frame = CGRectMake(iconEdgeInsets.left, iconY, iconWidth, iconHeight)
-            _label.frame = CGRectMake(labelX, labelY, _label.width, _label.height)
+            iconView?.frame = CGRect(x: iconEdgeInsets.left, y: iconY, width: iconWidth, height: iconHeight)
+            _label.frame = CGRect(x: labelX, y: labelY, width: _label.width, height: _label.height)
         }
         else
         {
@@ -250,8 +250,8 @@ public class BannerTips: UIView
             contentWidth += (titleEdgeInsets.left + _label.width + titleEdgeInsets.right)
             let contentX = (width - contentWidth) * 0.5
             labelX = (iconView == nil ? contentX : contentX + iconEdgeInsets.left + iconWidth + iconEdgeInsets.right) + titleEdgeInsets.left
-            iconView?.frame = CGRectMake(iconX, iconY, iconWidth, iconHeight)
-            _label.frame = CGRectMake(labelX, labelY, _label.width, _label.height)
+            iconView?.frame = CGRect(x: iconX, y: iconY, width: iconWidth, height: iconHeight)
+            _label.frame = CGRect(x: labelX, y: labelY, width: _label.width, height: _label.height)
         }
         
         

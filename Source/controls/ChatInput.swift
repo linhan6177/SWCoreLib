@@ -11,25 +11,25 @@ import UIKit
 
 @objc protocol ChatInputDelegate:NSObjectProtocol
 {
-    func chatInput(input:ChatInput, frameChange frame:CGRect)
-    optional func chatInput(input:ChatInput, send text:String)
-    optional func chatInputDidShow(input:ChatInput)
-    optional func chatInputDidHide(input:ChatInput)
-    optional func chatInputTypeChanged(input:ChatInput)
+    func chatInput(_ input:ChatInput, frameChange frame:CGRect)
+    @objc optional func chatInput(_ input:ChatInput, send text:String)
+    @objc optional func chatInputDidShow(_ input:ChatInput)
+    @objc optional func chatInputDidHide(_ input:ChatInput)
+    @objc optional func chatInputTypeChanged(_ input:ChatInput)
 }
 
 //停靠状态（屏幕下或者悬停）
 enum DockType:Int
 {
-    case Under
-    case Hover
+    case under
+    case hover
 }
 
 enum InputType:Int
 {
-    case None
-    case Text
-    case Custom
+    case none
+    case text
+    case custom
 }
 
 class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
@@ -39,23 +39,23 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
     weak var delegate:ChatInputDelegate?
     
     
-    private var _inited:Bool = false
+    fileprivate var _inited:Bool = false
     
-    private var _rect:CGRect = CGRectZero
+    fileprivate var _rect:CGRect = CGRect.zero
     
     //当前正要切换但还未切换的输入方式
-    private var _targetInputType:InputType = InputType.None
+    fileprivate var _targetInputType:InputType = InputType.none
     
-    private var _animationDuration:Double = 0.25
+    fileprivate var _animationDuration:Double = 0.25
     
-    private var _containerRect:CGRect = CGRectZero
+    fileprivate var _containerRect:CGRect = CGRect.zero
     
-    private var _textWidth:CGFloat = 0
+    fileprivate var _textWidth:CGFloat = 0
     
-    private var _height:CGFloat = 43
-    private var _width:CGFloat = 0
+    fileprivate var _height:CGFloat = 43
+    fileprivate var _width:CGFloat = 0
     
-    private var _toolbar:UIView = UIView()
+    fileprivate var _toolbar:UIView = UIView()
     
     
     //是否持续监听键盘(输入框所在页面被覆盖等原因暂时未使用，则不再监听键盘事件)
@@ -64,16 +64,16 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
     //输入框区域(输入框 + （键盘、表情）)
     var rect:CGRect
         {
-            return CGRectMake(0, _dockY, _width, _height)
+            return CGRect(x: 0, y: _dockY, width: _width, height: _height)
     }
     
     //系统键盘区域
-    private var _systemKeyboardFrame:CGRect = CGRectZero
+    fileprivate var _systemKeyboardFrame:CGRect = CGRect.zero
     
-    private var _font:UIFont = UIFont.systemFontOfSize(14)
+    fileprivate var _font:UIFont = UIFont.systemFont(ofSize: 14)
     
     
-    private var _textField:SWGrowingTextView?
+    fileprivate var _textField:SWGrowingTextView?
     var textField:UIView?
         {
             return _textField
@@ -86,7 +86,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         _containerRect = containerRect
         _width = containerRect.width
         //let rect:CGRect =
-        super.init(frame: CGRectMake(0, 0, _width, _height))
+        super.init(frame: CGRect(x: 0, y: 0, width: _width, height: _height))
         setup()
     }
     
@@ -96,14 +96,14 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         didSet
         {
             //更换自定义输入内容
-            if customInputView != nil && customInputView != oldValue && inputType == .Custom
+            if customInputView != nil && customInputView != oldValue && inputType == .custom
             {
                 //先将上一个自定义面板隐藏
                 var hideY:CGFloat = _containerRect.height
                 if let lastCustomInputView = oldValue
                 {
                     hideY = self._containerRect.height - self._dockY + lastCustomInputView.height
-                    UIView.animateWithDuration(_animationDuration, animations: {
+                    UIView.animate(withDuration: _animationDuration, animations: {
                         
                         lastCustomInputView.y = hideY
                         
@@ -120,9 +120,9 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
                         addSubview(inputView)
                     }
                     inputView.y = hideY
-                    let keyboardRect:CGRect = CGRectMake(0, _toolbar.height, inputView.frame.width, inputView.frame.height)
+                    let keyboardRect:CGRect = CGRect(x: 0, y: _toolbar.height, width: inputView.frame.width, height: inputView.frame.height)
                     showKeyboard(keyboardRect, duration: _animationDuration)
-                    UIView.animateWithDuration(_animationDuration, animations: {
+                    UIView.animate(withDuration: _animationDuration, animations: {
                         
                         inputView.y = keyboardRect.origin.y
                         
@@ -134,14 +134,14 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
     }
     
     //当然输入类型（键盘、表情、其他）
-    private var _inputType:InputType = InputType.None
+    fileprivate var _inputType:InputType = InputType.none
     var inputType:InputType
         {
             return _inputType
     }
     
     //回车键类型
-    private var _returnKeyType:UIReturnKeyType = .Default
+    fileprivate var _returnKeyType:UIReturnKeyType = .default
     var returnKeyType:UIReturnKeyType
         {
         get
@@ -160,7 +160,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         {
         get
         {
-            return _textField?.keyboardAppearance ?? UIKeyboardAppearance.Default
+            return _textField?.keyboardAppearance ?? UIKeyboardAppearance.default
         }
         set
         {
@@ -197,7 +197,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         {
         get
         {
-            return _textField?.textColor ?? UIColor.darkGrayColor()
+            return _textField?.textColor ?? UIColor.darkGray
         }
         set
         {
@@ -222,7 +222,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         {
         get
         {
-            return _textField?.placeholderColor ?? UIColor.lightGrayColor()
+            return _textField?.placeholderColor ?? UIColor.lightGray
         }
         set
         {
@@ -231,20 +231,20 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
     }
     
     //停靠方式(码头式或者沉底式)
-    var dockType:DockType = .Hover
+    var dockType:DockType = .hover
         {
         didSet
         {
             var rect:CGRect = self.frame
-            rect.origin.y = dockType == .Hover ? _containerRect.height - _toolbar.height : _containerRect.height
+            rect.origin.y = dockType == .hover ? _containerRect.height - _toolbar.height : _containerRect.height
             self.frame = rect
         }
     }
     
     //输入框停留位置
-    private var _dockY:CGFloat
+    fileprivate var _dockY:CGFloat
         {
-            return dockType == .Hover ? _containerRect.height - _toolbar.height : _containerRect.height
+            return dockType == .hover ? _containerRect.height - _toolbar.height : _containerRect.height
     }
     
     //文本框与周边间距（整个输入组件的大小取决于文本框本身大小以及周边间距）
@@ -267,14 +267,14 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
             {
                 if _inited
                 {
-                    view.frame = CGRectMake(leftViewEdgeInsets.left, leftViewEdgeInsets.top, view.width, view.height)
+                    view.frame = CGRect(x: leftViewEdgeInsets.left, y: leftViewEdgeInsets.top, width: view.width, height: view.height)
                     textFieldResize()
                 }
             }
         }
     }
     
-    private var _leftView:UIView?
+    fileprivate var _leftView:UIView?
     weak var leftView:UIView?
         {
         get
@@ -286,7 +286,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
             _leftView = newValue
             if _leftView != nil
             {
-                _leftView!.frame = CGRectMake(leftViewEdgeInsets.left, leftViewEdgeInsets.top, _leftView!.width, _leftView!.height)
+                _leftView!.frame = CGRect(x: leftViewEdgeInsets.left, y: leftViewEdgeInsets.top, width: _leftView!.width, height: _leftView!.height)
                 _toolbar.addSubview(_leftView!)
             }
             if _inited
@@ -305,14 +305,14 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
             {
                 if _inited
                 {
-                    view.frame = CGRectMake(_width - view.width - rightViewEdgeInsets.right, rightViewEdgeInsets.top, view.width, view.height)
+                    view.frame = CGRect(x: _width - view.width - rightViewEdgeInsets.right, y: rightViewEdgeInsets.top, width: view.width, height: view.height)
                     textFieldResize()
                 }
             }
         }
     }
     
-    private var _rightView:UIView?
+    fileprivate var _rightView:UIView?
     weak var rightView:UIView?
         {
         get
@@ -324,7 +324,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
             _rightView = newValue
             if _rightView != nil
             {
-                _rightView!.frame = CGRectMake(_width - _rightView!.width - rightViewEdgeInsets.right, rightViewEdgeInsets.top, _rightView!.width, _rightView!.height)
+                _rightView!.frame = CGRect(x: _width - _rightView!.width - rightViewEdgeInsets.right, y: rightViewEdgeInsets.top, width: _rightView!.width, height: _rightView!.height)
                 _toolbar.addSubview(_rightView!)
             }
             if _inited
@@ -340,7 +340,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
     
     deinit
     {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     override func becomeFirstResponder() -> Bool
@@ -355,14 +355,14 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         return _textField?.resignFirstResponder() ?? superValue
     }
     
-    override func isFirstResponder() -> Bool
+    override var isFirstResponder : Bool
     {
         return _textField?.isFirstResponder() ?? false
     }
     
-    private func setup()
+    fileprivate func setup()
     {
-        _toolbar.frame = CGRectMake(0, 0, _containerRect.width, _height)
+        _toolbar.frame = CGRect(x: 0, y: 0, width: _containerRect.width, height: _height)
         addSubview(_toolbar)
         
         
@@ -374,7 +374,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         _textField?.minNumberOfLines = 1
         _textField?.maxNumberOfLines = 3
         _textField?.returnKeyType = _returnKeyType
-        _textField?.backgroundColor = UIColor.whiteColor()
+        _textField?.backgroundColor = UIColor.white
         _textField?.placeholder = "请输入文字"
         _textField?.animateHeightChange = false
         
@@ -383,13 +383,13 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         
         _toolbar.addSubview(_textField!)
         
-        dockType = .Hover
+        dockType = .hover
         
-        let notification:NSNotificationCenter = NSNotificationCenter.defaultCenter()
-        notification.addObserver(self, selector: Selector("keyboardWillShow:"), name: UIKeyboardWillShowNotification, object: nil)
-        notification.addObserver(self, selector: Selector("keyboardDidShow:"), name: UIKeyboardDidShowNotification, object: nil)
-        notification.addObserver(self, selector: Selector("keyboardWillHide:"), name: UIKeyboardWillHideNotification, object: nil)
-        notification.addObserver(self, selector: Selector("keyboardDidHide:"), name: UIKeyboardDidHideNotification, object: nil)
+        let notification:NotificationCenter = NotificationCenter.default
+        notification.addObserver(self, selector: #selector(ChatInput.keyboardWillShow(_:)), name: NSNotification.Name.UIKeyboardWillShow, object: nil)
+        notification.addObserver(self, selector: #selector(ChatInput.keyboardDidShow(_:)), name: NSNotification.Name.UIKeyboardDidShow, object: nil)
+        notification.addObserver(self, selector: #selector(ChatInput.keyboardWillHide(_:)), name: NSNotification.Name.UIKeyboardWillHide, object: nil)
+        notification.addObserver(self, selector: #selector(ChatInput.keyboardDidHide(_:)), name: NSNotification.Name.UIKeyboardDidHide, object: nil)
         
         _inited = true
     }
@@ -397,27 +397,27 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
     //隐藏键盘
     func hideAllKeyboard()
     {
-        if _inputType != .None
+        if _inputType != .none
         {
-            if let textField = _textField where textField.isFirstResponder()
+            if let textField = _textField , textField.isFirstResponder()
             {
                 textField.resignFirstResponder()
             }
             
-            UIView.animateWithDuration(_animationDuration, animations: {
+            UIView.animate(withDuration: _animationDuration, animations: {
                 self.y = self._dockY
                 self.customInputView?.y = self._containerRect.height - self._dockY
                 }, completion: {finish in
                     self.customInputView?.removeFromSuperview()
             })
             _height = _toolbar.height
-            notifyInputFrameChange(CGRectMake(0, _dockY, _width, _height))
-            _inputType = .None
+            notifyInputFrameChange(CGRect(x: 0, y: _dockY, width: _width, height: _height))
+            _inputType = .none
         }
     }
     
     //当前是否在舞台有效范围内，只有在有效范围内才需要响应键盘事件
-    private var onStage:Bool
+    fileprivate var onStage:Bool
         {
             guard let _ = window else
             {
@@ -427,61 +427,61 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
             {
                 return false
             }
-            guard let keyWindow = UIApplication.sharedApplication().keyWindow else
+            guard let keyWindow = UIApplication.shared.keyWindow else
             {
                 return false
             }
-            let gloablFrame = superview.convertRect(frame, toView: keyWindow)
-            return !CGRectIntersection(gloablFrame, keyWindow.frame).isEmpty
+            let gloablFrame = superview.convert(frame, to: keyWindow)
+            return !gloablFrame.intersection(keyWindow.frame).isEmpty
     }
     
     //文本框大小变化
-    private func textFieldResize()
+    fileprivate func textFieldResize()
     {
         let TextFieldHeight:CGFloat = _textField?.height ?? 0
         let textFieldX = _leftView != nil ? leftViewEdgeInsets.left + _leftView!.frame.width + leftViewEdgeInsets.right : textFieldEdgeInsets.left
         _textWidth = (_rightView != nil ? _rightView!.x : _width) - textFieldX - textFieldEdgeInsets.right
-        let textFrame:CGRect = CGRectMake(textFieldX, textFieldEdgeInsets.top, _textWidth, TextFieldHeight)
+        let textFrame:CGRect = CGRect(x: textFieldX, y: textFieldEdgeInsets.top, width: _textWidth, height: TextFieldHeight)
         _textField?.frame = textFrame
         chatInputResize()
     }
     
     //整个输入组件大小变化
-    private func chatInputResize()
+    fileprivate func chatInputResize()
     {
-        let keyboardHeight:CGFloat = _inputType == .Text ? _systemKeyboardFrame.height : (customInputView?.height ?? 0)
+        let keyboardHeight:CGFloat = _inputType == .text ? _systemKeyboardFrame.height : (customInputView?.height ?? 0)
         let TextFieldHeight:CGFloat = _textField?.height ?? 0
         let toolbarHeight:CGFloat = TextFieldHeight + textFieldEdgeInsets.top + textFieldEdgeInsets.bottom
         _toolbar.height = toolbarHeight
         _height = toolbarHeight
         customInputView?.y = toolbarHeight
-        _height = _inputType == .Text ? toolbarHeight : (keyboardHeight + toolbarHeight)
-        frame = CGRectMake(0, _containerRect.height - keyboardHeight - toolbarHeight, _width, _height)
+        _height = _inputType == .text ? toolbarHeight : (keyboardHeight + toolbarHeight)
+        frame = CGRect(x: 0, y: _containerRect.height - keyboardHeight - toolbarHeight, width: _width, height: _height)
     }
     
-    private func notifyInputFrameChange(targetRect:CGRect)
+    fileprivate func notifyInputFrameChange(_ targetRect:CGRect)
     {
-        if !CGRectEqualToRect(targetRect, _rect)
+        if !targetRect.equalTo(_rect)
         {
             _rect = targetRect
             delegate?.chatInput(self, frameChange: targetRect)
         }
     }
     
-    func changeInputType(type:InputType)
+    func changeInputType(_ type:InputType)
     {
         _targetInputType = type
         //各种键盘先收起
-        if _inputType == .Text && type != .Text
+        if _inputType == .text && type != .text
         {
             if _textField!.isFirstResponder()
             {
                 _textField!.resignFirstResponder()
             }
         }
-        else if _inputType == .Custom && type != .Custom
+        else if _inputType == .custom && type != .custom
         {
-            UIView.animateWithDuration(_animationDuration, animations:{
+            UIView.animate(withDuration: _animationDuration, animations:{
                 
                 self.customInputView?.y = self._containerRect.height - self._dockY + (self.customInputView?.height ?? 0)
                 
@@ -491,14 +491,14 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         }
         
         //再显示出对应的键盘
-        if type == .Text
+        if type == .text
         {
-            if let textField = _textField where !textField.isFirstResponder()
+            if let textField = _textField , !textField.isFirstResponder()
             {
                 textField.becomeFirstResponder()
             }
         }
-        else if type == .Custom
+        else if type == .custom
         {
             //显示其他输入面板(表情)
             if let inputView = self.customInputView
@@ -507,15 +507,15 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
                 {
                     addSubview(inputView)
                 }
-                let keyboardRect:CGRect = CGRectMake(0, _toolbar.height, inputView.frame.width, inputView.frame.height)
+                let keyboardRect:CGRect = CGRect(x: 0, y: _toolbar.height, width: inputView.frame.width, height: inputView.frame.height)
                 showKeyboard(keyboardRect, duration: _animationDuration)
-                UIView.animateWithDuration(_animationDuration, animations: {
+                UIView.animate(withDuration: _animationDuration, animations: {
                     
                     inputView.frame = keyboardRect
                     
                     }, completion: {(finish:Bool) in
                         
-                        self._inputType = .Custom
+                        self._inputType = .custom
                         self.delegate?.chatInputDidShow?(self)
                         self.delegate?.chatInputTypeChanged?(self)
                 })
@@ -524,48 +524,48 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         
     }
     
-    private func showKeyboard(keyboardRect:CGRect, duration:Double = 0.25)
+    fileprivate func showKeyboard(_ keyboardRect:CGRect, duration:Double = 0.25)
     {
         var keyboardHeight = keyboardRect.height
         //横屏状态下，返回的键盘宽高是对调的
-        let statusBarOrientation = UIApplication.sharedApplication().statusBarOrientation
-        if (statusBarOrientation == UIInterfaceOrientation.LandscapeLeft || statusBarOrientation == UIInterfaceOrientation.LandscapeRight) && keyboardRect.height > keyboardRect.width
+        let statusBarOrientation = UIApplication.shared.statusBarOrientation
+        if (statusBarOrientation == UIInterfaceOrientation.landscapeLeft || statusBarOrientation == UIInterfaceOrientation.landscapeRight) && keyboardRect.height > keyboardRect.width
         {
             keyboardHeight = keyboardRect.width
         }
         
         var inputFrame:CGRect
-        if _targetInputType == .Text
+        if _targetInputType == .text
         {
             _height = _toolbar.height
-            inputFrame = CGRectMake(0, self._containerRect.height - keyboardHeight - self._height, self._width, self._height)
+            inputFrame = CGRect(x: 0, y: self._containerRect.height - keyboardHeight - self._height, width: self._width, height: self._height)
         }
         else
         {
             _height = keyboardHeight + _toolbar.height
-            inputFrame = CGRectMake(0, self._containerRect.height - _height, self._width, self._height)
+            inputFrame = CGRect(x: 0, y: self._containerRect.height - _height, width: self._width, height: self._height)
         }
         
         
-        UIView.animateWithDuration(duration, animations:{
+        UIView.animate(withDuration: duration, animations:{
             
             self.frame = inputFrame
             
             }, completion:{(finish:Bool) in
                 
-                self._targetInputType = .None
+                self._targetInputType = .none
                 
         })
         notifyInputFrameChange(inputFrame)
     }
     
-    func growingTextView(growingTextView: SWGrowingTextView, didChangeHeight height: CGFloat)
+    func growingTextView(_ growingTextView: SWGrowingTextView, didChangeHeight height: CGFloat)
     {
         chatInputResize()
         notifyInputFrameChange(self.frame)
     }
     
-    func growingTextViewShouldReturn(growingTextView:SWGrowingTextView) -> Bool
+    func growingTextViewShouldReturn(_ growingTextView:SWGrowingTextView) -> Bool
     {
         send()
         return true
@@ -574,7 +574,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
     //发送
     func send()
     {
-        if let textField = _textField where textField.text != ""
+        if let textField = _textField , textField.text != ""
         {
             delegate?.chatInput?(self, send: textField.text)
             textField.text = ""
@@ -600,9 +600,9 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
      **/
      
      //键盘即将浮出
-    @objc private func keyboardWillShow(notification:NSNotification)
+    @objc fileprivate func keyboardWillShow(_ notification:Notification)
     {
-        if !onStage && dockType == .Hover
+        if !onStage && dockType == .hover
         {
             return
         }
@@ -612,9 +612,9 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
             return
         }
         
-        if let userInfo = notification.userInfo
+        if let userInfo = (notification as NSNotification).userInfo
         {
-            if let keyboardSize = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.CGRectValue()
+            if let keyboardSize = (userInfo[UIKeyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue
             {
                 _systemKeyboardFrame = keyboardSize
             }
@@ -623,15 +623,15 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
             {
                 _animationDuration = duration
             }
-            changeInputType(.Text)
+            changeInputType(.text)
             showKeyboard(_systemKeyboardFrame, duration:_animationDuration)
         }
     }
     
     //键盘已浮出
-    @objc private func keyboardDidShow(notification:NSNotification)
+    @objc fileprivate func keyboardDidShow(_ notification:Notification)
     {
-        if !onStage && dockType == .Hover
+        if !onStage && dockType == .hover
         {
             return
         }
@@ -642,15 +642,15 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
             return
         }
         
-        _inputType = .Text
+        _inputType = .text
         delegate?.chatInputDidShow?(self)
         delegate?.chatInputTypeChanged?(self)
     }
     
     //键盘即将隐藏
-    @objc private func keyboardWillHide(notification:NSNotification)
+    @objc fileprivate func keyboardWillHide(_ notification:Notification)
     {
-        if !onStage && dockType == .Hover
+        if !onStage && dockType == .hover
         {
             return
         }
@@ -662,15 +662,15 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         }
         
         //当不是切换到表情等原因引起的键盘隐藏事件，则进行全部收起
-        if _targetInputType == .None
+        if _targetInputType == .none
         {
             hideAllKeyboard()
         }
     }
     
-    @objc private func keyboardDidHide(notification:NSNotification)
+    @objc fileprivate func keyboardDidHide(_ notification:Notification)
     {
-        if !onStage && dockType == .Hover
+        if !onStage && dockType == .hover
         {
             return
         }
@@ -681,7 +681,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
             return
         }
         
-        if _targetInputType == .None
+        if _targetInputType == .none
         {
             delegate?.chatInputDidHide?(self)
         }

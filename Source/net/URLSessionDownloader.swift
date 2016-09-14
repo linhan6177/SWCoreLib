@@ -10,62 +10,62 @@ import Foundation
 import UIKit
 
 //NSURLSession Delegate是强引用，因此中间加入一个弱引用层来打破引用循环
-class URLSessionDelegateHandler: NSObject, NSURLSessionDataDelegate
+class URLSessionDelegateHandler: NSObject, URLSessionDataDelegate
 {
-    weak var delegate:NSURLSessionDataDelegate?
+    weak var delegate:URLSessionDataDelegate?
     
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData)
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data)
     {
-        delegate?.URLSession?(session, dataTask: dataTask, didReceiveData:data)
+        delegate?.urlSession?(session, dataTask: dataTask, didReceive:data)
     }
     
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void)
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void)
     {
-        delegate?.URLSession?(session, dataTask: dataTask, didReceiveResponse: response, completionHandler: completionHandler)
+        delegate?.urlSession?(session, dataTask: dataTask, didReceive: response, completionHandler: completionHandler)
     }
     
     //加载完成
-    func URLSession(
-        session: NSURLSession,
-        dataTask: NSURLSessionDataTask,
-        willCacheResponse proposedResponse: NSCachedURLResponse,
-        completionHandler: ((NSCachedURLResponse?) -> Void))
+    func urlSession(
+        _ session: URLSession,
+        dataTask: URLSessionDataTask,
+        willCacheResponse proposedResponse: CachedURLResponse,
+        completionHandler: (@escaping (CachedURLResponse?) -> Void))
     {
         completionHandler(proposedResponse)
     }
     
     //加载失败
-    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?)
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)
     {
-        delegate?.URLSession?(session, task: task, didCompleteWithError: error)
+        delegate?.urlSession?(session, task: task, didCompleteWithError: error)
     }
     
-    func URLSession(session: NSURLSession, didReceiveChallenge challenge: NSURLAuthenticationChallenge, completionHandler: (NSURLSessionAuthChallengeDisposition, NSURLCredential?) -> Void)
+    func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
     {
-        delegate?.URLSession?(session, didReceiveChallenge: challenge, completionHandler: completionHandler)
+        delegate?.urlSession?(session, didReceive: challenge, completionHandler: completionHandler)
     }
 }
 
 
-class URLSessionDownloader: NSObject,NSURLSessionDataDelegate
+class URLSessionDownloader: NSObject,URLSessionDataDelegate
 {
     //NSURLConnectionDownloadDelegate
-    private var _request:NSMutableURLRequest = NSMutableURLRequest()
+    fileprivate var _request:NSMutableURLRequest = NSMutableURLRequest()
     
-    private var _session:NSURLSession?
-    private var _task:NSURLSessionDataTask?
-    private var _sessionHandler:URLSessionDelegateHandler?
+    fileprivate var _session:Foundation.URLSession?
+    fileprivate var _task:URLSessionDataTask?
+    fileprivate var _sessionHandler:URLSessionDelegateHandler?
     
-    private var _contentLength:Int = 0
-    private var _responseData:NSMutableData = NSMutableData()
+    fileprivate var _contentLength:Int = 0
+    fileprivate var _responseData:NSMutableData = NSMutableData()
     
     var url:String = ""
     var startCallback:(() -> Void)?
     var failCallback:((NSError) -> Void)?
     var progressCallback:((Int,Int) -> Void)?
-    var completeCallback:((NSData) -> Void)?
+    var completeCallback:((Data) -> Void)?
     
-    var requestModifier: (NSMutableURLRequest -> Void)?
+    var requestModifier: ((NSMutableURLRequest) -> Void)?
     
     var timeoutInterval:Double
     {
@@ -77,7 +77,7 @@ class URLSessionDownloader: NSObject,NSURLSessionDataDelegate
         }
     }
     
-    var cachePolicy:NSURLRequestCachePolicy
+    var cachePolicy:NSURLRequest.CachePolicy
     {
         get {
             return _request.cachePolicy
@@ -96,36 +96,36 @@ class URLSessionDownloader: NSObject,NSURLSessionDataDelegate
     {
         super.init()
         _request.timeoutInterval = 30
-        _request.cachePolicy = NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData
+        _request.cachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
         _request.addValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0", forHTTPHeaderField: "User-Agent")
         
         _sessionHandler = URLSessionDelegateHandler()
         _sessionHandler?.delegate = self
         
-        let queue = NSURLSession.sharedSession().delegateQueue
+        let queue = Foundation.URLSession.shared.delegateQueue
         //let queue = NSOperationQueue.mainQueue()
-        _session = NSURLSession(configuration: sessionConfiguration, delegate: _sessionHandler, delegateQueue: queue)
+        _session = Foundation.URLSession(configuration: sessionConfiguration, delegate: _sessionHandler, delegateQueue: queue)
     }
     
-    var data:NSData{
-        return _responseData
+    var data:Data{
+        return _responseData as Data
     }
     
-    var sessionConfiguration = NSURLSessionConfiguration.ephemeralSessionConfiguration() {
+    var sessionConfiguration = URLSessionConfiguration.ephemeral {
         didSet {
             //session = NSURLSession(configuration: sessionConfiguration, delegate: sessionHandler, delegateQueue: NSOperationQueue.mainQueue())
         }
     }
     
-    func load(url:String, data:AnyObject? = nil)
+    func load(_ url:String, data:AnyObject? = nil)
     {
         self.url = url
         _responseData = NSMutableData()
-        _request.URL = NSURL(string: url)
+        _request.url = URL(string: url)
         
         requestModifier?(_request)
         
-        _task = _session?.dataTaskWithRequest(_request)
+        _task = _session?.dataTask(with: _request)
         _task?.resume()
     }
     
@@ -141,30 +141,30 @@ class URLSessionDownloader: NSObject,NSURLSessionDataDelegate
     //=================================================================================================
     
     //接收响应数据
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveData data: NSData)
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data)
     {
-        _responseData.appendData(data)
+        _responseData.append(data)
         let current:Int = _responseData.length
         let total:Int = _contentLength
         progressCallback?(current, total)
     }
     
     //加载失败
-    func URLSession(session: NSURLSession, task: NSURLSessionTask, didCompleteWithError error: NSError?)
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?)
     {
         if let error = error {
-            failCallback?(error)
+            failCallback?(error as NSError)
         }
         else {
-            completeCallback?(self._responseData)
+            completeCallback?(self._responseData as Data)
         }
     }
     
-    func URLSession(session: NSURLSession, dataTask: NSURLSessionDataTask, didReceiveResponse response: NSURLResponse, completionHandler: (NSURLSessionResponseDisposition) -> Void)
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse, completionHandler: @escaping (URLSession.ResponseDisposition) -> Void)
     {
         _contentLength = Int(response.expectedContentLength)
         startCallback?()
-        completionHandler(NSURLSessionResponseDisposition.Allow)
+        completionHandler(Foundation.URLSession.ResponseDisposition.allow)
     }
     
     

@@ -14,66 +14,66 @@ import Foundation
 //严格匹配 "" ??? "aaa" 结果："aaa"
 infix operator ??? {associativity left precedence 130}
 
-func ???<T>(optional: T?, @autoclosure defaultValue:  () -> T) -> T
+func ???<T>(optional: T?, defaultValue:  @autoclosure () -> T) -> T
 {
     switch optional
     {
-        case .Some(let value):
+        case .some(let value):
             if sw_valueEmpty(value) {
                 return defaultValue()
             }
             return value
-        case .None:
+        case .none:
             return defaultValue()
     }
 }
 
-func ???<T>(optional: T?, @autoclosure defaultValue:  () -> T?) -> T?
+func ???<T>(optional: T?, defaultValue:  @autoclosure () -> T?) -> T?
 {
     switch optional
     {
-    case .Some(let value):
+    case .some(let value):
         if sw_valueEmpty(value) {
             return defaultValue()
         }
         return value
-    case .None:
+    case .none:
         return defaultValue()
     }
 }
 
 //值为""、0时表示空
-private func sw_valueEmpty<T>(value:T) -> Bool
+private func sw_valueEmpty<T>(_ value:T) -> Bool
 {
-    if let string = value as? String where string == "" {
+    if let string = value as? String , string == "" {
         return true
     }
     //Int \ Float \ Double
-    else if let number = value as? NSNumber where number.doubleValue == 0 {
+    else if let number = value as? NSNumber , number.doubleValue == 0 {
         return true
     }
-    else if let value = value as? UInt8 where value == 0 {
+    else if let value = value as? UInt8 , value == 0 {
         return true
     }
-    else if let value = value as? Int8 where value == 0 {
+    else if let value = value as? Int8 , value == 0 {
         return true
     }
-    else if let value = value as? UInt16 where value == 0 {
+    else if let value = value as? UInt16 , value == 0 {
         return true
     }
-    else if let value = value as? Int16 where value == 0 {
+    else if let value = value as? Int16 , value == 0 {
         return true
     }
-    else if let value = value as? UInt32 where value == 0 {
+    else if let value = value as? UInt32 , value == 0 {
         return true
     }
-    else if let value = value as? Int32 where value == 0 {
+    else if let value = value as? Int32 , value == 0 {
         return true
     }
-    else if let value = value as? UInt64 where value == 0 {
+    else if let value = value as? UInt64 , value == 0 {
         return true
     }
-    else if let value = value as? Int64 where value == 0 {
+    else if let value = value as? Int64 , value == 0 {
         return true
     }
     return false

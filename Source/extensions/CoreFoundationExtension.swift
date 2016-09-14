@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension FloatingPointType
+extension FloatingPoint
 {
     //返回浮点数的正常值
     var numberValue:Self{
@@ -55,24 +55,24 @@ extension String
     }
     
     public var URLEncoded:String {
-        let raw: NSString = self
-        let legalURLCharactersToBeEscaped: CFStringRef = ":&=;+!@#$()',*"
+        let raw: NSString = self as NSString
+        let legalURLCharactersToBeEscaped: CFString = ":&=;+!@#$()',*" as CFString
         return CFURLCreateStringByAddingPercentEscapes(nil, raw, nil, legalURLCharactersToBeEscaped, CFStringBuiltInEncodings.UTF8.rawValue) as String
     }
     
     public var URLDecoded:String{
         get{
             var output:String = self
-            output = output.stringByReplacingOccurrencesOfString("+", withString: " ", options: NSStringCompareOptions.LiteralSearch, range: nil)
+            output = output.replacingOccurrences(of: "+", with: " ", options: NSString.CompareOptions.literal, range: nil)
             return output.stringByRemovingPercentEncoding ?? self
         }
     }
     
     //字符串分割
-    public func split(delimiter:String) -> [String]
+    public func split(_ delimiter:String) -> [String]
     {
         var collection:[String] = []
-        let sequences = self.characters.split(delimiter.characters.first ?? Character(" "), maxSplit: Int.max, allowEmptySlices: true)
+        let sequences = self.characters.split(separator: delimiter.characters.first ?? Character(" "), maxSplits: Int.max, omittingEmptySubsequences: false)
         for seq in sequences
         {
             collection.append(String(seq))
@@ -86,7 +86,7 @@ extension String
 extension Array
 {
     //安全的获取某个索引内的值
-    public func valueAt(index:Int) -> Element?
+    public func valueAt(_ index:Int) -> Element?
     {
         if index >= 0 && index < self.count
         {
@@ -96,20 +96,20 @@ extension Array
     }
     
     //安全的移除某个元素
-    public mutating func removeAtIndexSafely(index:Int) -> Element?
+    public mutating func removeAtIndexSafely(_ index:Int) -> Element?
     {
         if index >= 0 && index < self.count
         {
-            return removeAtIndex(index)
+            return remove(at: index)
         }
         return nil
     }
     
-    public mutating func insertSafely(newElement:Element, atIndex index:Int)
+    public mutating func insertSafely(_ newElement:Element, atIndex index:Int)
     {
         if index >= 0 && index <= self.count
         {
-            insert(newElement, atIndex: index)
+            insert(newElement, at: index)
         }
     }
 
@@ -126,29 +126,29 @@ extension NSRange
     }
     
     //是否包含某个范围
-    public func contains(range:NSRange) -> Bool
+    public func contains(_ range:NSRange) -> Bool
     {
         return range.location >= location && range.destination <= destination
     }
 }
 
-extension NSURL
+extension URL
 {
     //获取path所在的目录(~cache/data/a.png -> ~cache/data)
     public var directoryPath:String {
-        if !fileURL
+        if !isFileURL
         {
             return path ?? ""
         }
         let text:String = path ?? absoluteString
         let textRange = NSRange(location: 0, length: text.characters.count)
         let reg = try? NSRegularExpression(pattern: "^((\\w)?:)?([^.]+)?(\\.(\\w+)?)?", options: [])
-        let result = reg?.firstMatchInString(text, options: [], range: textRange)
-        if let range = result?.rangeAtIndex(3) where textRange.contains(range)
+        let result = reg?.firstMatch(in: text, options: [], range: textRange)
+        if let range = result?.rangeAt(3) , textRange.contains(range)
         {
             
-            let separator:String = text.containsString("\\") ? "\\" : "/"
-            let sequences = (text as NSString).substringWithRange(range).characters.split("/", maxSplit: Int.max, allowEmptySlices: true)
+            let separator:String = text.contains("\\") ? "\\" : "/"
+            let sequences = (text as NSString).substring(with: range).characters.split(separator: "/", maxSplits: Int.max, omittingEmptySubsequences: false)
             var path:String = ""
             for i in 0..<max(sequences.count - 1, 0)
             {

@@ -9,17 +9,17 @@
 import Foundation
 class SimpleCookie:NSObject
 {
-    var userDefaults:NSUserDefaults?
-    var userData:[NSObject:AnyObject]?
+    private static var __once: () = { Static.instance = SimpleCookie(user: "userData") }()
+    var userDefaults:UserDefaults?
+    var userData:[AnyHashable: Any]?
     
     class func shared()->SimpleCookie
     {
         struct Static {
             static var instance : SimpleCookie? = nil
-            static var token : dispatch_once_t = 0
+            static var token : Int = 0
         }
-        dispatch_once(&Static.token)
-            { Static.instance = SimpleCookie(user: "userData") }
+        _ = SimpleCookie.__once
         
         return Static.instance!
     }
@@ -28,8 +28,8 @@ class SimpleCookie:NSObject
     {
         super.init()
         
-        userDefaults = NSUserDefaults(suiteName:username)
-        if let data = userDefaults?.objectForKey("UserData") as? [NSObject:AnyObject]
+        userDefaults = UserDefaults(suiteName:username)
+        if let data = userDefaults?.object(forKey: "UserData") as? [AnyHashable: Any]
         {
             userData = data
         }
@@ -58,17 +58,17 @@ class SimpleCookie:NSObject
     }
 **/
     
-    func getObject(key:String!) -> AnyObject?
+    func getObject(_ key:String!) -> AnyObject?
     {
-        let obj:AnyObject? = userData?[key]
+        let obj:AnyObject? = userData?[key] as AnyObject?
         return obj
     }
     
     
-    func setObject(anObject: AnyObject?, forKey key:String)
+    func setObject(_ anObject: AnyObject?, forKey key:String)
     {
         userData?[key] = anObject
-        userDefaults?.setObject(userData, forKey:"UserData")
+        userDefaults?.set(userData, forKey:"UserData")
         userDefaults?.synchronize()
     }
     

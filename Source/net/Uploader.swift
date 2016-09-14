@@ -15,9 +15,9 @@ import UIKit
 
 @objc protocol UploaderDelegate:NSObjectProtocol
 {
-    func uploaderResponse(uploader:Uploader, response data:NSData?, bindArgs:AnyObject?)
+    func uploaderResponse(_ uploader:Uploader, response data:Data?, bindArgs:AnyObject?)
     
-    optional func uploaderFail(uploader:Uploader, error:NSError, bindArgs:AnyObject?)
+    @objc optional func uploaderFail(_ uploader:Uploader, error:NSError, bindArgs:AnyObject?)
 }
 
 class Uploader: NSObject,NSURLConnectionDataDelegate
@@ -26,16 +26,16 @@ class Uploader: NSObject,NSURLConnectionDataDelegate
     
     var bindArgs:AnyObject?
     
-    private var _connection:NSURLConnection?
+    fileprivate var _connection:NSURLConnection?
     
-    private var _contentLength:Int = 0
-    private var _responseData:NSMutableData = NSMutableData()
+    fileprivate var _contentLength:Int = 0
+    fileprivate var _responseData:NSMutableData = NSMutableData()
     
     
     var startCallback:(() -> Void)?
     var failCallback:((NSError) -> Void)?
     var progressCallback:((Int,Int) -> Void)?
-    var responseCallback:((NSData?) -> Void)?
+    var responseCallback:((Data?) -> Void)?
     
     override init()
     {
@@ -47,16 +47,16 @@ class Uploader: NSObject,NSURLConnectionDataDelegate
         //trace("Uploader deinit")
     }
     
-    func upload(url:String, fileData:NSData!, uploadDataFieldName:String!, params:NSDictionary? = nil)
+    func upload(_ url:String, fileData:Data!, uploadDataFieldName:String!, params:NSDictionary? = nil)
     {
-        let request:NSMutableURLRequest = getPOSTRequest(NSURL(string: url)!, fileData:fileData, uploadDataFieldName:uploadDataFieldName, params:params)
+        let request:NSMutableURLRequest = getPOSTRequest(URL(string: url)!, fileData:fileData, uploadDataFieldName:uploadDataFieldName, params:params)
         _responseData = NSMutableData()
         if _connection != nil
         {
             _connection!.cancel()
             _connection = nil
         }
-        _connection = NSURLConnection(request: request, delegate: self)
+        _connection = NSURLConnection(request: request as URLRequest, delegate: self)
         
         startCallback?()
     }
@@ -66,12 +66,12 @@ class Uploader: NSObject,NSURLConnectionDataDelegate
         _connection?.cancel()
     }
     
-    func getPOSTRequest(url:NSURL, fileData:NSData!, uploadDataFieldName:String!, params:NSDictionary!)->NSMutableURLRequest
+    func getPOSTRequest(_ url:URL, fileData:Data!, uploadDataFieldName:String!, params:NSDictionary!)->NSMutableURLRequest
     {
         // Create a POST request
-        let myMedRequest:NSMutableURLRequest = NSMutableURLRequest(URL: url, cachePolicy:NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData,
+        let myMedRequest:NSMutableURLRequest = NSMutableURLRequest(url: url, cachePolicy:NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData,
             timeoutInterval:30)
-        myMedRequest.HTTPMethod = "POST"
+        myMedRequest.httpMethod = "POST"
         
         let POSTBoundary:String = "nbdfapfjygwkgavthqwnjvrjdnkyapny"
         
@@ -84,9 +84,9 @@ class Uploader: NSObject,NSURLConnectionDataDelegate
         {
             for (key,value) in params
             {
-                POSTBody.appendData(NSString(string: "--\(POSTBoundary)\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-                POSTBody.appendData(NSString(string: "Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-                POSTBody.appendData(NSString(string: "\(value)\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
+                POSTBody.append(NSString(string: "--\(POSTBoundary)\r\n").data(using: String.Encoding.utf8)!)
+                POSTBody.append(NSString(string: "Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n").data(using: String.Encoding.utf8)!)
+                POSTBody.append(NSString(string: "\(value)\r\n").data(using: String.Encoding.utf8)!)
             }
         }
         
@@ -95,18 +95,18 @@ class Uploader: NSObject,NSURLConnectionDataDelegate
         if (fileData != nil)
         {
             let filename:String = "1.jpg"
-            POSTBody.appendData(NSString(string: "--\(POSTBoundary)\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-            POSTBody.appendData(NSString(string: "Content-Disposition: form-data; name=\"\(uploadDataFieldName)\"; filename=\"\(filename)\"\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-            POSTBody.appendData(NSString(string: "Content-Type:image/jpeg\r\n\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
-            POSTBody.appendData(fileData)
-            POSTBody.appendData(NSString(string: "\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
+            POSTBody.append(NSString(string: "--\(POSTBoundary)\r\n").data(using: String.Encoding.utf8)!)
+            POSTBody.append(NSString(string: "Content-Disposition: form-data; name=\"\(uploadDataFieldName)\"; filename=\"\(filename)\"\r\n").data(using: String.Encoding.utf8)!)
+            POSTBody.append(NSString(string: "Content-Type:image/jpeg\r\n\r\n").data(using: String.Encoding.utf8)!)
+            POSTBody.append(fileData)
+            POSTBody.append(NSString(string: "\r\n").data(using: String.Encoding.utf8)!)
         }
         
         // Add the closing -- to the POST Form
-        POSTBody.appendData(NSString(string: "\r\n--\(POSTBoundary)--\r\n").dataUsingEncoding(NSUTF8StringEncoding)!)
+        POSTBody.append(NSString(string: "\r\n--\(POSTBoundary)--\r\n").data(using: String.Encoding.utf8)!)
         
         // Add the body to the myMedRequest & return
-        myMedRequest.HTTPBody = POSTBody
+        myMedRequest.httpBody = POSTBody as Data
         
         //设置HTTPHeader
         myMedRequest.setValue("multipart/form-data; boundary=\(POSTBoundary)", forHTTPHeaderField: "Content-Type")
@@ -119,30 +119,30 @@ class Uploader: NSObject,NSURLConnectionDataDelegate
     
     
     //上传失败
-    func connection(connection: NSURLConnection, didFailWithError error: NSError)
+    func connection(_ connection: NSURLConnection, didFailWithError error: Error)
     {
-        failCallback?(error)
-        delegate?.uploaderFail?(self, error: error, bindArgs:bindArgs)
+        failCallback?(error as NSError)
+        delegate?.uploaderFail?(self, error: error as NSError, bindArgs:bindArgs)
     }
     
     //上传过程
-    func connection(connection: NSURLConnection, didSendBodyData bytesWritten: Int, totalBytesWritten: Int, totalBytesExpectedToWrite: Int)
+    func connection(_ connection: NSURLConnection, didSendBodyData bytesWritten: Int, totalBytesWritten: Int, totalBytesExpectedToWrite: Int)
     {
         progressCallback?(totalBytesWritten, totalBytesExpectedToWrite)
         var progress:Double = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite) * 100
     }
     
     
-    func connection(_: NSURLConnection, didReceiveData data: NSData)
+    func connection(_: NSURLConnection, didReceive data: Data)
     {
-        _responseData.appendData(data)
+        _responseData.append(data)
     }
     
     //下载完成
-    func connectionDidFinishLoading(connection: NSURLConnection)
+    func connectionDidFinishLoading(_ connection: NSURLConnection)
     {
-        responseCallback?(_responseData)
-        delegate?.uploaderResponse(self, response:_responseData, bindArgs:bindArgs)
+        responseCallback?(_responseData as Data)
+        delegate?.uploaderResponse(self, response:_responseData as Data, bindArgs:bindArgs)
     }
     
     

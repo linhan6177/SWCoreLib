@@ -24,25 +24,25 @@ class ImageLoader: UIImageView
     var completeCallback:((UIImageView, Bool) -> Void)?
     
     
-    private let errorDomain:String = "com.sw.ImageLoader"
+    fileprivate let errorDomain:String = "com.sw.ImageLoader"
     
     
-    private var _downloader:Downloader = Downloader()
+    fileprivate var _downloader:Downloader = Downloader()
     
-    private var _cachePath:String = ""
-    private var _url:String = ""
-    private var _compressForCache:Bool = true
+    fileprivate var _cachePath:String = ""
+    fileprivate var _url:String = ""
+    fileprivate var _compressForCache:Bool = true
     
     //Memory
     
     //当前是否处于网络加载中
-    private var _loading:Bool = false
+    fileprivate var _loading:Bool = false
     //图片是否正在处理中（从本地加载、圆角、裁剪等处理）
-    private var _processing = false
+    fileprivate var _processing = false
     
     init()
     {
-        super.init(frame: CGRectZero)
+        super.init(frame: CGRect.zero)
         setup()
     }
     
@@ -58,7 +58,7 @@ class ImageLoader: UIImageView
     
     deinit {
         //print("DEINIT ImageLoader")
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
     }
     
     override var frame:CGRect {
@@ -84,7 +84,7 @@ class ImageLoader: UIImageView
     //加载图片
     //url：图片地址
     //compressForCache:压缩图片以进行缓存
-    func load(url:String, compressForCache:Bool = true)
+    func load(_ url:String, compressForCache:Bool = true)
     {
         if url == ""
         {
@@ -119,7 +119,7 @@ class ImageLoader: UIImageView
         _cachePath = SWImageCacheManager.sharedManager().fetchStorePath(url, options: options, compress: compressForCache && !frame.isEmpty)
         
         //如果当前内存中有原图，则用内存中的原图加工处理完各种所需的规格
-        if let memoryCacheImage = SWImageCacheManager.sharedManager().memoryCache.objectForKey(url) as? UIImage
+        if let memoryCacheImage = SWImageCacheManager.sharedManager().memoryCache.object(forKey: url) as? UIImage
         {
             if imageProcessHandler(memoryCacheImage, readCache:true)
             {
@@ -132,8 +132,7 @@ class ImageLoader: UIImageView
         }
         
         _processing = true
-        dispatch_async(SWImageCacheManager.sharedManager().ioQueue,
-                       {
+        SWImageCacheManager.sharedManager().ioQueue.async(execute: {
                         let cachedURL = url
                         let orginPath = SWImageCacheManager.sharedManager().fetchOriginStorePath(url)
                         //先读取相关尺寸图片的缓存
@@ -141,7 +140,7 @@ class ImageLoader: UIImageView
                         {
                             if self._url == cachedURL
                             {
-                                dispatch_async(dispatch_get_main_queue()) {
+                                DispatchQueue.main.async {
                                     self.completeHandler(cacheImage, readCache:true)
                                 }
                             }
@@ -157,7 +156,7 @@ class ImageLoader: UIImageView
                             {
                                 if self._url == cachedURL
                                 {
-                                    dispatch_async(dispatch_get_main_queue()) {
+                                    DispatchQueue.main.async {
                                         self.completeHandler(originImage, readCache:true)
                                     }
                                 }
@@ -166,7 +165,7 @@ class ImageLoader: UIImageView
                             //什么都没有则网络加载
                         else
                         {
-                            dispatch_async(dispatch_get_main_queue()) {
+                            DispatchQueue.main.async {
                                 if let placeholderImage = self.placeholderImage
                                 {
                                     self.image = placeholderImage
@@ -184,7 +183,7 @@ class ImageLoader: UIImageView
     //url：图片地址
     //placeholderImage:图片还未加载完成时的占位图
     //compressForCache:压缩图片以进行缓存
-    func load(url:String, placeholderImage:UIImage?, compressForCache:Bool = true)
+    func load(_ url:String, placeholderImage:UIImage?, compressForCache:Bool = true)
     {
         self.placeholderImage = placeholderImage
         load(url, compressForCache:compressForCache)
@@ -194,13 +193,11 @@ class ImageLoader: UIImageView
     func load(contentsOfFile file:String)
     {
         _processing = true
-        dispatch_async(SWImageCacheManager.sharedManager().ioQueue,
-                       {
-                        if let data = NSData(contentsOfFile: file),
-                            let image = UIImage(data: data, scale: UIScreen.mainScreen().scale)
+        SWImageCacheManager.sharedManager().ioQueue.async(execute: {
+                        if let data = try? Data(contentsOf: URL(fileURLWithPath: file)),
+                            let image = UIImage(data: data, scale: UIScreen.main.scale)
                         {
-                            dispatch_async(dispatch_get_main_queue(),
-                                {
+                            DispatchQueue.main.async(execute: {
                                     //self.image = image
                                     self.completeHandler(image, readCache:true)
                             })
@@ -215,9 +212,9 @@ class ImageLoader: UIImageView
         layer.removeAllAnimations()
     }
     
-    private func setup()
+    fileprivate func setup()
     {
-        _downloader.cachePolicy = .ReturnCacheDataElseLoad
+        _downloader.cachePolicy = .returnCacheDataElseLoad
         _downloader.timeoutInterval = 10
         _downloader.startCallback = {[weak self] in self?.startCallback?()}
         _downloader.failCallback = {[weak self] error in
@@ -227,22 +224,22 @@ class ImageLoader: UIImageView
             self?.loadProgressCallback(current, totalBytes: total)
         }
         _downloader.completeCallback = {[weak self] data in
-            self?.loadCompleteCallback(data)
+            self?.loadCompleteCallback(data as Data)
         }
     }
     
-    private func loadFailCallback(error:NSError)
+    fileprivate func loadFailCallback(_ error:NSError)
     {
         _loading = false
         failCallback?(error)
     }
     
-    private func loadProgressCallback(loadedBytes:Int, totalBytes:Int)
+    fileprivate func loadProgressCallback(_ loadedBytes:Int, totalBytes:Int)
     {
         progressCallback?(loadedBytes, totalBytes)
     }
     
-    private func loadCompleteCallback(data:NSData)
+    fileprivate func loadCompleteCallback(_ data:Data)
     {
         _loading = false
         if options.diskCacheForOrigin
@@ -254,11 +251,11 @@ class ImageLoader: UIImageView
         {
             let compress = imageProcessHandler(loadedImage)
             //如果图片未达到压缩的条件，则直接保存原图
-            if let cgImage = loadedImage.CGImage where !compress
+            if let cgImage = loadedImage.cgImage , !compress
             {
-                let image = UIImage(CGImage: cgImage, scale: UIScreen.mainScreen().scale, orientation: loadedImage.imageOrientation)
+                let image = UIImage(cgImage: cgImage, scale: UIScreen.main.scale, orientation: loadedImage.imageOrientation)
                 let path:String = _cachePath
-                dispatch_async(SWImageCacheManager.sharedManager().ioQueue) {
+                SWImageCacheManager.sharedManager().ioQueue.async {
                     FileUtility.saveImageCacheToPath(path, image:data)
                 }
                 
@@ -277,7 +274,7 @@ class ImageLoader: UIImageView
     }
     
     //图片进行压缩、裁剪、圆角等处理(返回值为是否处理过)
-    private func imageProcessHandler(loadedImage:UIImage, readCache:Bool = false) -> Bool
+    fileprivate func imageProcessHandler(_ loadedImage:UIImage, readCache:Bool = false) -> Bool
     {
         var compress:Bool = false
         if _compressForCache && !frame.isEmpty
@@ -290,16 +287,16 @@ class ImageLoader: UIImageView
             //将下载下来的图片进行压缩
             var newSize:CGSize = frame.size
             var needResize:Bool = false
-            if options.fitMode == .Crop
+            if options.fitMode == .crop
             {
                 scale = ViewUtil.getAdaptiveScale(loadedImage.size.width, targetH: loadedImage.size.height, containerW: ContainerWidth, containerH: ContainerHeight, inscribed: false)
-                newSize = CGSizeMake(loadedImage.size.width * scale, loadedImage.size.height * scale)
+                newSize = CGSize(width: loadedImage.size.width * scale, height: loadedImage.size.height * scale)
                 needResize = true
             }
-            else if options.fitMode == .Clip
+            else if options.fitMode == .clip
             {
                 scale = ViewUtil.getAdaptiveScale(loadedImage.size.width, targetH: loadedImage.size.height, containerW: ContainerWidth, containerH: ContainerHeight, inscribed: true)
-                newSize = CGSizeMake(loadedImage.size.width * scale, loadedImage.size.height * scale)
+                newSize = CGSize(width: loadedImage.size.width * scale, height: loadedImage.size.height * scale)
                 needResize = true
             }
             else
@@ -311,25 +308,24 @@ class ImageLoader: UIImageView
             {
                 compress = true
                 
-                dispatch_async(SWImageCacheManager.sharedManager().processQueue,
-                               {
+                SWImageCacheManager.sharedManager().processQueue.async(execute: {
                                 let tag:String = self._url
                                 let options = self.options
                                 //保存时判断是否透明，以决定保存格式;imageResize 生成的图片带alpha通道(ARGB)，因此判断是否透明需要用原图
                                 var transparent:Bool = false
-                                if let cgImage = loadedImage.CGImage
+                                if let cgImage = loadedImage.cgImage
                                 {
-                                    let alphaInfo:CGImageAlphaInfo = CGImageGetAlphaInfo(cgImage)
-                                    if !(alphaInfo == .None || alphaInfo == .NoneSkipFirst || alphaInfo == .NoneSkipLast)
+                                    let alphaInfo:CGImageAlphaInfo = cgImage.alphaInfo
+                                    if !(alphaInfo == .none || alphaInfo == .noneSkipFirst || alphaInfo == .noneSkipLast)
                                     {
                                         transparent = true
                                     }
                                 }
                                 
-                                var newImage:UIImage = Toucan.Resize.resizeImage(loadedImage, size: newSize, fitMode:.Scale)
-                                if options.fitMode == .Crop
+                                var newImage:UIImage = Toucan.Resize.resizeImage(loadedImage, size: newSize, fitMode:.scale)
+                                if options.fitMode == .crop
                                 {
-                                    let cropRect:CGRect = CGRectMake(floor((newImage.size.width - ContainerWidth) * 0.5), floor((newImage.size.height - ContainerHeight) * 0.5), ContainerWidth, ContainerHeight)
+                                    let cropRect:CGRect = CGRect(x: floor((newImage.size.width - ContainerWidth) * 0.5), y: floor((newImage.size.height - ContainerHeight) * 0.5), width: ContainerWidth, height: ContainerHeight)
                                     newImage = Toucan.Util.croppedImageWithRect(newImage, rect: cropRect)
                                 }
                                 //print("loadedImage", loadedImage.scale, loadedImage.size, newImage.scale, newImage.size)
@@ -340,7 +336,7 @@ class ImageLoader: UIImageView
                                     transparent = true
                                     newImage = Toucan.Mask.maskImageWithRoundedRect(newImage, cornerRadius: options.cornerRadius, borderWidth: options.borderWidth, borderColor: options.borderColor)
                                 }
-                                var imageData:NSData?
+                                var imageData:Data?
                                 if transparent
                                 {
                                     imageData = UIImagePNGRepresentation(newImage)
@@ -356,11 +352,11 @@ class ImageLoader: UIImageView
                                 {
                                     if let imageData = imageData
                                     {
-                                        dispatch_async(SWImageCacheManager.sharedManager().ioQueue, {
+                                        SWImageCacheManager.sharedManager().ioQueue.async(execute: {
                                             FileUtility.saveImageCacheToPath(self._cachePath, image:imageData)
                                         })
                                     }
-                                    dispatch_async(dispatch_get_main_queue()){
+                                    DispatchQueue.main.async{
                                         //print("处理后:", newImage.scale, newImage.size)
                                         //self.image = newImage
                                         self.completeHandler(newImage, readCache:readCache)
@@ -374,13 +370,13 @@ class ImageLoader: UIImageView
         return compress
     }
     
-    private func completeHandler(aImage:UIImage, readCache:Bool)
+    fileprivate func completeHandler(_ aImage:UIImage, readCache:Bool)
     {
         let transition = options.transition
         // && transition != SWImageTransition.None
         if !readCache && transition.duration > 0
         {
-            dispatch_async(dispatch_get_main_queue(), {
+            DispatchQueue.main.async(execute: {
                 //                UIView.transitionWithView(self, duration: transition.duration,
                 //                    options: [transition.animationOptions, .AllowUserInteraction],
                 //                    animations: {
@@ -393,7 +389,7 @@ class ImageLoader: UIImageView
                 //                })
                 self.image = aImage
                 transition.ready?(self, aImage)
-                UIView.animateWithDuration(transition.duration, delay: 0, options: [.AllowUserInteraction], animations: {
+                UIView.animate(withDuration: transition.duration, delay: 0, options: [.allowUserInteraction], animations: {
                     transition.animations?(self, aImage)
                     }, completion: { finished in
                         transition.completion?(finished)
@@ -410,9 +406,9 @@ class ImageLoader: UIImageView
             completeCallback?(self, readCache)
         }
         //图片加载完成时，如果imageView宽高为0，则呈现为图片的原始宽高
-        if let image = image where frame.isEmpty
+        if let image = image , frame.isEmpty
         {
-            frame = CGRectMake(frame.origin.x, frame.origin.y, image.size.width, image.size.height)
+            frame = CGRect(x: frame.origin.x, y: frame.origin.y, width: image.size.width, height: image.size.height)
         }
     }
     
@@ -425,12 +421,12 @@ class ImageLoader: UIImageView
 
 class ImageLoaderOptions:NSObject
 {
-    private let KeyQuality:String = "quality"
-    private let KeyCornerRadius:String = "cornerRadius"
-    private let KeyBorderWidth:String = "borderWidth"
-    private let KeyBorderColor:String = "borderColor"
-    private let KeyFitMode:String = "fitMode"
-    private let KeyContainerSize:String = "containerSize"
+    fileprivate let KeyQuality:String = "quality"
+    fileprivate let KeyCornerRadius:String = "cornerRadius"
+    fileprivate let KeyBorderWidth:String = "borderWidth"
+    fileprivate let KeyBorderColor:String = "borderColor"
+    fileprivate let KeyFitMode:String = "fitMode"
+    fileprivate let KeyContainerSize:String = "containerSize"
     
     
     //图片经过处理后重新保存的质量
@@ -455,14 +451,14 @@ class ImageLoaderOptions:NSObject
     }
     
     //边框颜色
-    var borderColor:UIColor = UIColor.whiteColor() {
+    var borderColor:UIColor = UIColor.white {
         didSet {
             dictionary[KeyBorderColor] = borderColor
         }
     }
     
     //图片在图片容器内布局方式,默认为铺满裁剪方式
-    var fitMode:ImageFitMode = .Crop {
+    var fitMode:ImageFitMode = .crop {
         didSet {
             dictionary[KeyFitMode] = fitMode
         }
@@ -476,28 +472,28 @@ class ImageLoaderOptions:NSObject
     //开始加载时清空当前图像
     var clearBefore:Bool = true
     
-    var transition:SWImageTransition = SWImageTransition.None
+    var transition:SWImageTransition = SWImageTransition.none
     
     //缩放（裁剪）模式
-    var contentMode:UIViewContentMode = .ScaleAspectFill {
+    var contentMode:UIViewContentMode = .scaleAspectFill {
         didSet {
-            if contentMode == .ScaleAspectFill
+            if contentMode == .scaleAspectFill
             {
-                fitMode = .Crop
+                fitMode = .crop
             }
-            else if contentMode == .ScaleAspectFit
+            else if contentMode == .scaleAspectFit
             {
-                fitMode = .Clip
+                fitMode = .clip
             }
             else
             {
-                fitMode = .Scale
+                fitMode = .scale
             }
         }
     }
     
     //图片容器尺寸
-    var containerSize:CGSize = CGSizeZero {
+    var containerSize:CGSize = CGSize.zero {
         didSet {
             dictionary[KeyContainerSize] = containerSize
         }
@@ -519,79 +515,79 @@ class ImageLoaderOptions:NSObject
 //图片在容器的
 enum ImageFitMode:Int
 {
-    case Scale //强制拉伸到容器大小
-    case Clip  //容器内按比例居中缩放
-    case Crop  //铺满容器，并按比例居中缩放
+    case scale //强制拉伸到容器大小
+    case clip  //容器内按比例居中缩放
+    case crop  //铺满容器，并按比例居中缩放
 }
 
 enum SWImageTransition {
-    case None
-    case Fade(NSTimeInterval)
+    case none
+    case fade(TimeInterval)
     
-    case FlipFromLeft(NSTimeInterval)
-    case FlipFromRight(NSTimeInterval)
-    case FlipFromTop(NSTimeInterval)
-    case FlipFromBottom(NSTimeInterval)
+    case flipFromLeft(TimeInterval)
+    case flipFromRight(TimeInterval)
+    case flipFromTop(TimeInterval)
+    case flipFromBottom(TimeInterval)
     
-    case Custom(duration: NSTimeInterval,
+    case custom(duration: TimeInterval,
         options: UIViewAnimationOptions,
         animations: ((UIImageView, UIImage) -> Void)?,
         completion: ((Bool) -> Void)?)
     
-    var duration: NSTimeInterval {
+    var duration: TimeInterval {
         switch self {
-        case .None:                          return 0
-        case .Fade(let duration):            return duration
+        case .none:                          return 0
+        case .fade(let duration):            return duration
             
-        case .FlipFromLeft(let duration):    return duration
-        case .FlipFromRight(let duration):   return duration
-        case .FlipFromTop(let duration):     return duration
-        case .FlipFromBottom(let duration):  return duration
+        case .flipFromLeft(let duration):    return duration
+        case .flipFromRight(let duration):   return duration
+        case .flipFromTop(let duration):     return duration
+        case .flipFromBottom(let duration):  return duration
             
-        case .Custom(let duration, _, _, _): return duration
+        case .custom(let duration, _, _, _): return duration
         }
     }
     
     var animationOptions: UIViewAnimationOptions {
         switch self {
-        case .None:                         return .TransitionNone
-        case .Fade(_):                      return .TransitionCrossDissolve
+        case .none:                         return UIViewAnimationOptions()
+        case .fade(_):                      return .transitionCrossDissolve
             
-        case .FlipFromLeft(_):              return .TransitionFlipFromLeft
-        case .FlipFromRight(_):             return .TransitionFlipFromRight
-        case .FlipFromTop(_):               return .TransitionFlipFromTop
-        case .FlipFromBottom(_):            return .TransitionFlipFromBottom
+        case .flipFromLeft(_):              return .transitionFlipFromLeft
+        case .flipFromRight(_):             return .transitionFlipFromRight
+        case .flipFromTop(_):               return .transitionFlipFromTop
+        case .flipFromBottom(_):            return .transitionFlipFromBottom
             
-        case .Custom(_, let options, _, _): return options
+        case .custom(_, let options, _, _): return options
         }
     }
     
     var ready: ((UIImageView, UIImage) -> Void)? {
         switch self {
-        case .Fade(_): return {imageView,image in imageView.alpha = 0}
+        case .fade(_): return {imageView,image in imageView.alpha = 0}
         default: return nil
         }
     }
     
     var animations: ((UIImageView, UIImage) -> Void)? {
         switch self {
-        case .Custom(_, _, let animations, _): return animations
-        case .Fade(_): return {imageView,image in imageView.alpha = 1}
+        case .custom(_, _, let animations, _): return animations
+        case .fade(_): return {imageView,image in imageView.alpha = 1}
         default: return {$0.image = $1}
         }
     }
     
     var completion: ((Bool) -> Void)? {
         switch self {
-        case .Custom(_, _, _, let completion): return completion
+        case .custom(_, _, _, let completion): return completion
         default: return nil
         }
     }
 }
 
 extension Dictionary {
-    func keysSortedByValue(isOrderedBefore: (Value, Value) -> Bool) -> [Key] {
-        return Array(self).sort{ isOrderedBefore($0.1, $1.1) }.map{ $0.0 }
+    func keysSortedByValue(_ isOrderedBefore: (Value, Value) -> Bool) -> [Key] {
+        return Array(self).sorted{ isOrderedBefore($0.1, $1.1) }.map{ $0.0 }
     }
 }
 

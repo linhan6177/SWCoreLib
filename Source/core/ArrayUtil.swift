@@ -42,9 +42,9 @@ extension Array
 extension Array where Element:Equatable
 {
     //移除元素
-    mutating func removeObject(object: Element) {
-        if let index = self.indexOf(object) {
-            self.removeAtIndex(index)
+    mutating func removeObject(_ object: Element) {
+        if let index = self.index(of: object) {
+            self.remove(at: index)
         }
     }
 }

@@ -11,11 +11,11 @@ import AddressBook
 
 class ContactTool: NSObject
 {
-    class func analyzeSysContacts(sysContacts:NSArray) -> [[String:String]] {
+    class func analyzeSysContacts(_ sysContacts:NSArray) -> [[String:String]] {
         var allContacts:Array = [[String:String]]()
         
-        func analyzeContactProperty(contact:ABRecordRef, property:ABPropertyID, keySuffix:String) -> [String:String]? {
-            var propertyValues:ABMultiValueRef? = ABRecordCopyValue(contact, property)?.takeRetainedValue()
+        func analyzeContactProperty(_ contact:ABRecord, property:ABPropertyID, keySuffix:String) -> [String:String]? {
+            var propertyValues:ABMultiValue? = ABRecordCopyValue(contact, property)?.takeRetainedValue()
             if propertyValues != nil {
                 var valueDictionary:[String:String] = [String:String]()
                 for i in 0 ..< ABMultiValueGetCount(propertyValues) {
@@ -24,7 +24,7 @@ class ContactTool: NSObject
                     switch property {
                         // 地址
                     case kABPersonAddressProperty :
-                        var addrNSDict:[NSObject:AnyObject] = value.takeRetainedValue() as! [NSObject:AnyObject]
+                        var addrNSDict:[AnyHashable: Any] = value!.takeRetainedValue() as! [AnyHashable: Any]
                         
                         valueDictionary[label+"_Country"] = addrNSDict[kABPersonAddressCountryKey] as? String ?? ""
                         valueDictionary[label+"_State"] = addrNSDict[kABPersonAddressStateKey] as? String ?? ""
@@ -36,14 +36,14 @@ class ContactTool: NSObject
                         valueDictionary["fullAddress"] = (valueDictionary[label+"_Country"]! == "" ? valueDictionary[label+"_Contrycode"]! : valueDictionary[label+"_Country"]!) + ", " + valueDictionary[label+"_State"]! + ", " + valueDictionary[label+"_City"]! + ", " + valueDictionary[label+"_Street"]!
                         // SNS
                     case kABPersonSocialProfileProperty :
-                        var snsNSDict:[NSObject:AnyObject] = value.takeRetainedValue() as! [NSObject:AnyObject]
+                        var snsNSDict:[AnyHashable: Any] = value!.takeRetainedValue() as! [AnyHashable: Any]
                         
                         valueDictionary[label+"_Username"] = snsNSDict[kABPersonSocialProfileUsernameKey] as? String ?? ""
                         valueDictionary[label+"_URL"] = snsNSDict[kABPersonSocialProfileURLKey] as? String ?? ""
                         valueDictionary[label+"_Serves"] = snsNSDict[kABPersonSocialProfileServiceKey] as? String ?? ""
                         // IM
                     case kABPersonInstantMessageProperty :
-                        var imNSDict:[NSObject:AnyObject] = value.takeRetainedValue() as! [NSObject:AnyObject]
+                        var imNSDict:[AnyHashable: Any] = value!.takeRetainedValue() as! [AnyHashable: Any]
                         
                         
 
@@ -51,9 +51,9 @@ class ContactTool: NSObject
                         valueDictionary[label+"_Username"] = imNSDict[kABPersonInstantMessageUsernameKey] as? String ?? ""
                         // Date
                     case kABPersonDateProperty :
-                        valueDictionary[label] = value != nil ? (value.takeRetainedValue() as? NSDate)?.description : nil
+                        valueDictionary[label] = value != nil ? (value?.takeRetainedValue() as? Date)?.description : nil
                     default :
-                        valueDictionary[label] = value != nil ? value.takeRetainedValue() as? String ?? "" : nil
+                        valueDictionary[label] = value != nil ? value?.takeRetainedValue() as? String ?? "" : nil
                     }
                 }
                 return valueDictionary
@@ -69,25 +69,25 @@ class ContactTool: NSObject
             部分单值属性
             */
             // 姓、姓氏拼音
-            currentContact["FirstName"] = ABRecordCopyValue(contact, kABPersonFirstNameProperty)?.takeRetainedValue() as? String ?? ""
-            currentContact["FirstNamePhonetic"] = ABRecordCopyValue(contact, kABPersonFirstNamePhoneticProperty)?.takeRetainedValue() as? String ?? ""
+            currentContact["FirstName"] = ABRecordCopyValue(contact as ABRecord!, kABPersonFirstNameProperty)?.takeRetainedValue() as? String ?? ""
+            currentContact["FirstNamePhonetic"] = ABRecordCopyValue(contact as ABRecord!, kABPersonFirstNamePhoneticProperty)?.takeRetainedValue() as? String ?? ""
             // 名、名字拼音
-            currentContact["LastName"] = ABRecordCopyValue(contact, kABPersonLastNameProperty)?.takeRetainedValue() as? String ?? ""
-            currentContact["LirstNamePhonetic"] = ABRecordCopyValue(contact, kABPersonLastNamePhoneticProperty)?.takeRetainedValue() as? String ?? ""
+            currentContact["LastName"] = ABRecordCopyValue(contact as ABRecord!, kABPersonLastNameProperty)?.takeRetainedValue() as? String ?? ""
+            currentContact["LirstNamePhonetic"] = ABRecordCopyValue(contact as ABRecord!, kABPersonLastNamePhoneticProperty)?.takeRetainedValue() as? String ?? ""
             // 昵称
-            currentContact["Nikename"] = ABRecordCopyValue(contact, kABPersonNicknameProperty)?.takeRetainedValue() as? String ?? ""
+            currentContact["Nikename"] = ABRecordCopyValue(contact as ABRecord!, kABPersonNicknameProperty)?.takeRetainedValue() as? String ?? ""
             
             // 姓名整理
             currentContact["FullName"] = (currentContact["LastName"] ?? "") + (currentContact["FirstName"] ?? "")
             
             // 公司（组织）
-            currentContact["Organization"] = ABRecordCopyValue(contact, kABPersonOrganizationProperty)?.takeRetainedValue() as? String ?? ""
+            currentContact["Organization"] = ABRecordCopyValue(contact as ABRecord!, kABPersonOrganizationProperty)?.takeRetainedValue() as? String ?? ""
             // 职位
-            currentContact["JobTitle"] = ABRecordCopyValue(contact, kABPersonJobTitleProperty)?.takeRetainedValue() as? String ?? ""
+            currentContact["JobTitle"] = ABRecordCopyValue(contact as ABRecord!, kABPersonJobTitleProperty)?.takeRetainedValue() as? String ?? ""
             // 部门
-            currentContact["Department"] = ABRecordCopyValue(contact, kABPersonDepartmentProperty)?.takeRetainedValue() as? String ?? ""
+            currentContact["Department"] = ABRecordCopyValue(contact as ABRecord!, kABPersonDepartmentProperty)?.takeRetainedValue() as? String ?? ""
             // 备注
-            currentContact["Note"] = ABRecordCopyValue(contact, kABPersonNoteProperty)?.takeRetainedValue() as? String ?? ""
+            currentContact["Note"] = ABRecordCopyValue(contact as ABRecord!, kABPersonNoteProperty)?.takeRetainedValue() as? String ?? ""
             // 生日（类型转换有问题，不可用）
             //currentContact["Brithday"] = ((ABRecordCopyValue(contact, kABPersonBirthdayProperty)?.takeRetainedValue()) as NSDate).description
             
@@ -95,27 +95,27 @@ class ContactTool: NSObject
             部分多值属性
             */
             // 电话
-            for (key, value) in analyzeContactProperty(contact, property: kABPersonPhoneProperty,keySuffix: "Phone") ?? ["":""] {
+            for (key, value) in analyzeContactProperty(contact as ABRecord, property: kABPersonPhoneProperty,keySuffix: "Phone") ?? ["":""] {
                 currentContact[key] = value
             }
             // E-mail
-            for (key, value) in analyzeContactProperty(contact, property: kABPersonEmailProperty, keySuffix: "Email") ?? ["":""] {
+            for (key, value) in analyzeContactProperty(contact as ABRecord, property: kABPersonEmailProperty, keySuffix: "Email") ?? ["":""] {
                 currentContact[key] = value
             }
             // 地址
-            for (key, value) in analyzeContactProperty(contact, property: kABPersonAddressProperty, keySuffix: "Address") ?? ["":""] {
+            for (key, value) in analyzeContactProperty(contact as ABRecord, property: kABPersonAddressProperty, keySuffix: "Address") ?? ["":""] {
                 currentContact[key] = value
             }
             // 纪念日
-            for (key, value) in analyzeContactProperty(contact, property: kABPersonDateProperty, keySuffix: "Date") ?? ["":""] {
+            for (key, value) in analyzeContactProperty(contact as ABRecord, property: kABPersonDateProperty, keySuffix: "Date") ?? ["":""] {
                 currentContact[key] = value
             }
             // URL
-            for (key, value) in analyzeContactProperty(contact, property: kABPersonURLProperty, keySuffix: "URL") ?? ["":""] {
+            for (key, value) in analyzeContactProperty(contact as ABRecord, property: kABPersonURLProperty, keySuffix: "URL") ?? ["":""] {
                 currentContact[key] = value
             }
             // SNS
-            for (key, value) in analyzeContactProperty(contact, property: kABPersonSocialProfileProperty, keySuffix: "_SNS") ?? ["":""] {
+            for (key, value) in analyzeContactProperty(contact as ABRecord, property: kABPersonSocialProfileProperty, keySuffix: "_SNS") ?? ["":""] {
                 currentContact[key] = value
             }
             

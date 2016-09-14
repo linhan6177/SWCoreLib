@@ -21,13 +21,13 @@ class SystemVolumeManager: NSObject
     }
     
     //获取\设置系统音量，值从0到1
-    private var _volume:Float = 0
+    fileprivate var _volume:Float = 0
     
     //音量调节浮层是否隐藏(默认为不隐藏)
-    private var _volumeViewHidden:Bool = false
+    fileprivate var _volumeViewHidden:Bool = false
     
-    private var _volumeViewSlider:UISlider?
-    private var _volumeView:MPVolumeView
+    fileprivate var _volumeViewSlider:UISlider?
+    fileprivate var _volumeView:MPVolumeView
     
     class var sharedManager:SystemVolumeManager
     {
@@ -36,12 +36,12 @@ class SystemVolumeManager: NSObject
     
     override init()
     {
-        _volumeView = MPVolumeView(frame: CGRectMake(-2000, -2000, 100, 100))
+        _volumeView = MPVolumeView(frame: CGRect(x: -2000, y: -2000, width: 100, height: 100))
         super.init()
         
         _volume = AVAudioSession.sharedInstance().outputVolume
         
-        _volumeView.hidden = false
+        _volumeView.isHidden = false
         
         for subview in _volumeView.subviews
         {
@@ -52,7 +52,7 @@ class SystemVolumeManager: NSObject
             }
         }
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(volumeChanged(_:)), name: "AVSystemController_SystemVolumeDidChangeNotification", object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(volumeChanged(_:)), name: NSNotification.Name(rawValue: "AVSystemController_SystemVolumeDidChangeNotification"), object: nil)
     }
     
     
@@ -68,7 +68,7 @@ class SystemVolumeManager: NSObject
                 if volumeViewHidden
                 {
                     //_volumeView.frame = CGRectMake(_volumeViewHidden ? -2000 : 100, -2000, 100, 100)
-                    UIApplication.sharedApplication().keyWindow?.addSubview(_volumeView)
+                    UIApplication.shared.keyWindow?.addSubview(_volumeView)
                     //print("otherAudioPlaying:", AVAudioSession.sharedInstance().otherAudioPlaying)
 //                    if AVAudioSession.sharedInstance().otherAudioPlaying {
 //                        // 场景1
@@ -98,25 +98,25 @@ class SystemVolumeManager: NSObject
         set
         {
             let newVolume = min(max(newValue, 0),1)
-            if let slider = _volumeViewSlider where _volume != newVolume
+            if let slider = _volumeViewSlider , _volume != newVolume
             {
                 slider.value = newVolume
-                slider.sendActionsForControlEvents(UIControlEvents.TouchUpInside)
+                slider.sendActions(for: UIControlEvents.touchUpInside)
                 //_volume = newVolume
             }
         }
     }
     
     //监听系统音量变化
-    @objc private func volumeChanged(notification:NSNotification)
+    @objc fileprivate func volumeChanged(_ notification:Notification)
     {
-        if var volume = notification.userInfo?["AVSystemController_AudioVolumeNotificationParameter"] as? Float
+        if var volume = (notification as NSNotification).userInfo?["AVSystemController_AudioVolumeNotificationParameter"] as? Float
         {
             volume = min(max(volume, 0),1)
             if volume != _volume
             {
                 _volume = volume
-                NSNotificationCenter.defaultCenter().postNotificationName(SystemVolumeManager.SystemVolumeDidChangeNotificationName, object: nil)
+                NotificationCenter.default.post(name: Notification.Name(rawValue: SystemVolumeManager.SystemVolumeDidChangeNotificationName), object: nil)
             }
         }
     }
