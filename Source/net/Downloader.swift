@@ -48,6 +48,11 @@ class Downloader: NSObject,NSURLConnectionDataDelegate
         _request.addValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0", forHTTPHeaderField: "User-Agent")
     }
     
+    deinit
+    {
+        print("DEINIT Downloader")
+    }
+    
     var cachePolicy:NSURLRequestCachePolicy
     {
         get

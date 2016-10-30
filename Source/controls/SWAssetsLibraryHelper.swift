@@ -16,9 +16,24 @@ let SWALUsePHKit:Bool = true
 let SWALUsePHKit:Bool = true
 #endif
 
+//照片获取选项
+struct SWALPhotoRequestOptions
+{
+    var requestImageData:Bool = false
+}
+
+//照片获取结果
+struct SWALPhotoRequestResult
+{
+    var image:UIImage?
+    var data:NSData?
+    var creationDate:NSDate?
+}
+
 //相册
-protocol SWALAlbumDelegate:NSObjectProtocol {
-    
+protocol SWALAlbumDelegate:NSObjectProtocol
+{
+    //相册封面的获取基于异步，所以获取完需要通知
     func albumCoverChanged(album:SWALAlbum, cover:UIImage)
 }
 
@@ -68,7 +83,7 @@ protocol SWALPhotoDelegate:NSObjectProtocol {
 
 class SWALPhoto:NSObject
 {
-    typealias ImageCompleteCallback = (UIImage?)->Void
+    typealias ImageCompleteCallback = (SWALPhotoRequestResult?)->Void
     var selected:Bool = false
     var image:UIImage?
     
@@ -86,10 +101,11 @@ class SWALPhoto:NSObject
     var id:String
     var index:Int = 0
     var originImage:UIImage?
+    var creationDate:NSDate?
     
-    func fetchOriginImage(completeCallback:ImageCompleteCallback)
+    func fetchOriginImage(completeCallback:ImageCompleteCallback, options:SWALPhotoRequestOptions? = nil)
     {
-        (iOS8Available && SWALUsePHKit) ? fetchOriginImageWithPHKit(completeCallback) : fetchOriginImageWithALKit(completeCallback)
+        (iOS8Available && SWALUsePHKit) ? fetchOriginImageWithPHKit(completeCallback, options:options) : fetchOriginImageWithALKit(completeCallback)
     }
     
     var iOS8Available:Bool{
@@ -102,14 +118,14 @@ class SWALPhoto:NSObject
     
     init(id:String, ALAsset asset:ALAsset)
     {
-        self.id = id
+        self.id = SWMD5.md532BitUpper(id)
         self.asset = asset
     }
     
     @available(iOS 8.0, *)
     init(id:String, PHAsset asset:PHAsset)
     {
-        self.id = id
+        self.id = SWMD5.md532BitUpper(id)
         self._PHAsset = asset
     }
     
@@ -119,8 +135,21 @@ class SWALPhoto:NSObject
         super.init()
     }
     
+    var size:CGSize
+    {
+        if #available(iOS 8.0, *)
+        {
+            if let asset = _PHAsset
+            {
+                return CGSizeMake(CGFloat(asset.pixelWidth), CGFloat(asset.pixelHeight))
+            }
+        }
+        return CGSizeZero
+    }
+    
     //缩略图
     var thumbnail:UIImage?
+    
     //获取缩略图是异步的，需要回调
     func fetchThumbnail(size:CGSize? = nil)
     {
@@ -161,7 +190,7 @@ class SWALPhoto:NSObject
     }
     
     //获取原图
-    private func fetchOriginImageWithPHKit(completeCallback:ImageCompleteCallback)
+    private func fetchOriginImageWithPHKit(completeCallback:ImageCompleteCallback, options:SWALPhotoRequestOptions? = nil)
     {
         if #available(iOS 8.0, *)
         {
@@ -169,14 +198,40 @@ class SWALPhoto:NSObject
                 completeCallback(nil)
                 return
             }
+            let requestImageData:Bool = options?.requestImageData ?? false
+            var dataReturned:Bool = false
+            var imageReturned:Bool = false
             let imageRequestOptions = PHImageRequestOptions()
             imageRequestOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.FastFormat
             imageRequestOptions.resizeMode = PHImageRequestOptionsResizeMode.Exact
             imageRequestOptions.synchronous = false
+            
+            var result:SWALPhotoRequestResult = SWALPhotoRequestResult()
+            result.creationDate = creationDate
+            
             PHImageManager.defaultManager().requestImageForAsset(asset, targetSize: PHImageManagerMaximumSize, contentMode: .AspectFit, options: nil, resultHandler: {image, info in
+                imageReturned = true
                 self.originImage = image
-                completeCallback(image)
+                result.image = image
+                if !requestImageData || (requestImageData && dataReturned)
+                {
+                    completeCallback(result)
+                }
             })
+            
+            if requestImageData
+            {
+                PHImageManager.defaultManager().requestImageDataForAsset(asset, options: imageRequestOptions, resultHandler: {imageData, url, ori, info in
+                    dataReturned = true
+                    result.data = imageData
+                    
+                    if imageReturned
+                    {
+                        completeCallback(result)
+                    }
+                })
+            }
+            
         }
     }
     
@@ -189,7 +244,9 @@ class SWALPhoto:NSObject
             let imageOrientation:UIImageOrientation = UIImageOrientation(rawValue: representation.orientation().rawValue) ?? .Up
             let image = UIImage(CGImage: cgImage, scale: scale, orientation: imageOrientation)
             originImage = image
-            completeCallback(image)
+            var result:SWALPhotoRequestResult = SWALPhotoRequestResult()
+            result.image = image
+            completeCallback(result)
         }
         else
         {
@@ -230,8 +287,7 @@ class SWAssetsLibraryHelper: NSObject
     private var _iOS8Available:Bool = false
     
     private var _library:ALAssetsLibrary = ALAssetsLibrary()
-    //private var _groups:[SWALAlbum] = []
-    //private var _photos:[SWALPhoto] = []
+    
     //相册封面尺寸
     private let AlbumCoverSize:CGSize = CGSizeMake(70, 70)
     
@@ -286,14 +342,16 @@ class SWAssetsLibraryHelper: NSObject
                 }
                 else if status == .NotDetermined{
                     PHPhotoLibrary.requestAuthorization({status in
-                        if status == .Authorized {
-                            self.fetchCollections()
-                            self.notifyRequestAuthorizationAuthorized()
-                        }
-                        else {
-                            self.notifyRequestAuthorizationDenied()
-                        }
-                    })
+                        dispatch_async(dispatch_get_main_queue(), {
+                            if status == .Authorized {
+                                self.fetchCollections()
+                                self.notifyRequestAuthorizationAuthorized()
+                            }
+                            else {
+                                self.notifyRequestAuthorizationDenied()
+                            }
+                        })
+                    })//end requestAuthorization
                 }
                 else{
                     self.notifyRequestAuthorizationDenied()
@@ -337,19 +395,26 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //获取照片原图
-    func fetchOriginImage(photos:[SWALPhoto], completeCallback:([UIImage])->Void)
+    func fetchOriginImage(photos:[SWALPhoto], completeCallback:([SWALPhotoRequestResult])->Void, options:SWALPhotoRequestOptions? = nil)
     {
         var count:Int = 0
+        var images:[SWALPhotoRequestResult] = []
         for photo in photos
         {
-            photo.fetchOriginImage{image in
+            photo.fetchOriginImage({result in
+                if let result = result
+                {
+                    images.append(result)
+                }
+                
                 count += 1
                 if count == photos.count
                 {
-                    let images:[UIImage] = photos.flatMap({$0.originImage})
+                    //let images:[UIImage] = photos.flatMap({$0.originImage})
                     completeCallback(images)
                 }
-            }//end callback
+                
+            }, options:options)//end callback
         }//end for
     }
     
@@ -369,7 +434,7 @@ class SWAssetsLibraryHelper: NSObject
         }
         
         // 列出所有相册智能相册
-        let IgnoreSmartSubtype:[PHAssetCollectionSubtype] = [.SmartAlbumSlomoVideos]
+        //let IgnoreSmartSubtype:[PHAssetCollectionSubtype] = [.SmartAlbumSlomoVideos]
         let SmartCollectionsResult = PHAssetCollection.fetchAssetCollectionsWithType(PHAssetCollectionType.SmartAlbum, subtype: PHAssetCollectionSubtype.Any, options: nil)
         SmartCollectionsResult.enumerateObjectsUsingBlock{collection, index, stop in
             if let collection = collection as? PHAssetCollection {
@@ -502,13 +567,14 @@ class SWAssetsLibraryHelper: NSObject
         //按照时间排序获取第一张图作为封面
         let options:PHFetchOptions = PHFetchOptions()
         options.predicate = NSPredicate(format: "mediaType = %d", 1)
-        options.sortDescriptors = [NSSortDescriptor(key: "creationDate" , ascending: true)]
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate" , ascending: false)]
         let result = PHAsset.fetchAssetsInAssetCollection(collection, options: options)
         let assets:[PHAsset] = result.objectsAtIndexes(NSIndexSet(indexesInRange: NSMakeRange(0, result.count))).flatMap({$0 as? PHAsset})
         for (index, asset) in assets.enumerate()
         {
             let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
             photo.index = index
+            photo.creationDate = asset.creationDate
             photos.append(photo)
         }
         

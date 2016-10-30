@@ -33,12 +33,13 @@ class FileUtility: NSObject {
        return image.writeToFile(path, atomically: true)
     }
     
-    class func imageDataFromPath(path:String)->UIImage?
+    //scale为0 表示根据屏幕分辨率
+    class func imageDataFromPath(path:String, scale:CGFloat = 0)->UIImage?
     {
         let exist = NSFileManager.defaultManager().fileExistsAtPath(path)
         if exist
         {
-            if let data = NSData(contentsOfFile: path),image = UIImage(data: data, scale: UIScreen.mainScreen().scale)
+            if let data = NSData(contentsOfFile: path),image = UIImage(data: data, scale: scale == 0 ? UIScreen.mainScreen().scale : scale)
             {
                 return image
             }

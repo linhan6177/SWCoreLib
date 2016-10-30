@@ -36,7 +36,9 @@ class TimerObject
     var id:String
     var callback:SetTimeoutCallbackHandler?
     var callbackWithArgs:SetTimeoutWithArgsCallbackHandler?
-    weak var timer:NSTimer?
+    //weak var timer:NSTimer?
+    var timer:MSWeakTimer?
+    
     
     init(id:String, callback:SetTimeoutCallbackHandler?, callbackWithArgs:SetTimeoutWithArgsCallbackHandler?)
     {
@@ -47,7 +49,7 @@ class TimerObject
     
     deinit
     {
-        //println("TimerObject deinit")
+        //print("TimerObject deinit")
     }
     
     func invalidate()
@@ -88,9 +90,10 @@ func setTimeout(delay:Double, closure:SetTimeoutCallbackHandler) -> String
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: closure, callbackWithArgs:nil)
-    dispatch_async(dispatch_get_main_queue(), {
-        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: nil, repeats: false)
-    })
+//    dispatch_async(dispatch_get_main_queue(), {
+//        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: nil, repeats: false)
+//    })
+    timerObject.timer = MSWeakTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: nil, repeats: false, dispatchQueue: dispatch_get_main_queue())
     SWGlobalStaticClass.timers.append(timerObject)
     return id
 }
@@ -99,9 +102,10 @@ func setTimeoutWithArgs(delay:Double, closure:SetTimeoutWithArgsCallbackHandler,
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: nil, callbackWithArgs:closure)
-    dispatch_async(dispatch_get_main_queue(), {
-        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: args, repeats: false)
-    })
+//    dispatch_async(dispatch_get_main_queue(), {
+//        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: args, repeats: false)
+//    })
+    timerObject.timer = MSWeakTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: nil, repeats: false, dispatchQueue: dispatch_get_main_queue())
     SWGlobalStaticClass.timers.append(timerObject)
     return id
 }
@@ -110,9 +114,10 @@ func setInterval(delay:Double, closure:SetTimeoutCallbackHandler) -> String
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: closure, callbackWithArgs:nil)
-    dispatch_async(dispatch_get_main_queue(), {
-        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: nil, repeats: true)
-    })
+//    dispatch_async(dispatch_get_main_queue(), {
+//        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: nil, repeats: true)
+//    })
+    timerObject.timer = MSWeakTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: nil, repeats: true, dispatchQueue: dispatch_get_main_queue())
     SWGlobalStaticClass.timers.append(timerObject)
     return id
 }
@@ -121,9 +126,10 @@ func setIntervalWithArgs(delay:Double, closure:SetTimeoutWithArgsCallbackHandler
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: nil, callbackWithArgs:closure)
-    dispatch_async(dispatch_get_main_queue(), {
-        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: args, repeats: true)
-    })
+//    dispatch_async(dispatch_get_main_queue(), {
+//        timerObject.timer = NSTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: args, repeats: true)
+//    })
+    timerObject.timer = MSWeakTimer.scheduledTimerWithTimeInterval(delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: nil, repeats: true, dispatchQueue: dispatch_get_main_queue())
     SWGlobalStaticClass.timers.append(timerObject)
     return id
 }

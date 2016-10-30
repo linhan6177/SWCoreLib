@@ -63,6 +63,11 @@ extension CGSize
     {
         return width == 0 || height == 0
     }
+    
+    //最短边
+    public var minEdge:CGFloat{
+        return min(width, height)
+    }
 }
 
 extension UIView
@@ -86,7 +91,7 @@ extension UIView
     //移除所有子视图
     func removeAllSubview()
     {
-        for(var i = subviews.count - 1; i > -1; i -= 1)
+        for i in (0..<subviews.count).reverse()
         {
             subviews[i].removeFromSuperview()
         }

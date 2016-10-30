@@ -194,18 +194,17 @@ class ImageLoader: UIImageView
     func load(contentsOfFile file:String)
     {
         _processing = true
-        dispatch_async(SWImageCacheManager.sharedManager().ioQueue,
-                       {
-                        if let data = NSData(contentsOfFile: file),
-                            let image = UIImage(data: data, scale: UIScreen.mainScreen().scale)
-                        {
-                            dispatch_async(dispatch_get_main_queue(),
-                                {
-                                    //self.image = image
-                                    self.completeHandler(image, readCache:true)
-                            })
-                        }
-        })
+        dispatch_async(SWImageCacheManager.sharedManager().ioQueue) {
+            if let data = NSData(contentsOfFile: file),
+               let image = UIImage(data: data, scale: UIScreen.mainScreen().scale)
+            {
+                dispatch_async(dispatch_get_main_queue(),
+                               {
+                                //self.image = image
+                                self.completeHandler(image, readCache:true)
+                })
+            }
+        }
     }
     
     func cancel()
@@ -250,7 +249,7 @@ class ImageLoader: UIImageView
             SWImageCacheManager.sharedManager().saveOriginImage(data, url: _url)
         }
         
-        if let loadedImage = UIImage(data: data)
+        if let loadedImage = UIImage(data: data, scale: UIScreen.mainScreen().scale)
         {
             let compress = imageProcessHandler(loadedImage)
             //如果图片未达到压缩的条件，则直接保存原图
@@ -332,7 +331,7 @@ class ImageLoader: UIImageView
                                     let cropRect:CGRect = CGRectMake(floor((newImage.size.width - ContainerWidth) * 0.5), floor((newImage.size.height - ContainerHeight) * 0.5), ContainerWidth, ContainerHeight)
                                     newImage = Toucan.Util.croppedImageWithRect(newImage, rect: cropRect)
                                 }
-                                //print("loadedImage", loadedImage.scale, loadedImage.size, newImage.scale, newImage.size)
+                                //print("loadedImage", newSize, loadedImage.scale, loadedImage.size, newImage.scale, newImage.size)
                                 
                                 //如果图片带圆角，而且为外切裁剪方式，则先把图片裁剪为容器大小，再进行圆角处理
                                 if options.cornerRadius > 0 || options.borderWidth > 0
