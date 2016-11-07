@@ -30,6 +30,14 @@ extension CGPoint
     var integral:CGPoint{
         return CGPointMake(ceil(x), ceil(y))
     }
+    
+    //计算两点的距离
+    static func distance(point1:CGPoint, point2:CGPoint) -> CGFloat
+    {
+        let xDistance:CGFloat = point2.x - point1.x
+        let yDistance:CGFloat = point2.y - point1.y
+        return sqrt(pow(abs(xDistance), 2) + pow(abs(yDistance), 2))
+    }
 }
 
 extension CGRect
@@ -218,10 +226,9 @@ extension UIImage
             return nil
         }
         
-        if scale > 1{
+        if scale == UIScreen.mainScreen().scale{
             return self
         }
-        
         return UIImage(CGImage: cgImage, scale: UIScreen.mainScreen().scale, orientation: imageOrientation)
     }
     
