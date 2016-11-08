@@ -15,7 +15,7 @@ import UIKit
 
 class ScrollTabBar:UIView
 {
-    fileprivate var tabbar:UITabBar?
+    private var tabbar:UITabBar?
     
     var selectedColor:UIColor = UIColor.red
     {
@@ -38,13 +38,13 @@ class ScrollTabBar:UIView
     
     weak var delegate:ScrollTabBarDelegate?
     
-    fileprivate var _selectedIndex:Int = -1
+    private var _selectedIndex:Int = -1
     
-    fileprivate var _overflow:Bool = false
+    private var _overflow:Bool = false
     
-    fileprivate var tab:UITabBar?
+    private var tab:UITabBar?
     
-    fileprivate var _defaultFont:UIFont = UIFont.systemFont(ofSize: 14)
+    private var _defaultFont:UIFont = UIFont.systemFont(ofSize: 14)
     var font:UIFont
     {
         get
@@ -57,17 +57,17 @@ class ScrollTabBar:UIView
         }
     }
     
-    fileprivate var _items:[String]?
+    private var _items:[String]?
     
-    fileprivate var _buttons:[UILabel] = []
+    private var _buttons:[UILabel] = []
     
-    fileprivate var _cacheButtons:[UILabel] = []
+    private var _cacheButtons:[UILabel] = []
     
-    fileprivate var _scrollView:UIScrollView
+    private var _scrollView:UIScrollView
     
-    fileprivate var _buttonContainer:UIView
+    private var _buttonContainer:UIView
     
-    lazy fileprivate var _signView:UIView = UIView()
+    lazy private var _signView:UIView = UIView()
     
     override init(frame: CGRect)
     {
@@ -84,7 +84,7 @@ class ScrollTabBar:UIView
     }
     
     //是否显示下划线
-    fileprivate var _underline:Bool = false
+    private var _underline:Bool = false
     var underline:Bool
     {
         get
@@ -235,7 +235,7 @@ class ScrollTabBar:UIView
         }//end of set
     }
     
-    fileprivate func setup()
+    private func setup()
     {
         underlineBorderWidth = 1.5
         _signView.backgroundColor = UIColor.red
@@ -247,13 +247,13 @@ class ScrollTabBar:UIView
     }
     
     //按钮
-    @objc fileprivate func buttonTouched(_ button:UIButton)
+    @objc private func buttonTouched(_ button:UIButton)
     {
         let index:Int = button.tag
         selectedIndex = index
     }
     
-    @objc fileprivate func buttonTaped(_ gesture:UITapGestureRecognizer)
+    @objc private func buttonTaped(_ gesture:UITapGestureRecognizer)
     {
         if let label = gesture.view as? UILabel
         {

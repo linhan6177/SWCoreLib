@@ -15,12 +15,12 @@ import UIKit
 class Downloader: NSObject,NSURLConnectionDataDelegate
 {
     //NSURLConnectionDownloadDelegate
-    fileprivate var _request:NSMutableURLRequest = NSMutableURLRequest()
+    private var _request:NSMutableURLRequest = NSMutableURLRequest()
     
-    fileprivate var _connection:NSURLConnection?
+    private var _connection:NSURLConnection?
     
-    fileprivate var _contentLength:Int = 0
-    fileprivate var _responseData:NSMutableData = NSMutableData()
+    private var _contentLength:Int = 0
+    private var _responseData:NSMutableData = NSMutableData()
     
     var url:String = ""
     var startCallback:(() -> Void)?

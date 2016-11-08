@@ -56,7 +56,7 @@ class TimerObject
         timer = nil
     }
     
-    @objc fileprivate func delay(_ timer:Timer)
+    @objc private func delay(_ timer:Timer)
     {
         let args:[AnyHashable: Any]? = timer.userInfo as? [AnyHashable: Any]
         if args != nil
@@ -70,7 +70,7 @@ class TimerObject
         clearTimeout(id)
     }
     
-    @objc fileprivate func interval(_ timer:Timer)
+    @objc private func interval(_ timer:Timer)
     {
         let args:[AnyHashable: Any]? = timer.userInfo as? [AnyHashable: Any]
         if args != nil

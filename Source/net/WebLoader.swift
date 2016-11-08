@@ -57,13 +57,13 @@ class WebLoader: NSObject,URLSessionDataDelegate
     
     var bindArgs:AnyObject?
     
-    fileprivate var _session:Foundation.URLSession?
-    fileprivate var _task:URLSessionDataTask?
-    fileprivate var _sessionHandler:WebLoaderSessionHandler?
+    private var _session:Foundation.URLSession?
+    private var _task:URLSessionDataTask?
+    private var _sessionHandler:WebLoaderSessionHandler?
     
-    fileprivate var _responseData:NSMutableData = NSMutableData()
+    private var _responseData:NSMutableData = NSMutableData()
     
-    fileprivate var _url:String = ""
+    private var _url:String = ""
     var url:String
     {
         return _url
@@ -74,9 +74,9 @@ class WebLoader: NSObject,URLSessionDataDelegate
     
     
     
-    fileprivate var _requestData:AnyObject?
-    fileprivate var _method:String = "GET"
-    fileprivate var _headers:[String:String]?
+    private var _requestData:AnyObject?
+    private var _method:String = "GET"
+    private var _headers:[String:String]?
     
     var cachePolicy:NSURLRequest.CachePolicy = .useProtocolCachePolicy
     

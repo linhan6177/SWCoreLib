@@ -26,10 +26,10 @@ class Uploader: NSObject,NSURLConnectionDataDelegate
     
     var bindArgs:AnyObject?
     
-    fileprivate var _connection:NSURLConnection?
+    private var _connection:NSURLConnection?
     
-    fileprivate var _contentLength:Int = 0
-    fileprivate var _responseData:NSMutableData = NSMutableData()
+    private var _contentLength:Int = 0
+    private var _responseData:NSMutableData = NSMutableData()
     
     
     var startCallback:(() -> Void)?

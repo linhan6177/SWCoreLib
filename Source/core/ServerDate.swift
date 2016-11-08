@@ -9,10 +9,10 @@
 import Foundation
 class ServerDate
 {
-    static fileprivate var _serverTime:Double = 0
+    static private var _serverTime:Double = 0
     
     //接到服务器时间时，iOS 已经初始化后并运行的时间
-    static fileprivate var _runTime:Double = 0
+    static private var _runTime:Double = 0
     
     //服务端时间，以毫秒为单位
     static var serverTime:Double

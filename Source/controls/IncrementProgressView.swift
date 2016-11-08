@@ -10,14 +10,14 @@ import Foundation
 import UIKit
 class IncrementProgressView: UIView
 {
-    fileprivate var _color:UIColor = UIColor()
+    private var _color:UIColor = UIColor()
     
-    fileprivate var _running:Bool = false
-    fileprivate var _finished:Bool = false
-    fileprivate var _loaded:CGFloat = 0
-    fileprivate var _increment:CGFloat = 0.1
+    private var _running:Bool = false
+    private var _finished:Bool = false
+    private var _loaded:CGFloat = 0
+    private var _increment:CGFloat = 0.1
     
-    fileprivate var _progressView:UIView = UIView()
+    private var _progressView:UIView = UIView()
     
     var color:UIColor
     {
@@ -82,7 +82,7 @@ class IncrementProgressView: UIView
         
     }
     
-    fileprivate func run()
+    private func run()
     {
         UIView.animate(withDuration: 0.4, animations: {
             

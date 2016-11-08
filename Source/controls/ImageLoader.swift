@@ -24,21 +24,21 @@ class ImageLoader: UIImageView
     var completeCallback:((UIImageView, Bool) -> Void)?
     
     
-    fileprivate let errorDomain:String = "com.sw.ImageLoader"
+    private let errorDomain:String = "com.sw.ImageLoader"
     
     
-    fileprivate var _downloader:Downloader = Downloader()
+    private var _downloader:Downloader = Downloader()
     
-    fileprivate var _cachePath:String = ""
-    fileprivate var _url:String = ""
-    fileprivate var _compressForCache:Bool = true
+    private var _cachePath:String = ""
+    private var _url:String = ""
+    private var _compressForCache:Bool = true
     
     //Memory
     
     //当前是否处于网络加载中
-    fileprivate var _loading:Bool = false
+    private var _loading:Bool = false
     //图片是否正在处理中（从本地加载、圆角、裁剪等处理）
-    fileprivate var _processing = false
+    private var _processing = false
     
     init()
     {
@@ -119,7 +119,7 @@ class ImageLoader: UIImageView
         _cachePath = SWImageCacheManager.sharedManager().fetchStorePath(url, options: options, compress: compressForCache && !frame.isEmpty)
         
         //如果当前内存中有原图，则用内存中的原图加工处理完各种所需的规格
-        if let memoryCacheImage = SWImageCacheManager.sharedManager().memoryCache.object(forKey: url) as? UIImage
+        if let memoryCacheImage = SWImageCacheManager.sharedManager().memoryCache.object(forKey: url as NSString) as? UIImage
         {
             if imageProcessHandler(memoryCacheImage, readCache:true)
             {
@@ -212,7 +212,7 @@ class ImageLoader: UIImageView
         layer.removeAllAnimations()
     }
     
-    fileprivate func setup()
+    private func setup()
     {
         _downloader.cachePolicy = .returnCacheDataElseLoad
         _downloader.timeoutInterval = 10
@@ -228,18 +228,18 @@ class ImageLoader: UIImageView
         }
     }
     
-    fileprivate func loadFailCallback(_ error:NSError)
+    private func loadFailCallback(_ error:NSError)
     {
         _loading = false
         failCallback?(error)
     }
     
-    fileprivate func loadProgressCallback(_ loadedBytes:Int, totalBytes:Int)
+    private func loadProgressCallback(_ loadedBytes:Int, totalBytes:Int)
     {
         progressCallback?(loadedBytes, totalBytes)
     }
     
-    fileprivate func loadCompleteCallback(_ data:Data)
+    private func loadCompleteCallback(_ data:Data)
     {
         _loading = false
         if options.diskCacheForOrigin
@@ -264,7 +264,7 @@ class ImageLoader: UIImageView
             
             if options.memoryCacheForOrigin && _url != ""
             {
-                SWImageCacheManager.sharedManager().memoryCache.setObject(loadedImage, forKey: _url)
+                SWImageCacheManager.sharedManager().memoryCache.setObject(loadedImage, forKey: _url as NSString)
             }
         }
         else
@@ -274,7 +274,7 @@ class ImageLoader: UIImageView
     }
     
     //图片进行压缩、裁剪、圆角等处理(返回值为是否处理过)
-    fileprivate func imageProcessHandler(_ loadedImage:UIImage, readCache:Bool = false) -> Bool
+    private func imageProcessHandler(_ loadedImage:UIImage, readCache:Bool = false) -> Bool
     {
         var compress:Bool = false
         if _compressForCache && !frame.isEmpty
@@ -370,7 +370,7 @@ class ImageLoader: UIImageView
         return compress
     }
     
-    fileprivate func completeHandler(_ aImage:UIImage, readCache:Bool)
+    private func completeHandler(_ aImage:UIImage, readCache:Bool)
     {
         let transition = options.transition
         // && transition != SWImageTransition.None
@@ -421,12 +421,12 @@ class ImageLoader: UIImageView
 
 class ImageLoaderOptions:NSObject
 {
-    fileprivate let KeyQuality:String = "quality"
-    fileprivate let KeyCornerRadius:String = "cornerRadius"
-    fileprivate let KeyBorderWidth:String = "borderWidth"
-    fileprivate let KeyBorderColor:String = "borderColor"
-    fileprivate let KeyFitMode:String = "fitMode"
-    fileprivate let KeyContainerSize:String = "containerSize"
+    private let KeyQuality:String = "quality"
+    private let KeyCornerRadius:String = "cornerRadius"
+    private let KeyBorderWidth:String = "borderWidth"
+    private let KeyBorderColor:String = "borderColor"
+    private let KeyFitMode:String = "fitMode"
+    private let KeyContainerSize:String = "containerSize"
     
     
     //图片经过处理后重新保存的质量

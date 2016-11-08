@@ -21,13 +21,13 @@ class SystemVolumeManager: NSObject
     }
     
     //获取\设置系统音量，值从0到1
-    fileprivate var _volume:Float = 0
+    private var _volume:Float = 0
     
     //音量调节浮层是否隐藏(默认为不隐藏)
-    fileprivate var _volumeViewHidden:Bool = false
+    private var _volumeViewHidden:Bool = false
     
-    fileprivate var _volumeViewSlider:UISlider?
-    fileprivate var _volumeView:MPVolumeView
+    private var _volumeViewSlider:UISlider?
+    private var _volumeView:MPVolumeView
     
     class var sharedManager:SystemVolumeManager
     {
@@ -108,7 +108,7 @@ class SystemVolumeManager: NSObject
     }
     
     //监听系统音量变化
-    @objc fileprivate func volumeChanged(_ notification:Notification)
+    @objc private func volumeChanged(_ notification:Notification)
     {
         if var volume = (notification as NSNotification).userInfo?["AVSystemController_AudioVolumeNotificationParameter"] as? Float
         {

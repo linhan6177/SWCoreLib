@@ -37,16 +37,16 @@ class ScrollADImage:UIView,UIScrollViewDelegate
     }
     
     //缓存的，用于重用的ImageView
-    fileprivate var _cacheImageViews:[ImageLoader] = []
+    private var _cacheImageViews:[ImageLoader] = []
     
     //当前在用的imageView
-    fileprivate var _imageViews:[ImageLoader] = []
+    private var _imageViews:[ImageLoader] = []
     
-    fileprivate var _timer:MSWeakTimer?
+    private var _timer:MSWeakTimer?
     
-    fileprivate var _index:Int = 1
+    private var _index:Int = 1
     
-    fileprivate var _scrollView:UIScrollView = UIScrollView()
+    private var _scrollView:UIScrollView = UIScrollView()
     
     override init(frame: CGRect)
     {
@@ -83,7 +83,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
     }
     
     
-    fileprivate var _multiImage:Bool = false
+    private var _multiImage:Bool = false
     var images:[AnyObject] = []
         {
         didSet
@@ -128,7 +128,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
         }//end did set
     }
     
-    fileprivate func createImageView() -> ImageLoader
+    private func createImageView() -> ImageLoader
     {
         let tapGestureRecognizer:UITapGestureRecognizer = UITapGestureRecognizer(target:self, action:#selector(ScrollADImage.imageViewTapped(_:)))
         let imageView:ImageLoader = ImageLoader()
@@ -148,7 +148,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
         return imageView
     }
     
-    fileprivate func setup()
+    private func setup()
     {
         backgroundColor = UIColor(white: 0.97, alpha: 1)
         
@@ -162,7 +162,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
         
     }
     
-    fileprivate func addImageView(_ image:AnyObject, tag:Int)
+    private func addImageView(_ image:AnyObject, tag:Int)
     {
         let x:CGFloat = CGFloat(_multiImage ? tag + 1 : tag) * width
         let imageView:ImageLoader = _cacheImageViews.valueAt(_imageViews.count) ?? createImageView()
@@ -180,7 +180,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
         _scrollView.addSubview(imageView)
     }
     
-    fileprivate func scrollViewDidEndScrolling()
+    private func scrollViewDidEndScrolling()
     {
         if !_didEndScrolling
         {
@@ -215,7 +215,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
         
     }
     
-    fileprivate var _didEndScrolling:Bool = false
+    private var _didEndScrolling:Bool = false
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
         _didEndScrolling = false
@@ -231,7 +231,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
         scrollViewDidEndScrolling()
     }
     
-    @objc fileprivate func timeInterval()
+    @objc private func timeInterval()
     {
         if _multiImage && !_scrollView.isDragging
         {
@@ -239,7 +239,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
         }
     }
     
-    @objc fileprivate func imageViewTapped(_ recongnizer:UITapGestureRecognizer)
+    @objc private func imageViewTapped(_ recongnizer:UITapGestureRecognizer)
     {
         if let imageView:UIImageView = recongnizer.view as? UIImageView
         {

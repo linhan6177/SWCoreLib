@@ -24,7 +24,7 @@ import UIKit
     @objc optional func didDismissPulldownContainer()
 }
 
-fileprivate var _instance:PulldownContainer = PulldownContainer()
+private var _instance:PulldownContainer = PulldownContainer()
 class PulldownContainer:NSObject,SWPopupContainerDelegate
 {
     weak var delegate:PulldownContainerDelegate?
@@ -32,9 +32,9 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
     //var modelRect:CGRect = UIScreen.mainScreen().bounds
     var modelInsets:UIEdgeInsets = UIEdgeInsets.zero
     
-    lazy fileprivate var _popupContainer:PopupContainer = PopupContainer()
+    lazy private var _popupContainer:PopupContainer = PopupContainer()
     
-    lazy fileprivate var _container:UIView = UIView()
+    lazy private var _container:UIView = UIView()
     
     class func shared()->PulldownContainer
     {
@@ -154,7 +154,7 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
         delegate?.didDismissPulldownContainer?()
     }
     
-    fileprivate func setup()
+    private func setup()
     {
         _container.alpha = 0
         _container.clipsToBounds = true

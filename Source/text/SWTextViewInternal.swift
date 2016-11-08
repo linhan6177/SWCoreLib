@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 class SWTextViewInternal:UITextView
 {
-    fileprivate var _placeholder:String = ""
+    private var _placeholder:String = ""
     var displayPlaceHolder:Bool = false
     
     override var frame:CGRect

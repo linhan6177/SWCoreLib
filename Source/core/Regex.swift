@@ -152,8 +152,8 @@ public struct Regex
 {
     public typealias MatchResult = RegexMatchResult
     
-    fileprivate let pattern: String
-    fileprivate let nsRegex: NSRegularExpression
+    private let pattern: String
+    private let nsRegex: NSRegularExpression
     
     
     /**
@@ -161,11 +161,8 @@ public struct Regex
      */
     public static func create(_ pattern:String) -> (Regex?, NSError?)
     {
-        let err: NSError?
         let regex = Regex(pattern: pattern)
-        
-        if let err = err            { return (nil, err) }
-        else if let regex = regex   { return (regex, nil) }
+        if let regex = regex   { return (regex, nil) }
         else                        { return (nil, NSError(domain: "com.illumntr.Regex", code: 1, userInfo:[NSLocalizedDescriptionKey: "Unknown error."])) }
     }
     

@@ -24,14 +24,16 @@ extension FloatingPoint
 extension Float
 {
     var roundValue:Float{
-        return round(self)
+        //return round(self)
+        return rounded()
     }
 }
 
 extension Double
 {
     var roundValue:Double{
-        return round(self)
+        //return round(self)
+        return rounded()
     }
 }
 
@@ -64,7 +66,7 @@ extension String
         get{
             var output:String = self
             output = output.replacingOccurrences(of: "+", with: " ", options: NSString.CompareOptions.literal, range: nil)
-            return output.stringByRemovingPercentEncoding ?? self
+            return output.removingPercentEncoding ?? self
         }
     }
     

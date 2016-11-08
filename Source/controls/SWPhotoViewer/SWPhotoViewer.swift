@@ -26,7 +26,7 @@ protocol SWPhotoViewerProgressView:class
 
 class SWPhotoViewerDefaultProgressView:NSObject,SWPhotoViewerProgressView
 {
-    lazy fileprivate var _indicatorView:UIActivityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .white)
+    lazy private var _indicatorView:UIActivityIndicatorView = UIActivityIndicatorView(activityIndicatorStyle: .white)
     
     var progress:Double = 0
     
@@ -96,19 +96,19 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
     //图片之间的间隙
     var grid:CGFloat = 20
     
-    fileprivate var _startIndex:Int = 0
+    private var _startIndex:Int = 0
     
     //当前图片的索引
-    fileprivate var _index:Int = 0
+    private var _index:Int = 0
     
     //第一次打开的时从原始大小变化到自适应大小；是否已经变化过，如果变化过则不在变化
-    fileprivate var _animatedFromStartFrameFlag:Bool = false
+    private var _animatedFromStartFrameFlag:Bool = false
     
-    fileprivate var _inited:Bool = false
+    private var _inited:Bool = false
     
     var backgroundView: UIView = UIView()
     
-    fileprivate var _tableView:UITableView = UITableView()
+    private var _tableView:UITableView = UITableView()
     
     init()
     {
@@ -148,7 +148,7 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
     }
     
     //图片打开前的位置及大小
-    fileprivate var _startFrame:CGRect?
+    private var _startFrame:CGRect?
     func showFromIndex(_ index:Int, rect:CGRect? = nil)
     {
         let imagesCount:Int = delegate?.numberOfPhotosInPhotoViewer(self) ?? 0
@@ -180,7 +180,7 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
         
     }
     
-    fileprivate func setup()
+    private func setup()
     {
         //backgroundView.backgroundColor = UIColor(white: 0, alpha: 0.5)
         addSubview(backgroundView)
@@ -198,7 +198,7 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
     }
     
     //更新tableView的内容位置
-    fileprivate func updateContentOffset()
+    private func updateContentOffset()
     {
         let imagesCount:Int = delegate?.numberOfPhotosInPhotoViewer(self) ?? 0
         if _startIndex > -1 && _startIndex < imagesCount

@@ -18,8 +18,9 @@ func CGRectDiagonalRect(_ point1:CGPoint, point2:CGPoint) -> CGRect
 
 extension CGFloat
 {
-    var roundValue:CGFloat{
-        return round(self)
+    var roundValue:CGFloat {
+        //return round(self)
+        return rounded()
     }
 }
 
@@ -86,7 +87,7 @@ extension UIView
     //移除所有子视图
     func removeAllSubview()
     {
-        for i in (0..<subviews.count).reversed
+        for i in (0..<subviews.count).reversed()
         {
             subviews[i].removeFromSuperview()
         }
@@ -187,7 +188,7 @@ extension UIImage
             UIScreen.main.scale)
         self.draw(in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
         //image.drawInRect(rect)
-        image.draw(in: rect, blendMode: CGBlendMode.normal, alpha: alpha)
+        image.draw(in: rect, blendMode: .normal, alpha: alpha)
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         return result!
@@ -331,11 +332,11 @@ extension UIViewController
         return button
     }
     
-    fileprivate func createNavigationCustomButton(_ title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
+    private func createNavigationCustomButton(_ title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
         let button = UIButton(type: .system)
-        button.setTitle(title, for: UIControlState())
-        button.setBackgroundImage(image, for: UIControlState())
+        button.setTitle(title, for: .normal)
+        button.setBackgroundImage(image, for: .normal)
         button.setBackgroundImage(highlightedImage, for: .highlighted)
         button.addTarget(target, action: action, for: .touchUpInside)
         button.sizeToFit()

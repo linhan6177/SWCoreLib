@@ -47,17 +47,17 @@ class PopupContainer: UIView
     
     weak var delegate:SWPopupContainerDelegate?
     
-    fileprivate var _state:SWPopupContainerState = .closed
-    fileprivate var _interactionInsets:UIEdgeInsets = UIEdgeInsets.zero
-    fileprivate var _modelType:SWPopupContainerModelType = .black
+    private var _state:SWPopupContainerState = .closed
+    private var _interactionInsets:UIEdgeInsets = UIEdgeInsets.zero
+    private var _modelType:SWPopupContainerModelType = .black
     
-    fileprivate weak var _content:UIView?
+    private weak var _content:UIView?
     
     //灰色模态
-    fileprivate var _modelView:UIView = UIView()
+    private var _modelView:UIView = UIView()
     
     //点击区域
-    fileprivate var _interactionView:UIView = UIView()
+    private var _interactionView:UIView = UIView()
     
     //返回当前打开关闭状态
     var state:SWPopupContainerState
@@ -179,7 +179,7 @@ class PopupContainer: UIView
         
     }
     
-    @objc fileprivate func backgorundTapped()
+    @objc private func backgorundTapped()
     {
         close()
     }

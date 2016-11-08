@@ -26,20 +26,20 @@ open class BannerTips: UIView
     //多久后自动关闭(单位秒)
     open var autoCloseDuration:Double = 2
     
-    fileprivate let PresetHeight:CGFloat = 40
+    private let PresetHeight:CGFloat = 40
     
     //是否自定关闭
-    fileprivate var _inited:Bool = false
+    private var _inited:Bool = false
     
-    fileprivate var _state:SWPopupContainerState = .closed
+    private var _state:SWPopupContainerState = .closed
     
-    fileprivate var _autoCloseIntervalID:String = ""
+    private var _autoCloseIntervalID:String = ""
     
     //文字
-    fileprivate var _label:UILabel = UILabel()
+    private var _label:UILabel = UILabel()
     
     //主体内容，包含背景、文字、图标
-    fileprivate var _contentView:UIView = UIView()
+    private var _contentView:UIView = UIView()
     
     init()
     {
@@ -195,7 +195,7 @@ open class BannerTips: UIView
         removeFromSuperview()
     }
     
-    fileprivate func setup()
+    private func setup()
     {
         clipsToBounds = true
         autoresizingMask = [UIViewAutoresizing.flexibleWidth]
@@ -215,7 +215,7 @@ open class BannerTips: UIView
     }
     
     
-    fileprivate func updateViews()
+    private func updateViews()
     {
         var iconX:CGFloat = 0
         var iconY:CGFloat = 0

@@ -38,11 +38,11 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     weak var delegate:SWGrowingTextViewDelegate?
     var animateHeightChange:Bool = false
     var animationDuration:Double = 0.1
-    fileprivate var _maxHeight:CGFloat = 0
-    fileprivate var _minHeight:CGFloat = 0
-    fileprivate var _maxNumberOfLines:Int = 0
-    fileprivate var _minNumberOfLines:Int = 0
-    fileprivate var _contentInset:UIEdgeInsets = UIEdgeInsets.zero
+    private var _maxHeight:CGFloat = 0
+    private var _minHeight:CGFloat = 0
+    private var _maxNumberOfLines:Int = 0
+    private var _minNumberOfLines:Int = 0
+    private var _contentInset:UIEdgeInsets = UIEdgeInsets.zero
     
     //var placeholder
     
@@ -72,7 +72,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         fatalError("init(coder:) has not been implemented")
     }
     
-    fileprivate func commonInitialiser()
+    private func commonInitialiser()
     {
         internalTextView!.delegate = self
         internalTextView!.isScrollEnabled = false
@@ -290,7 +290,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         self.refreshHeight()
     }
     
-    fileprivate func refreshHeight()
+    private func refreshHeight()
     {
         var newSizeH:CGFloat = measureHeight
         if (newSizeH < minHeight || !internalTextView!.hasText)
@@ -380,7 +380,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         
     }
     
-    fileprivate func resetScrollPositionForIOS7()
+    private func resetScrollPositionForIOS7()
     {
         let r:CGRect = internalTextView!.caretRect(for: internalTextView!.selectedTextRange!.end)
         let caretY:CGFloat = max(r.origin.y - internalTextView!.frame.size.height + r.size.height + 8, 0)
@@ -390,7 +390,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         }
     }
     
-    fileprivate func resizeTextView(_ newSizeH:CGFloat)
+    private func resizeTextView(_ newSizeH:CGFloat)
     {
         delegate?.growingTextView?(self, willChangeHeight: newSizeH)
         var internalTextViewFrame:CGRect = self.frame
@@ -406,7 +406,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
         }
     }
     
-    @objc fileprivate func growDidStop()
+    @objc private func growDidStop()
     {
         resetScrollPositionForIOS7()
         delegate?.growingTextView?(self, didChangeHeight: self.frame.size.height)
@@ -427,7 +427,7 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     }
     
     override var isFirstResponder : Bool {
-        return internalTextView!.isFirstResponder
+        return internalTextView?.isFirstResponder ?? false
     }
     
     

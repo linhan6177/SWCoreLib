@@ -34,37 +34,37 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
     
     var indexPath:IndexPath!
     
-    fileprivate var selfFrame:CGRect = CGRect.zero
+    private var selfFrame:CGRect = CGRect.zero
     
-    fileprivate var _downloader:Downloader = Downloader()
+    private var _downloader:Downloader = Downloader()
     
     //图片打开前的位置及大小
     var startFrame:CGRect?
     
-    fileprivate var _startX:CGFloat = 0
-    fileprivate var _startY:CGFloat = 0
+    private var _startX:CGFloat = 0
+    private var _startY:CGFloat = 0
     
     //最合适比例，双击时，如果图片大于此比例，则缩小
-    fileprivate var _adaptiveScale:CGFloat = 1
+    private var _adaptiveScale:CGFloat = 1
     
-    fileprivate var _adaptivePoint:CGPoint = CGPoint(x: 0, y: 0)
+    private var _adaptivePoint:CGPoint = CGPoint(x: 0, y: 0)
     
     //图片最大缩放程度
-    fileprivate var _maxScale:CGFloat = 0
+    private var _maxScale:CGFloat = 0
     
-    fileprivate var _lastRotation:CGFloat = 0
+    private var _lastRotation:CGFloat = 0
     
     
-    fileprivate var _startScale:CGFloat = 1
+    private var _startScale:CGFloat = 1
     //捏合时相对imageview的两手指间坐标点
-    fileprivate var _pinchCenter:CGPoint = CGPoint.zero
+    private var _pinchCenter:CGPoint = CGPoint.zero
     //捏合时相对整个父级容器的两手指间坐标点
-    fileprivate var _superPinchCenter:CGPoint = CGPoint.zero
+    private var _superPinchCenter:CGPoint = CGPoint.zero
     
     
-    fileprivate var _imageView:UIImageView = UIImageView()
+    private var _imageView:UIImageView = UIImageView()
     
-    lazy fileprivate var _scrollView:UIScrollView = UIScrollView()
+    lazy private var _scrollView:UIScrollView = UIScrollView()
     
     
     override init(style: UITableViewCellStyle, reuseIdentifier: String?)
@@ -158,7 +158,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         }
     }
     
-    fileprivate func setupImage(_ image:UIImage, replace:Bool = false)
+    private func setupImage(_ image:UIImage, replace:Bool = false)
     {
         var replaceFrame:CGRect?
         if replace && _imageView.image != nil && !_imageView.frame.isEmpty
@@ -185,7 +185,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         }
     }
     
-    fileprivate func setup()
+    private func setup()
     {
         backgroundColor = UIColor.clear
         
@@ -234,27 +234,27 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         //cellTapGesture.requireGestureRecognizerToFail(singleTapGestureRecognizer)
     }
     
-    fileprivate func loadStartCallback()
+    private func loadStartCallback()
     {
         progressView?.view.isHidden = false
         progressView?.startAnimating()
         print(progressView?.view.frame)
     }
     
-    fileprivate func loadFailCallback(_ error:NSError)
+    private func loadFailCallback(_ error:NSError)
     {
         progressView?.view.isHidden = true
         progressView?.stopAnimating()
     }
     
-    fileprivate func loadProgressCallback(_ loadedBytes:Int, totalBytes:Int)
+    private func loadProgressCallback(_ loadedBytes:Int, totalBytes:Int)
     {
         var progress:Double = Double(loadedBytes) / Double(totalBytes)
         progress = max(min(progress, 1), 0)
         progressView?.progress = progress
     }
     
-    fileprivate func loadCompleteCallback(_ data:Data)
+    private func loadCompleteCallback(_ data:Data)
     {
         if let image = UIImage(data:data)
         {
@@ -267,7 +267,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
     }
     
     //图片尺寸自适应缩放到容器内
-    fileprivate func imageViewSuitSize()
+    private func imageViewSuitSize()
     {
         if _imageView.image != nil
         {
@@ -317,7 +317,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
     }
     
     //图片长按保存
-    @objc fileprivate func imageLongPress(_ recognizer:UILongPressGestureRecognizer)
+    @objc private func imageLongPress(_ recognizer:UILongPressGestureRecognizer)
     {
         //会触发两次长按事件，一次是长按开始的时候，一次是长按结束的时候
         if recognizer.state == UIGestureRecognizerState.began
@@ -326,21 +326,21 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         }
     }
     
-    @objc fileprivate func cellTapped(_ recognizer:UITapGestureRecognizer)
+    @objc private func cellTapped(_ recognizer:UITapGestureRecognizer)
     {
         //println("cellTapped")
         delegate?.photoViewerCell(self, didSingleTapAtIndexPath: indexPath)
     }
     
     //图片单击关闭
-    @objc fileprivate func imageSingleTap(_ recognizer:UITapGestureRecognizer)
+    @objc private func imageSingleTap(_ recognizer:UITapGestureRecognizer)
     {
         //println("imageSingleTap")
         delegate?.photoViewerCell(self, didSingleTapAtIndexPath: indexPath)
     }
     
     //图片双击
-    @objc fileprivate func imageDoubleTap(_ recognizer:UITapGestureRecognizer)
+    @objc private func imageDoubleTap(_ recognizer:UITapGestureRecognizer)
     {
         if _imageView.image == nil
         {
@@ -433,7 +433,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
     
     
     //图片捏合缩放
-    @objc fileprivate func imagePinch(_ recognizer:UIPinchGestureRecognizer)
+    @objc private func imagePinch(_ recognizer:UIPinchGestureRecognizer)
     {
         let rectView:UIView = recognizer.view! as UIView
         var newFrame:CGRect

@@ -40,7 +40,7 @@ class SWALAlbum:NSObject
     var group:ALAssetsGroup?
     var id:String = ""
     
-    fileprivate var _collection:AnyObject?
+    private var _collection:AnyObject?
     @available(iOS 8.0, *)
     var collection:PHAssetCollection? {
         return _collection as? PHAssetCollection
@@ -74,8 +74,8 @@ class SWALPhoto:NSObject
     
     weak var delegate:SWALPhotoDelegate?
     
-    fileprivate let PhotoCoverSize:CGSize = CGSize(width: 70, height: 70)
-    fileprivate var _PHAsset:AnyObject?
+    private let PhotoCoverSize:CGSize = CGSize(width: 70, height: 70)
+    private var _PHAsset:AnyObject?
     @available(iOS 8.0, *)
     var phAsset:PHAsset? {
         return _PHAsset as? PHAsset
@@ -161,7 +161,7 @@ class SWALPhoto:NSObject
     }
     
     //获取原图
-    fileprivate func fetchOriginImageWithPHKit(_ completeCallback:@escaping ImageCompleteCallback)
+    private func fetchOriginImageWithPHKit(_ completeCallback:@escaping ImageCompleteCallback)
     {
         if #available(iOS 8.0, *)
         {
@@ -180,7 +180,7 @@ class SWALPhoto:NSObject
         }
     }
     
-    fileprivate func fetchOriginImageWithALKit(_ completeCallback:ImageCompleteCallback)
+    private func fetchOriginImageWithALKit(_ completeCallback:ImageCompleteCallback)
     {
         if let representation = asset?.defaultRepresentation(),
             let cgImage = representation.fullResolutionImage()?.takeUnretainedValue()
@@ -227,13 +227,13 @@ enum SWALAuthorizationStatus : Int {
 private var _manager:SWAssetsLibraryHelper?
 class SWAssetsLibraryHelper: NSObject
 {
-    fileprivate var _iOS8Available:Bool = false
+    private var _iOS8Available:Bool = false
     
-    fileprivate var _library:ALAssetsLibrary = ALAssetsLibrary()
+    private var _library:ALAssetsLibrary = ALAssetsLibrary()
     //private var _groups:[SWALAlbum] = []
     //private var _photos:[SWALPhoto] = []
     //相册封面尺寸
-    fileprivate let AlbumCoverSize:CGSize = CGSize(width: 70, height: 70)
+    private let AlbumCoverSize:CGSize = CGSize(width: 70, height: 70)
     
     
     class func shared() -> SWAssetsLibraryHelper
@@ -242,7 +242,7 @@ class SWAssetsLibraryHelper: NSObject
         return _manager!
     }
     
-    fileprivate var _delegates = WeakObjectSet<SWAssetsLibraryHelperDelegate>()
+    private var _delegates = WeakObjectSet<SWAssetsLibraryHelperDelegate>()
     
     //授权状态
     var authorizationStatus:SWALAuthorizationStatus{
@@ -354,7 +354,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     @available(iOS 8.0, *)
-    fileprivate func fetchCollections()
+    private func fetchCollections()
     {
         var groups:[SWALAlbum] = []
         // 列出所有相册智能相册
@@ -415,7 +415,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //获取相册列表
-    fileprivate func getGroupsList()
+    private func getGroupsList()
     {
         var groups:[SWALAlbum] = []
         var cameraRollAlbum:SWALAlbum?
@@ -464,7 +464,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //获取照片列表
-    fileprivate func getPhotoList(group:ALAssetsGroup)
+    private func getPhotoList(group:ALAssetsGroup)
     {
         //_photos.removeAll()
         var photos:[SWALPhoto] = []
@@ -495,7 +495,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     @available(iOS 8.0, *)
-    fileprivate func getPhotoList(collection:PHAssetCollection)
+    private func getPhotoList(collection:PHAssetCollection)
     {
         //_photos.removeAll()
         var photos:[SWALPhoto] = []
@@ -523,7 +523,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //授权被拒绝
-    fileprivate func notifyRequestAuthorizationDenied()
+    private func notifyRequestAuthorizationDenied()
     {
         for wrapper in _delegates.objects
         {
@@ -532,7 +532,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //授权通过
-    fileprivate func notifyRequestAuthorizationAuthorized()
+    private func notifyRequestAuthorizationAuthorized()
     {
         for wrapper in _delegates.objects
         {
@@ -541,7 +541,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //相册获取完成
-    fileprivate func notifyAlbumFetchComplete(_ album:[SWALAlbum], defaultAlbum:SWALAlbum?)
+    private func notifyAlbumFetchComplete(_ album:[SWALAlbum], defaultAlbum:SWALAlbum?)
     {
         for wrapper in _delegates.objects
         {
@@ -550,7 +550,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //相册空
-    fileprivate func notifyAlbumFetchEmpty()
+    private func notifyAlbumFetchEmpty()
     {
         for wrapper in _delegates.objects
         {
@@ -559,7 +559,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //相片获取完成
-    fileprivate func notifyPhotosFetchComplete(_ photos:[SWALPhoto])
+    private func notifyPhotosFetchComplete(_ photos:[SWALPhoto])
     {
         for wrapper in _delegates.objects
         {

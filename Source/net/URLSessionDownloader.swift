@@ -50,14 +50,14 @@ class URLSessionDelegateHandler: NSObject, URLSessionDataDelegate
 class URLSessionDownloader: NSObject,URLSessionDataDelegate
 {
     //NSURLConnectionDownloadDelegate
-    fileprivate var _request:NSMutableURLRequest = NSMutableURLRequest()
+    private var _request:NSMutableURLRequest = NSMutableURLRequest()
     
-    fileprivate var _session:Foundation.URLSession?
-    fileprivate var _task:URLSessionDataTask?
-    fileprivate var _sessionHandler:URLSessionDelegateHandler?
+    private var _session:Foundation.URLSession?
+    private var _task:URLSessionDataTask?
+    private var _sessionHandler:URLSessionDelegateHandler?
     
-    fileprivate var _contentLength:Int = 0
-    fileprivate var _responseData:NSMutableData = NSMutableData()
+    private var _contentLength:Int = 0
+    private var _responseData:NSMutableData = NSMutableData()
     
     var url:String = ""
     var startCallback:(() -> Void)?

@@ -33,7 +33,6 @@
 		A72156CD1D1A464D00FEF774 /* SystemVolumeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A721568A1D1A464D00FEF774 /* SystemVolumeManager.swift */; };
 		A72156CE1D1A464D00FEF774 /* ArrayUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = A721568C1D1A464D00FEF774 /* ArrayUtil.swift */; };
 		A72156CF1D1A464D00FEF774 /* ColorUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = A721568D1D1A464D00FEF774 /* ColorUtil.swift */; };
-		A72156D01D1A464D00FEF774 /* ContactTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = A721568E1D1A464D00FEF774 /* ContactTool.swift */; };
 		A72156D11D1A464D00FEF774 /* DateUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = A721568F1D1A464D00FEF774 /* DateUtil.swift */; };
 		A72156D21D1A464D00FEF774 /* DeviceUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156901D1A464D00FEF774 /* DeviceUtil.swift */; };
 		A72156D31D1A464D00FEF774 /* GlobalClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156911D1A464D00FEF774 /* GlobalClass.swift */; };
@@ -73,7 +72,6 @@
 		A7231D281D89562300A7795C /* SWSequenceAnimation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D241D89562300A7795C /* SWSequenceAnimation.swift */; };
 		A7231D291D89562300A7795C /* SWSoundPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D251D89562300A7795C /* SWSoundPlayer.swift */; };
 		A7231D2A1D89562300A7795C /* SWImageCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D261D89562300A7795C /* SWImageCacheManager.swift */; };
-		A7231D2B1D89562300A7795C /* SWAssetsLibraryHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D271D89562300A7795C /* SWAssetsLibraryHelper.swift */; };
 		A7231D2D1D89564400A7795C /* CGUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D2C1D89564400A7795C /* CGUtil.swift */; };
 		A7231D311D89567800A7795C /* SWMD5.m in Sources */ = {isa = PBXBuildFile; fileRef = A7231D2E1D89567800A7795C /* SWMD5.m */; };
 		A7231D321D89567800A7795C /* MD5Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7231D2F1D89567800A7795C /* MD5Extension.swift */; };
@@ -130,7 +128,6 @@
 		A721568A1D1A464D00FEF774 /* SystemVolumeManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SystemVolumeManager.swift; sourceTree = "<group>"; };
 		A721568C1D1A464D00FEF774 /* ArrayUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ArrayUtil.swift; sourceTree = "<group>"; };
 		A721568D1D1A464D00FEF774 /* ColorUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ColorUtil.swift; sourceTree = "<group>"; };
-		A721568E1D1A464D00FEF774 /* ContactTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactTool.swift; sourceTree = "<group>"; };
 		A721568F1D1A464D00FEF774 /* DateUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DateUtil.swift; sourceTree = "<group>"; };
 		A72156901D1A464D00FEF774 /* DeviceUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceUtil.swift; sourceTree = "<group>"; };
 		A72156911D1A464D00FEF774 /* GlobalClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GlobalClass.swift; sourceTree = "<group>"; };
@@ -172,7 +169,6 @@
 		A7231D241D89562300A7795C /* SWSequenceAnimation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWSequenceAnimation.swift; sourceTree = "<group>"; };
 		A7231D251D89562300A7795C /* SWSoundPlayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWSoundPlayer.swift; sourceTree = "<group>"; };
 		A7231D261D89562300A7795C /* SWImageCacheManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWImageCacheManager.swift; sourceTree = "<group>"; };
-		A7231D271D89562300A7795C /* SWAssetsLibraryHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWAssetsLibraryHelper.swift; sourceTree = "<group>"; };
 		A7231D2C1D89564400A7795C /* CGUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CGUtil.swift; sourceTree = "<group>"; };
 		A7231D2E1D89567800A7795C /* SWMD5.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SWMD5.m; sourceTree = "<group>"; };
 		A7231D2F1D89567800A7795C /* MD5Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MD5Extension.swift; sourceTree = "<group>"; };
@@ -279,7 +275,6 @@
 				A7231D241D89562300A7795C /* SWSequenceAnimation.swift */,
 				A7231D251D89562300A7795C /* SWSoundPlayer.swift */,
 				A7231D261D89562300A7795C /* SWImageCacheManager.swift */,
-				A7231D271D89562300A7795C /* SWAssetsLibraryHelper.swift */,
 				A72156791D1A464D00FEF774 /* Alert.swift */,
 				A721567A1D1A464D00FEF774 /* BannerTips.swift */,
 				A721567B1D1A464D00FEF774 /* ButtonUtil.swift */,
@@ -314,7 +309,6 @@
 			children = (
 				A721568C1D1A464D00FEF774 /* ArrayUtil.swift */,
 				A721568D1D1A464D00FEF774 /* ColorUtil.swift */,
-				A721568E1D1A464D00FEF774 /* ContactTool.swift */,
 				A721568F1D1A464D00FEF774 /* DateUtil.swift */,
 				A72156901D1A464D00FEF774 /* DeviceUtil.swift */,
 				A72156911D1A464D00FEF774 /* GlobalClass.swift */,
@@ -561,7 +555,6 @@
 				A72156C01D1A464D00FEF774 /* ChatInput.swift in Sources */,
 				A72156E41D1A464D00FEF774 /* UIKitExtension.swift in Sources */,
 				A72156F01D1A464D00FEF774 /* JSONHelper.swift in Sources */,
-				A7231D2B1D89562300A7795C /* SWAssetsLibraryHelper.swift in Sources */,
 				A72156F51D1A464D00FEF774 /* SimpleCookie.swift in Sources */,
 				A72156CE1D1A464D00FEF774 /* ArrayUtil.swift in Sources */,
 				A72156DE1D1A464D00FEF774 /* CoreFoundationExtension.swift in Sources */,
@@ -573,7 +566,6 @@
 				A72156D51D1A464D00FEF774 /* Regex.swift in Sources */,
 				A72156E81D1A464D00FEF774 /* Uploader.swift in Sources */,
 				A72156DA1D1A464D00FEF774 /* Toucan.swift in Sources */,
-				A72156D01D1A464D00FEF774 /* ContactTool.swift in Sources */,
 				A72156DC1D1A464D00FEF774 /* ViewUtil.swift in Sources */,
 				A72156E31D1A464D00FEF774 /* UIKitAdvanceExtension.swift in Sources */,
 				A72156E11D1A464D00FEF774 /* OrientationsExtension.swift in Sources */,
@@ -751,7 +743,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.test.SWCoreLibDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = BridgingHeader.h;
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 3.0.1;
 			};
 			name = Debug;
 		};
@@ -765,7 +757,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.test.SWCoreLibDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = BridgingHeader.h;
-				SWIFT_VERSION = 3.0;
+				SWIFT_VERSION = 3.0.1;
 			};
 			name = Release;
 		};

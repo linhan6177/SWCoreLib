@@ -8,7 +8,7 @@
 
 import Foundation
 import UIKit
-fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
+private func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
   switch (lhs, rhs) {
   case let (l?, r?):
     return l < r
@@ -25,9 +25,9 @@ class SWImageCacheManager:NSObject
 {
     //图片缓存所在目录
     var cacheDirectory:String = ""
-    let memoryCache = NSCache()
+    let memoryCache = NSCache<NSString, AnyObject>()
     
-    fileprivate var _fileManager = FileManager.default
+    private var _fileManager = FileManager.default
     
     let ioQueue: DispatchQueue = DispatchQueue(label: "com.sw.ImageLoader.ImageCache.ioQueue", attributes: [])
     let processQueue: DispatchQueue = DispatchQueue(label: "com.sw.ImageLoader.ImageCache.processQueue", attributes: DispatchQueue.Attributes.concurrent)
@@ -99,7 +99,7 @@ class SWImageCacheManager:NSObject
     }
     
     //把值转化为字符型
-    fileprivate func valueToString(_ value:Any) -> String
+    private func valueToString(_ value:Any) -> String
     {
         var sting:String
         if let size = value as? CGSize
@@ -133,7 +133,7 @@ class SWImageCacheManager:NSObject
     //通过图片URL以及相关存储参数获取本地缓存图片，如无参数，则返回原图
     func getImage(_ URL:String, options:ImageLoaderOptions? = nil) -> UIImage?
     {
-        if let memoryCacheImage = memoryCache.object(forKey: URL) as? UIImage
+        if let memoryCacheImage = memoryCache.object(forKey: URL as NSString) as? UIImage
         {
             return memoryCacheImage
         }
@@ -257,7 +257,7 @@ class SWImageCacheManager:NSObject
         })
     }
     
-    fileprivate func travelCachedFiles(onlyForCacheSize: Bool) -> (URLsToDelete: [URL], diskCacheSize: UInt, cachedFiles: [URL: [AnyHashable: Any]]) {
+    private func travelCachedFiles(onlyForCacheSize: Bool) -> (URLsToDelete: [URL], diskCacheSize: UInt, cachedFiles: [URL: [AnyHashable: Any]]) {
         
         let diskCacheURL = URL(fileURLWithPath: cacheDirectory)
         let resourceKeys = [URLResourceKey.isDirectoryKey, URLResourceKey.contentModificationDateKey, URLResourceKey.totalFileAllocatedSizeKey]

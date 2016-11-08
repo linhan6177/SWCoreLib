@@ -15,7 +15,7 @@ class SWSoundPlayer:NSObject {
     static var filename : String?
     static var enabled : Bool = true
     
-    fileprivate struct Internal {
+    private struct Internal {
         static var cache = [URL:SystemSoundID]()
     }
     

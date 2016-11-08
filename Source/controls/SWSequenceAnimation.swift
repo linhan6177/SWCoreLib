@@ -14,10 +14,10 @@ class SWSequenceAnimation: UIImageView
     var animateCompleteCallback:((UIView)->Void)?
     
     //private var _images:[UIImage] = []
-    fileprivate var _totalFrames:Int = 0
+    private var _totalFrames:Int = 0
     
     //帧频
-    fileprivate var _frameRate:Int = 1
+    private var _frameRate:Int = 1
     var frameRate:Int{
         get{
             return _frameRate
@@ -57,13 +57,13 @@ class SWSequenceAnimation: UIImageView
         fatalError("init(coder:) has not been implemented")
     }
     
-    fileprivate func setup()
+    private func setup()
     {
         //animationRepeatCount = 100000
         //animationRepeatCount = 0
     }
     
-    fileprivate func setAnimationImages(_ images:[UIImage])
+    private func setAnimationImages(_ images:[UIImage])
     {
         animationImages = images
         if images.count > 0
@@ -98,7 +98,7 @@ class SWSequenceAnimation: UIImageView
         }
     }
     
-    fileprivate func loadImages(_ paths:[String])
+    private func loadImages(_ paths:[String])
     {
         DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async {
             var images:[UIImage] = []

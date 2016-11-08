@@ -19,7 +19,7 @@ class CustomLayerDelegateWrapper:NSObject
 {
     weak var delegate:CustomLayerDelegateWrapperDelegate?
     
-    override func drawLayer(_ layer: CALayer, inContext ctx: CGContext)
+    func drawLayer(_ layer: CALayer, inContext ctx: CGContext)
     {
         delegate?.customDrawLayer(layer, inContext: ctx)
     }
