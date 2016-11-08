@@ -46,14 +46,14 @@ class ImagePickerHelper:NSObject,UIImagePickerControllerDelegate,UINavigationCon
     //打开摄像头
     func presentCameraPickerController(allowsEditing:Bool = true)
     {
-        let cameraAvailable:Bool = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera)
+        let cameraAvailable:Bool = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera)
         if cameraAvailable
         {
             let pickerController:UIImagePickerController = UIImagePickerController()
             pickerController.delegate = self
-            pickerController.sourceType = UIImagePickerControllerSourceType.Camera
+            pickerController.sourceType = UIImagePickerControllerSourceType.camera
             pickerController.allowsEditing = allowsEditing
-            containerViewController?.presentViewController(pickerController, animated:true, completion:nil)
+            containerViewController?.present(pickerController, animated:true, completion:nil)
         }
     }
     
@@ -62,13 +62,13 @@ class ImagePickerHelper:NSObject,UIImagePickerControllerDelegate,UINavigationCon
     {
         if let image:UIImage = info[UIImagePickerControllerEditedImage] as? UIImage ?? info[UIImagePickerControllerOriginalImage] as? UIImage
         {
-            dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+            DispatchQueue.global(priority: .default).async(execute:
                 {
-                    let resizedImge:UIImage = self.cropSize.isEmpty ? image : Toucan.Resize.resizeImage(image, size: self.cropSize, fitMode:.Crop)
-                    dispatch_async(dispatch_get_main_queue()){
+                    let resizedImge:UIImage = self.cropSize.isEmpty ? image : Toucan.Resize.resizeImage(image, size: self.cropSize, fitMode:.crop)
+                    DispatchQueue.main.async{
                         
-                        picker.dismissViewControllerAnimated(true, completion: {finish in
-                            self.delegate?.imagePickerDidFinishPickingImage(resizedImge)
+                        picker.dismiss(animated:true, completion: {finish in
+                            self.delegate?.imagePickerDidFinishPickingImage(image: resizedImge)
                         })
                         
                     }

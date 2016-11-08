@@ -50,8 +50,7 @@ class URLSessionDelegateHandler: NSObject, URLSessionDataDelegate
 class URLSessionDownloader: NSObject,URLSessionDataDelegate
 {
     //NSURLConnectionDownloadDelegate
-    private var _request:NSMutableURLRequest = NSMutableURLRequest()
-    
+    private var _request:URLRequest?
     private var _session:Foundation.URLSession?
     private var _task:URLSessionDataTask?
     private var _sessionHandler:URLSessionDelegateHandler?
@@ -61,29 +60,32 @@ class URLSessionDownloader: NSObject,URLSessionDataDelegate
     
     var url:String = ""
     var startCallback:(() -> Void)?
-    var failCallback:((NSError) -> Void)?
+    var failCallback:((Error) -> Void)?
     var progressCallback:((Int,Int) -> Void)?
     var completeCallback:((Data) -> Void)?
     
-    var requestModifier: ((NSMutableURLRequest) -> Void)?
+    var requestModifier: ((URLRequest) -> Void)?
+    
+    private let defaultTimeoutInterval:Double = 30
+    private let defaultCachePolicy = URLRequest.CachePolicy.reloadIgnoringLocalCacheData
     
     var timeoutInterval:Double
     {
         get {
-            return _request.timeoutInterval
+            return _request?.timeoutInterval ?? defaultTimeoutInterval
         }
         set {
-            _request.timeoutInterval = newValue
+            _request?.timeoutInterval = newValue
         }
     }
     
-    var cachePolicy:NSURLRequest.CachePolicy
+    var cachePolicy:URLRequest.CachePolicy
     {
         get {
-            return _request.cachePolicy
+            return _request?.cachePolicy ?? defaultCachePolicy
         }
         set {
-            _request.cachePolicy = newValue
+            _request?.cachePolicy = newValue
         }
     }
     
@@ -94,16 +96,14 @@ class URLSessionDownloader: NSObject,URLSessionDataDelegate
     
     override init()
     {
+        
         super.init()
-        _request.timeoutInterval = 30
-        _request.cachePolicy = NSURLRequest.CachePolicy.reloadIgnoringLocalCacheData
-        _request.addValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0", forHTTPHeaderField: "User-Agent")
         
         _sessionHandler = URLSessionDelegateHandler()
         _sessionHandler?.delegate = self
         
         let queue = Foundation.URLSession.shared.delegateQueue
-        //let queue = NSOperationQueue.mainQueue()
+        //let queue = OperationQueue.main
         _session = Foundation.URLSession(configuration: sessionConfiguration, delegate: _sessionHandler, delegateQueue: queue)
     }
     
@@ -113,20 +113,30 @@ class URLSessionDownloader: NSObject,URLSessionDataDelegate
     
     var sessionConfiguration = URLSessionConfiguration.ephemeral {
         didSet {
-            //session = NSURLSession(configuration: sessionConfiguration, delegate: sessionHandler, delegateQueue: NSOperationQueue.mainQueue())
+            //session = NSURLSession(configuration: sessionConfiguration, delegate: sessionHandler, delegateQueue: OperationQueue.main)
         }
     }
     
-    func load(_ url:String, data:AnyObject? = nil)
+    func load(_ urlString:String, data:AnyObject? = nil)
     {
-        self.url = url
+        self.url = urlString
+        guard let url = URL(string: urlString) else {
+            return
+        }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = defaultTimeoutInterval
+        request.cachePolicy = URLRequest.CachePolicy.reloadIgnoringLocalCacheData
+        request.addValue("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:40.0) Gecko/20100101 Firefox/40.0", forHTTPHeaderField: "User-Agent")
+        
+        
+        requestModifier?(request)
+        
         _responseData = NSMutableData()
-        _request.url = URL(string: url)
         
-        requestModifier?(_request)
-        
-        _task = _session?.dataTask(with: _request)
+        _task = _session?.dataTask(with: request)
         _task?.resume()
+        
+        _request = request
     }
     
     func cancel()

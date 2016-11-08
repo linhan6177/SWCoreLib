@@ -7,3 +7,4 @@
 //
 
 #import "SWMD5.h";
+#import "MSWeakTimer.h";

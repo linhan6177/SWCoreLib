@@ -19,25 +19,25 @@ import Foundation
 extension SWColor
 {
     //十六进制值来表示UIColor
-    convenience init(hex:AnyObject, alpha:CGFloat = 1)
+    convenience init(hex:Any, alpha:CGFloat = 1)
     {
         var rgb:UInt32 = 0
-        if hex is String
+        if let string = hex as? String
         {
-            let scanner = Scanner(string: hex as! String)
-            if (hex as! String).hasPrefix("#")
+            let scanner = Scanner(string: string)
+            if string.hasPrefix("#")
             {
                 scanner.scanLocation = 1
             }
-            else if (hex as! String).hasPrefix("0x")
+            else if string.hasPrefix("0x")
             {
                 scanner.scanLocation = 2
             }
             scanner.scanHexInt32(&rgb)
         }
-        else if hex is Int
+        else if let intValue = hex as? Int
         {
-            rgb = UInt32(hex as! Int)
+            rgb = UInt32(intValue)
         }
         let r:CGFloat = CGFloat((rgb & 0xFF0000) >> 16) / 255.0
         let g:CGFloat = CGFloat((rgb & 0xFF00) >> 8) / 255.0

@@ -427,11 +427,12 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
             {
                 return false
             }
-            guard let keyWindow = UIApplication.shared.keyWindow else
+            guard let keyWindow:UIView = UIApplication.shared.keyWindow else
             {
                 return false
             }
-            let gloablFrame = superview.convert(frame, to: keyWindow)
+        
+            let gloablFrame:CGRect = superview.convert(frame, toView: keyWindow)
             return !gloablFrame.intersection(keyWindow.frame).isEmpty
     }
     

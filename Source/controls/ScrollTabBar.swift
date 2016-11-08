@@ -206,7 +206,7 @@ class ScrollTabBar:UIView
                 }
                 
                 button = _buttons[_selectedIndex]
-                //button.setTitleColor(UIColor.redColor(), forState: .Normal)
+                //button.setTitleColor(UIColor.redColor(), for: .normal)
                 button.textColor = selectedColor
                 //_overflow
                 let buttonRect:CGRect = button.frame

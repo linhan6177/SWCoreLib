@@ -32,40 +32,19 @@ class ButtonUtil
 
 extension UIButton
 {
-    
-    
     public func setImageURL(_ url:String, forState state:UIControlState)
     {
-        /**
-        var loader:Downloader = Downloader()
-        loader.completeCallback = {[weak self] data in
-        
-            dispatch_async(dispatch_get_main_queue(),
-                {
-                    var image:UIImage? = UIImage(data:data)
-                    if let strongSelf = self
-                    {
-                        strongSelf.setImage(image, forState: state)
-                    }
-            })
-        
-        }
-        loader.load(url, data: nil)
-**/
-        
-        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: {
+        DispatchQueue.global(priority: .default).async(execute: {
                 let nsurl:URL? = URL(string:url)
                 let nsData:Data? = nsurl != nil ? (try? Data(contentsOf: nsurl!)) : nil
                 if nsData != nil
                 {
-                    let image:UIImage? = UIImage(data:nsData!, scale:2)
+                    let image:UIImage? = UIImage(data:nsData!, scale:UIScreen.main.scale)
                     DispatchQueue.main.async(execute: {
                             self.setImage(image, for: state)
                     });
                 }
         });
     }
-    
-    
 }
 

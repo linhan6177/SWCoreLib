@@ -15,7 +15,7 @@ class JSONHelper: NSObject
         let jsonData:Data? = try? JSONSerialization.data(withJSONObject: obj, options: .prettyPrinted)
         if let data = jsonData
         {
-            returnString = NSString(data: data, encoding: String.Encoding.utf8.rawValue) as? String ?? ""
+            returnString = String(data: data, encoding: String.Encoding.utf8) ?? ""
         }
         return returnString
     }

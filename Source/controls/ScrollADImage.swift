@@ -26,7 +26,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
         {
             if autoScrollInterval > 0
             {
-                _timer = MSWeakTimer.scheduledTimerWithTimeInterval(autoScrollInterval, target: self, selector: "timeInterval", userInfo: nil, repeats: true, dispatchQueue: DispatchQueue.main)
+                MSWeakTimer.scheduledTimer(withTimeInterval: autoScrollInterval, target: self, selector: #selector(timeInterval), userInfo: nil, repeats: true, dispatchQueue: DispatchQueue.main)
             }
             else
             {

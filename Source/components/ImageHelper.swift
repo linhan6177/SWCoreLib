@@ -15,12 +15,12 @@ class ImageHelper: NSObject
     {
         var newImage:UIImage = image
         //如果图片方向不是向上，则进行旋转
-        if image.imageOrientation != .Up
+        if image.imageOrientation != .up
         {
             //UIGraphicsBeginImageContext(image.size)
-            UIGraphicsBeginImageContextWithOptions(image.size, false, UIScreen.mainScreen().scale)
-            image.drawInRect(CGRectMake(0, 0, image.size.width, image.size.height))
-            newImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsBeginImageContextWithOptions(image.size, false, UIScreen.main.scale)
+            image.draw(in:CGRectMake(0, 0, image.size.width, image.size.height))
+            newImage = UIGraphicsGetImageFromCurrentImageContext()!
             UIGraphicsEndImageContext()
         }
         

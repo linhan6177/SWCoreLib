@@ -9,18 +9,20 @@
 import Foundation
 open class Base64:NSObject
 {
-    class func encode(_ string:String)->String
+    class func encode(_ string:String) -> String
     {
-        let data:Data = string.data(using: String.Encoding.utf8)!
+        guard let data = string.data(using: String.Encoding.utf8) else{
+            return ""
+        }
         let baseData:Data = data.base64EncodedData(options: NSData.Base64EncodingOptions.endLineWithLineFeed)
-        
-        return  NSString(data:baseData, encoding:String.Encoding.utf8.rawValue)! as String
+        return  String(data: baseData, encoding: String.Encoding.utf8) ?? ""
     }
     
     class func decode(_ string:String)->String
     {
-        let data:Data = Data(base64Encoded: string, options: NSData.Base64DecodingOptions.ignoreUnknownCharacters)!
-        
-        return NSString(data:data, encoding:String.Encoding.utf8.rawValue) as? String ?? ""
+        guard let data:Data = Data(base64Encoded: string, options: Data.Base64DecodingOptions.ignoreUnknownCharacters) else{
+            return ""
+        }
+        return String(data: data, encoding: String.Encoding.utf8) ?? ""
     }
 }

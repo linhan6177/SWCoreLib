@@ -249,7 +249,7 @@ class SWImageCacheManager:NSObject
                         return url.lastPathComponent
                     })
                     
-                    //NSNotificationCenter.defaultCenter().postNotificationName(KingfisherDidCleanDiskCacheNotification, object: self, userInfo: [KingfisherDiskCacheCleanedHashKey: cleanedHashes])
+                    //NotificationCenter.default.post(name:KingfisherDidCleanDiskCacheNotification, object: self, userInfo: [KingfisherDiskCacheCleanedHashKey: cleanedHashes])
                 }
                 
                 completionHandler?()

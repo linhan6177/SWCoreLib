@@ -254,7 +254,7 @@ extension UIViewController
     
     var statusBarHeight:CGFloat {
         return 20
-        //return UIApplication.sharedApplication().statusBarFrame.height
+        //return UIApplication.sharedApplication.statusBarFrame.height
     }
     
     var navigationBarBottom:CGFloat {

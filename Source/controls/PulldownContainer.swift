@@ -29,7 +29,7 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
 {
     weak var delegate:PulldownContainerDelegate?
     
-    //var modelRect:CGRect = UIScreen.mainScreen().bounds
+    //var modelRect:CGRect = UIScreen.main.bounds
     var modelInsets:UIEdgeInsets = UIEdgeInsets.zero
     
     lazy private var _popupContainer:PopupContainer = PopupContainer()

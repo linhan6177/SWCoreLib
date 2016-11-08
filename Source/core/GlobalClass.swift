@@ -36,7 +36,7 @@ class TimerObject
     var id:String
     var callback:SetTimeoutCallbackHandler?
     var callbackWithArgs:SetTimeoutWithArgsCallbackHandler?
-    weak var timer:Timer?
+    weak var timer:MSWeakTimer?
     
     init(id:String, callback:SetTimeoutCallbackHandler?, callbackWithArgs:SetTimeoutWithArgsCallbackHandler?)
     {
@@ -56,7 +56,7 @@ class TimerObject
         timer = nil
     }
     
-    @objc private func delay(_ timer:Timer)
+    @objc func delay(_ timer:Timer)
     {
         let args:[AnyHashable: Any]? = timer.userInfo as? [AnyHashable: Any]
         if args != nil
@@ -70,7 +70,7 @@ class TimerObject
         clearTimeout(id)
     }
     
-    @objc private func interval(_ timer:Timer)
+    @objc func interval(_ timer:Timer)
     {
         let args:[AnyHashable: Any]? = timer.userInfo as? [AnyHashable: Any]
         if args != nil
@@ -88,20 +88,7 @@ func setTimeout(_ delay:Double, closure:@escaping SetTimeoutCallbackHandler) -> 
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: closure, callbackWithArgs:nil)
-    DispatchQueue.main.async(execute: {
-        timerObject.timer = Timer.scheduledTimer(timeInterval: delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: nil, repeats: false)
-    })
-    SWGlobalStaticClass.timers.append(timerObject)
-    return id
-}
-
-func setTimeoutWithArgs(_ delay:Double, closure:@escaping SetTimeoutWithArgsCallbackHandler, args:[AnyHashable: Any]) -> String
-{
-    let id:String = StringUtil.getUniqid(10)
-    let timerObject:TimerObject = TimerObject(id: id, callback: nil, callbackWithArgs:closure)
-    DispatchQueue.main.async(execute: {
-        timerObject.timer = Timer.scheduledTimer(timeInterval: delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: args, repeats: false)
-    })
+    timerObject.timer = MSWeakTimer.scheduledTimer(withTimeInterval: delay, target: timerObject, selector: #selector(TimerObject.delay(_:)), userInfo: nil, repeats: false, dispatchQueue: DispatchQueue.main)
     SWGlobalStaticClass.timers.append(timerObject)
     return id
 }
@@ -110,20 +97,7 @@ func setInterval(_ delay:Double, closure:@escaping SetTimeoutCallbackHandler) ->
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: closure, callbackWithArgs:nil)
-    DispatchQueue.main.async(execute: {
-        timerObject.timer = Timer.scheduledTimer(timeInterval: delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: nil, repeats: true)
-    })
-    SWGlobalStaticClass.timers.append(timerObject)
-    return id
-}
-
-func setIntervalWithArgs(_ delay:Double, closure:@escaping SetTimeoutWithArgsCallbackHandler, args:[AnyHashable: Any]) -> String
-{
-    let id:String = StringUtil.getUniqid(10)
-    let timerObject:TimerObject = TimerObject(id: id, callback: nil, callbackWithArgs:closure)
-    DispatchQueue.main.async(execute: {
-        timerObject.timer = Timer.scheduledTimer(timeInterval: delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: args, repeats: true)
-    })
+    timerObject.timer = MSWeakTimer.scheduledTimer(withTimeInterval: delay, target: timerObject, selector: #selector(TimerObject.interval(_:)), userInfo: nil, repeats: true, dispatchQueue: DispatchQueue.main)
     SWGlobalStaticClass.timers.append(timerObject)
     return id
 }

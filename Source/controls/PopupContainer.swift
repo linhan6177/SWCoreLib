@@ -91,9 +91,9 @@ class PopupContainer: UIView
     
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool
     {
-        if let content = _content , _modelType == .none
+        if let content = _content, _modelType == .none
         {
-            let globalRect = content.superview?.convert(content.frame, to: self) ?? CGRect.zero
+            let globalRect = content.superview?.convert(content.frame, toView: self) ?? CGRect.zero
             return globalRect.contains(point)
         }
         if !UIEdgeInsetsEqualToEdgeInsets(_interactionInsets, UIEdgeInsets.zero)

@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A71F98131DD16E3E00BB78B5 /* MSWeakTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = A71F98121DD16E3E00BB78B5 /* MSWeakTimer.m */; };
+		A71F98151DD17BD800BB78B5 /* SWSwift3Convert.swift in Sources */ = {isa = PBXBuildFile; fileRef = A71F98141DD17BD800BB78B5 /* SWSwift3Convert.swift */; };
 		A721564A1D1A461D00FEF774 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156491D1A461D00FEF774 /* AppDelegate.swift */; };
 		A721564C1D1A461D00FEF774 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A721564B1D1A461D00FEF774 /* ViewController.swift */; };
 		A721564F1D1A461D00FEF774 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A721564D1D1A461D00FEF774 /* Main.storyboard */; };
@@ -56,7 +58,6 @@
 		A72156E51D1A464D00FEF774 /* UIViewController+TopMostViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156A51D1A464D00FEF774 /* UIViewController+TopMostViewController.swift */; };
 		A72156E61D1A464D00FEF774 /* Downloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156A71D1A464D00FEF774 /* Downloader.swift */; };
 		A72156E71D1A464D00FEF774 /* NetUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156A81D1A464D00FEF774 /* NetUtil.swift */; };
-		A72156E81D1A464D00FEF774 /* Uploader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156A91D1A464D00FEF774 /* Uploader.swift */; };
 		A72156E91D1A464D00FEF774 /* URLSessionDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156AA1D1A464D00FEF774 /* URLSessionDownloader.swift */; };
 		A72156EA1D1A464D00FEF774 /* WebLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156AB1D1A464D00FEF774 /* WebLoader.swift */; };
 		A72156EB1D1A464D00FEF774 /* SWDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = A72156AD1D1A464D00FEF774 /* SWDevice.swift */; };
@@ -96,6 +97,9 @@
 
 /* Begin PBXFileReference section */
 		30503E951D8956EB00D78421 /* BridgingHeader.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BridgingHeader.h; sourceTree = "<group>"; };
+		A71F98111DD16E3E00BB78B5 /* MSWeakTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MSWeakTimer.h; sourceTree = "<group>"; };
+		A71F98121DD16E3E00BB78B5 /* MSWeakTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MSWeakTimer.m; sourceTree = "<group>"; };
+		A71F98141DD17BD800BB78B5 /* SWSwift3Convert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWSwift3Convert.swift; sourceTree = "<group>"; };
 		A72156461D1A461D00FEF774 /* SWCoreLibDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SWCoreLibDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A72156491D1A461D00FEF774 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A721564B1D1A461D00FEF774 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -151,7 +155,6 @@
 		A72156A51D1A464D00FEF774 /* UIViewController+TopMostViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIViewController+TopMostViewController.swift"; sourceTree = "<group>"; };
 		A72156A71D1A464D00FEF774 /* Downloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Downloader.swift; sourceTree = "<group>"; };
 		A72156A81D1A464D00FEF774 /* NetUtil.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetUtil.swift; sourceTree = "<group>"; };
-		A72156A91D1A464D00FEF774 /* Uploader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Uploader.swift; sourceTree = "<group>"; };
 		A72156AA1D1A464D00FEF774 /* URLSessionDownloader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = URLSessionDownloader.swift; sourceTree = "<group>"; };
 		A72156AB1D1A464D00FEF774 /* WebLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebLoader.swift; sourceTree = "<group>"; };
 		A72156AD1D1A464D00FEF774 /* SWDevice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SWDevice.swift; sourceTree = "<group>"; };
@@ -317,6 +320,8 @@
 				A72156941D1A464D00FEF774 /* ServerDate.swift */,
 				A72156951D1A464D00FEF774 /* StringUtil.swift */,
 				A72156961D1A464D00FEF774 /* Weaker.swift */,
+				A71F98111DD16E3E00BB78B5 /* MSWeakTimer.h */,
+				A71F98121DD16E3E00BB78B5 /* MSWeakTimer.m */,
 			);
 			path = core;
 			sourceTree = "<group>";
@@ -354,7 +359,6 @@
 			children = (
 				A72156A71D1A464D00FEF774 /* Downloader.swift */,
 				A72156A81D1A464D00FEF774 /* NetUtil.swift */,
-				A72156A91D1A464D00FEF774 /* Uploader.swift */,
 				A72156AA1D1A464D00FEF774 /* URLSessionDownloader.swift */,
 				A72156AB1D1A464D00FEF774 /* WebLoader.swift */,
 			);
@@ -393,6 +397,7 @@
 				A72156BA1D1A464D00FEF774 /* POAPinyin.h */,
 				A72156BB1D1A464D00FEF774 /* POAPinyin.m */,
 				A72156BC1D1A464D00FEF774 /* SimpleCookie.swift */,
+				A71F98141DD17BD800BB78B5 /* SWSwift3Convert.swift */,
 			);
 			path = utils;
 			sourceTree = "<group>";
@@ -548,6 +553,7 @@
 				A72156D31D1A464D00FEF774 /* GlobalClass.swift in Sources */,
 				A7231D2D1D89564400A7795C /* CGUtil.swift in Sources */,
 				A72156BE1D1A464D00FEF774 /* BannerTips.swift in Sources */,
+				A71F98131DD16E3E00BB78B5 /* MSWeakTimer.m in Sources */,
 				A72156CD1D1A464D00FEF774 /* SystemVolumeManager.swift in Sources */,
 				A72156CA1D1A464D00FEF774 /* StrokeLabel.swift in Sources */,
 				A72156C31D1A464D00FEF774 /* IncrementProgressView.swift in Sources */,
@@ -564,7 +570,6 @@
 				A72156EB1D1A464D00FEF774 /* SWDevice.swift in Sources */,
 				A72156EF1D1A464D00FEF774 /* FileUtility.swift in Sources */,
 				A72156D51D1A464D00FEF774 /* Regex.swift in Sources */,
-				A72156E81D1A464D00FEF774 /* Uploader.swift in Sources */,
 				A72156DA1D1A464D00FEF774 /* Toucan.swift in Sources */,
 				A72156DC1D1A464D00FEF774 /* ViewUtil.swift in Sources */,
 				A72156E31D1A464D00FEF774 /* UIKitAdvanceExtension.swift in Sources */,
@@ -590,6 +595,7 @@
 				A72156BF1D1A464D00FEF774 /* ButtonUtil.swift in Sources */,
 				A72156E01D1A464D00FEF774 /* OperatorExtension.swift in Sources */,
 				A7231D311D89567800A7795C /* SWMD5.m in Sources */,
+				A71F98151DD17BD800BB78B5 /* SWSwift3Convert.swift in Sources */,
 				A72156D81D1A464D00FEF774 /* Weaker.swift in Sources */,
 				A72156D11D1A464D00FEF774 /* DateUtil.swift in Sources */,
 				A72156ED1D1A464D00FEF774 /* SWTextViewInternal.swift in Sources */,

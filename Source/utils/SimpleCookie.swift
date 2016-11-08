@@ -7,21 +7,15 @@
 //
 
 import Foundation
+private var _instance = SimpleCookie(user:"UserData")
 class SimpleCookie:NSObject
 {
-    private static var __once: () = { Static.instance = SimpleCookie(user: "userData") }()
     var userDefaults:UserDefaults?
     var userData:[AnyHashable: Any]?
     
-    class func shared()->SimpleCookie
+    class func shared() -> SimpleCookie
     {
-        struct Static {
-            static var instance : SimpleCookie? = nil
-            static var token : Int = 0
-        }
-        _ = SimpleCookie.__once
-        
-        return Static.instance!
+        return _instance
     }
     
     init(user username: String!)
