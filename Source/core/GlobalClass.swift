@@ -47,7 +47,7 @@ class TimerObject
     
     deinit
     {
-        //println("TimerObject deinit")
+        //print("TimerObject deinit")
     }
     
     func invalidate()

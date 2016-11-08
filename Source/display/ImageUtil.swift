@@ -45,6 +45,71 @@ open class ImageUtil:NSObject
         return newImage!
     }
     
+    //水平翻转
+    public class func flipHorizontal(image:UIImage) -> UIImage
+    {
+        let size = image.size
+        UIGraphicsBeginImageContextWithOptions(size, false, image.scale)
+        let context = UIGraphicsGetCurrentContext()
+        CGContextSaveGState(context)
+        CGContextScaleCTM(context, -1, 1)
+        CGContextTranslateCTM(context, -size.width, 0)
+        image.drawInRect(CGRectMake(0, 0, size.width, size.height))
+        CGContextRestoreGState(context)
+        let flipImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return flipImage
+    }
+    
+    //垂直翻转
+    public class func flipVertical(image:UIImage) -> UIImage
+    {
+        let size = image.size
+        UIGraphicsBeginImageContextWithOptions(size, false, image.scale)
+        let context = UIGraphicsGetCurrentContext()
+        CGContextSaveGState(context)
+        CGContextScaleCTM(context, 1, -1)
+        CGContextTranslateCTM(context, 0, -size.height)
+        image.drawInRect(CGRectMake(0, 0, size.width, size.height))
+        CGContextRestoreGState(context)
+        let flipImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return flipImage
+    }
+    
+    //图片旋转(仅限90°为单位的旋转, -90 90)
+    public class func rotate(image:UIImage, angle:Int) -> UIImage
+    {
+        let angle180:Bool = abs(angle) % 180 == 0
+        let size = angle180 ? image.size : CGSizeMake(image.size.height, image.size.width)
+        UIGraphicsBeginImageContextWithOptions(size, false, image.scale)
+        let context = UIGraphicsGetCurrentContext()
+        CGContextSaveGState(context)
+        
+        if abs(angle) % 90 == 0
+        {
+            if angle / 90 == 1
+            {
+                CGContextTranslateCTM(context, size.width, 0)
+            }
+            else if angle / 90 == -1
+            {
+                CGContextTranslateCTM(context, 0, size.height)
+            }
+            else if angle / 180 == 1
+            {
+                CGContextTranslateCTM(context, size.width, size.height);
+            }
+            CGContextRotateCTM(context, CGFloat(angle) * CGFloat(M_PI) / 180.0)
+        }
+        
+        image.drawInRect(CGRectMake(0, 0, image.size.width, image.size.height))
+        CGContextRestoreGState(context)
+        let flipImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return flipImage
+    }
+    
     //取得某个大小的图片
     open class func getImageWithinByteLimit(_ image:UIImage, size:CGSize, limit:Int) -> UIImage
     {

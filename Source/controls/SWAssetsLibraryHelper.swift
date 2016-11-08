@@ -16,8 +16,26 @@ let SWALUsePHKit:Bool = true
 let SWALUsePHKit:Bool = true
 #endif
 
-//相册
-protocol SWALAlbumDelegate:NSObjectProtocol {
+//照片获取选项
+struct SWALPhotoRequestOptions
+{
+    var requestImageData:Bool = false
+}
+
+//照片获取结果
+struct SWALPhotoRequestResult
+{
+    var image:UIImage?
+    var data:NSData?
+    var creationDate:NSDate?
+}
+
+//照片保存结果
+struct WriteImageCompletionResult
+{
+    var success:Bool = false
+    var localIdentifier:String?
+    var error:NSError?
     
     func albumCoverChanged(_ album:SWALAlbum, cover:UIImage)
 }
@@ -68,7 +86,7 @@ protocol SWALPhotoDelegate:NSObjectProtocol {
 
 class SWALPhoto:NSObject
 {
-    typealias ImageCompleteCallback = (UIImage?)->Void
+    typealias ImageCompleteCallback = (SWALPhotoRequestResult?)->Void
     var selected:Bool = false
     var image:UIImage?
     
@@ -84,12 +102,14 @@ class SWALPhoto:NSObject
     var asset:ALAsset?
     
     var id:String
+    var localIdentifier:String
     var index:Int = 0
     var originImage:UIImage?
+    var creationDate:NSDate?
     
     func fetchOriginImage(_ completeCallback:@escaping ImageCompleteCallback)
     {
-        (iOS8Available && SWALUsePHKit) ? fetchOriginImageWithPHKit(completeCallback) : fetchOriginImageWithALKit(completeCallback)
+        (iOS8Available && SWALUsePHKit) ? fetchOriginImageWithPHKit(completeCallback, options:options) : fetchOriginImageWithALKit(completeCallback)
     }
     
     var iOS8Available:Bool{
@@ -102,25 +122,41 @@ class SWALPhoto:NSObject
     
     init(id:String, ALAsset asset:ALAsset)
     {
-        self.id = id
+        localIdentifier = id
+        self.id = SWMD5.md532BitUpper(id)
         self.asset = asset
     }
     
     @available(iOS 8.0, *)
     init(id:String, PHAsset asset:PHAsset)
     {
-        self.id = id
+        localIdentifier = id
+        self.id = SWMD5.md532BitUpper(id)
         self._PHAsset = asset
     }
     
     init(thumbnail:UIImage?) {
         id = ""
+        localIdentifier = ""
         self.thumbnail = thumbnail
         super.init()
     }
     
+    var size:CGSize
+    {
+        if #available(iOS 8.0, *)
+        {
+            if let asset = _PHAsset
+            {
+                return CGSizeMake(CGFloat(asset.pixelWidth), CGFloat(asset.pixelHeight))
+            }
+        }
+        return CGSizeZero
+    }
+    
     //缩略图
     var thumbnail:UIImage?
+    
     //获取缩略图是异步的，需要回调
     func fetchThumbnail(_ size:CGSize? = nil)
     {
@@ -169,14 +205,35 @@ class SWALPhoto:NSObject
                 completeCallback(nil)
                 return
             }
+            let requestImageData:Bool = options?.requestImageData ?? false
+            var dataReturned:Bool = false
+            var imageReturned:Bool = false
             let imageRequestOptions = PHImageRequestOptions()
             imageRequestOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.fastFormat
             imageRequestOptions.resizeMode = PHImageRequestOptionsResizeMode.exact
             imageRequestOptions.isSynchronous = false
             PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: nil, resultHandler: {image, info in
                 self.originImage = image
-                completeCallback(image)
+                result.image = image
+                if !requestImageData || (requestImageData && dataReturned)
+                {
+                    completeCallback(result)
+                }
             })
+            
+            if requestImageData
+            {
+                PHImageManager.defaultManager().requestImageDataForAsset(asset, options: imageRequestOptions, resultHandler: {imageData, url, ori, info in
+                    dataReturned = true
+                    result.data = imageData
+                    
+                    if imageReturned
+                    {
+                        completeCallback(result)
+                    }
+                })
+            }
+            
         }
     }
     
@@ -189,7 +246,9 @@ class SWALPhoto:NSObject
             let imageOrientation:UIImageOrientation = UIImageOrientation(rawValue: representation.orientation().rawValue) ?? .up
             let image = UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
             originImage = image
-            completeCallback(image)
+            var result:SWALPhotoRequestResult = SWALPhotoRequestResult()
+            result.image = image
+            completeCallback(result)
         }
         else
         {
@@ -230,8 +289,7 @@ class SWAssetsLibraryHelper: NSObject
     private var _iOS8Available:Bool = false
     
     private var _library:ALAssetsLibrary = ALAssetsLibrary()
-    //private var _groups:[SWALAlbum] = []
-    //private var _photos:[SWALPhoto] = []
+    
     //相册封面尺寸
     private let AlbumCoverSize:CGSize = CGSize(width: 70, height: 70)
     
@@ -249,13 +307,12 @@ class SWAssetsLibraryHelper: NSObject
         var status = SWALAuthorizationStatus.notDetermined
         if #available(iOS 8.0, *)
         {
-            status = SWALAuthorizationStatus(rawValue: PHPhotoLibrary.authorizationStatus().rawValue) ?? status
+            return SWALAuthorizationStatus(status: PHPhotoLibrary.authorizationStatus())
         }
         else
         {
-            status = SWALAuthorizationStatus(rawValue: ALAssetsLibrary.authorizationStatus().rawValue) ?? status
+            return SWALAuthorizationStatus(status: ALAssetsLibrary.authorizationStatus())
         }
-        return status
     }
     
     override init() {
@@ -273,6 +330,45 @@ class SWAssetsLibraryHelper: NSObject
     func removeDelegate(_ delegate:SWAssetsLibraryHelperDelegate)
     {
         _delegates.removeObject(delegate)
+    }
+    
+    //请求授权
+    func requestAuthorization(handler: (SWALAuthorizationStatus) -> Void)
+    {
+        let status = authorizationStatus
+        if status == .NotDetermined
+        {
+            if #available(iOS 8.0, *)
+            {
+                PHPhotoLibrary.requestAuthorization({status in
+                    dispatch_async(dispatch_get_main_queue(), {
+                        handler(SWALAuthorizationStatus(status: status))
+                    })
+                })
+            }
+            else
+            {
+                _library.enumerateGroupsWithTypes(ALAssetsGroupAll, usingBlock: { group, stop in
+                    dispatch_async(dispatch_get_main_queue(), {
+                        if group == nil
+                        {
+                            handler(SWALAuthorizationStatus.Authorized)
+                        }
+                    })
+                }, failureBlock: {error in
+                    if error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError
+                    {
+                        dispatch_async(dispatch_get_main_queue(), {
+                            handler(SWALAuthorizationStatus.Denied)
+                        })
+                    }
+                })//end enumerateGroups
+            }//end else
+        }
+        else
+        {
+            handler(status)
+        }
     }
     
     func fetchAlbum()
@@ -336,27 +432,177 @@ class SWAssetsLibraryHelper: NSObject
         }
     }
     
+    func fetchPhotoList(localIdentifiers localIdentifiers:[String]) -> [SWALPhoto]
+    {
+        var photos:[SWALPhoto] = []
+        if #available(iOS 8.0, *)
+        {
+            let result:PHFetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(localIdentifiers, options: nil)
+            let assets:[PHAsset] = result.objectsAtIndexes(NSIndexSet(indexesInRange: NSMakeRange(0, result.count))).flatMap({$0 as? PHAsset})
+            for (index, asset) in assets.enumerate()
+            {
+                let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
+                photo.index = index
+                photo.creationDate = asset.creationDate
+                photos.append(photo)
+            }
+            return photos
+        }
+        else
+        {
+            return []
+        }
+    }
+    
     //获取照片原图
     func fetchOriginImage(_ photos:[SWALPhoto], completeCallback:@escaping ([UIImage])->Void)
     {
         var count:Int = 0
+        var results:[SWALPhotoRequestResult] = []
         for photo in photos
         {
-            photo.fetchOriginImage{image in
+            photo.fetchOriginImage({result in
+                if let result = result
+                {
+                    results.append(result)
+                }
+                
                 count += 1
                 if count == photos.count
                 {
-                    let images:[UIImage] = photos.flatMap({$0.originImage})
-                    completeCallback(images)
+                    completeCallback(results)
                 }
-            }//end callback
+                
+            }, options:options)//end callback
         }//end for
     }
     
-    @available(iOS 8.0, *)
-    private func fetchCollections()
+    func fetchOriginImage(localIdentifiers:[String], completeCallback:([SWALPhotoRequestResult])->Void)
     {
-        var groups:[SWALAlbum] = []
+        if #available(iOS 8.0, *) {
+            var photos:[SWALPhoto] = []
+            let result:PHFetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(localIdentifiers, options: nil)
+            let assets:[PHAsset] = result.objectsAtIndexes(NSIndexSet(indexesInRange: NSMakeRange(0, result.count))).flatMap({$0 as? PHAsset})
+            for (index, asset) in assets.enumerate()
+            {
+                let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
+                photo.index = index
+                photo.creationDate = asset.creationDate
+                photos.append(photo)
+            }
+            fetchOriginImage(photos, completeCallback: completeCallback, options: nil)
+        }
+        else{
+            
+        }
+    }
+    
+    func createAlbum(albumName:String, completionHandler:(SWALAlbum?)->Void)
+    {
+        if #available(iOS 8.0, *)
+        {
+            let collections:[PHAssetCollection] = self.fetchAllCollections()
+            if let index = collections.indexOf({($0.localizedTitle ?? "") == albumName}),
+               let collection = collections.valueAt(index){
+               completionHandler(SWALAlbum(collection: collection))
+            }else{
+                //创建相册
+                var localIdentifier:String?
+                PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+                    localIdentifier = PHAssetCollectionChangeRequest.creationRequestForAssetCollectionWithTitle(albumName).placeholderForCreatedAssetCollection.localIdentifier
+                    }, completionHandler: {success, error in
+                        if let localIdentifier = localIdentifier where localIdentifier != "" && success,
+                           let collection = PHAssetCollection.fetchAssetCollectionsWithLocalIdentifiers([localIdentifier], options: nil).firstObject as? PHAssetCollection
+                        {
+                            completionHandler(SWALAlbum(collection: collection))
+                        }
+                        else
+                        {
+                            completionHandler(nil)
+                        }
+                })
+            }
+        }
+        else
+        {
+            completionHandler(nil)
+        }
+    }
+    
+    func writeImageDataToAlbum(image:UIImage, albumName:String?, completionHandler:((WriteImageCompletionResult)->Void)?)
+    {
+        if #available(iOS 8.0, *)
+        {
+            var localIdentifier:String?
+            PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+                let request:PHAssetChangeRequest = PHAssetChangeRequest.creationRequestForAssetFromImage(image)
+                localIdentifier = request.placeholderForCreatedAsset?.localIdentifier
+            }, completionHandler: {success,error in
+                if let localIdentifier = localIdentifier where localIdentifier != "" && success
+                {
+                    //print("localIdentifier:", localIdentifier)
+                    //默认保存到系统相册（相机胶卷）,如果保存时带相册名，同步一份到目标相册
+                    if let albumName = albumName where albumName != ""
+                    {
+                        self.createAlbum(albumName, completionHandler: {album in
+                            if let collection = album?.collection,
+                               let asset = PHAsset.fetchAssetsWithLocalIdentifiers([localIdentifier], options: nil).firstObject as? PHAsset
+                            {
+                                self.addAssets(asset, collection: collection, completionHandler: {success,error in
+                                    completionHandler?(WriteImageCompletionResult(success: true, localIdentifier: localIdentifier, error: nil))
+                                    
+                                })
+                            }
+                            
+                            completionHandler?(WriteImageCompletionResult(success: true, localIdentifier: localIdentifier, error: nil))
+                        })
+                    }
+                    else
+                    {
+                        completionHandler?(WriteImageCompletionResult(success: true, localIdentifier: localIdentifier, error: nil))
+                    }
+                }
+                else
+                {
+                    let result = WriteImageCompletionResult(success: false, localIdentifier: nil, error: error)
+                    completionHandler?(result)
+                }
+            })//end performChanges
+        }
+        else
+        {
+            
+        }
+    }
+    
+    //删除相册照片
+    func deleteAssets(localIdentifiers:[String], completionHandler:((Bool,NSError?)->Void)?)
+    {
+        if #available(iOS 8.0, *) {
+            let result:PHFetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(localIdentifiers, options: nil)
+            PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+                PHAssetChangeRequest.deleteAssets(result)
+                }, completionHandler: {success,error in
+                    completionHandler?(success, error)
+            })
+        }
+        else {
+            // Fallback on earlier versions
+        }
+    }
+    
+    @available(iOS 8.0, *)
+    private func addAssets(asset:PHAsset, collection:PHAssetCollection, completionHandler:(Bool, NSError?)->Void)
+    {
+        PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+            let request = PHAssetCollectionChangeRequest(forAssetCollection: collection)
+            request?.addAssets([asset])
+        }, completionHandler: completionHandler)
+    }
+    
+    @available(iOS 8.0, *)
+    private func fetchAllCollections() -> [PHAssetCollection]
+    {
         // 列出所有相册智能相册
         var collections:[PHAssetCollection] = []
         
@@ -376,6 +622,14 @@ class SWAssetsLibraryHelper: NSObject
                 collections.append(collection)
             }
         }
+        return collections
+    }
+    
+    @available(iOS 8.0, *)
+    private func fetchCollections()
+    {
+        var groups:[SWALAlbum] = []
+        let collections:[PHAssetCollection] = fetchAllCollections()
         
         var cameraRollAlbum:SWALAlbum?
         for collection in collections
@@ -497,7 +751,6 @@ class SWAssetsLibraryHelper: NSObject
     @available(iOS 8.0, *)
     private func getPhotoList(collection:PHAssetCollection)
     {
-        //_photos.removeAll()
         var photos:[SWALPhoto] = []
         //按照时间排序获取第一张图作为封面
         let options:PHFetchOptions = PHFetchOptions()
@@ -507,8 +760,10 @@ class SWAssetsLibraryHelper: NSObject
         let assets:[PHAsset] = result.objects(at: IndexSet(integersIn: NSMakeRange(0, result.count).toRange()!)).flatMap({$0 as? PHAsset})
         for (index, asset) in assets.enumerated()
         {
+            print("localIdentifier:", asset.localIdentifier)
             let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
             photo.index = index
+            photo.creationDate = asset.creationDate
             photos.append(photo)
         }
         

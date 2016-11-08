@@ -244,14 +244,14 @@ class WebLoader: NSObject,URLSessionDataDelegate
         var requestURL:String = url
         if let data = data
         {
-            var queryString:String
+            var queryString:String = ""
             if let dic = data as? [String: AnyObject]
             {
                 queryString = query(dic)
                 contentType = contentType ?? "application/x-www-form-urlencoded; charset=UTF-8"
                 HTTPHeaders["Content-Type"] = contentType
             }
-            else
+            else if !(data is NSData)
             {
                 queryString = HTTPMethod == "GET" ? "\(data)".URLEncoded : "\(data)"
             }
@@ -261,7 +261,7 @@ class WebLoader: NSObject,URLSessionDataDelegate
                 //requestURL += (url.indexOf("?") == -1 ? "?" : "&") + queryString
                 requestURL += (url.contains("?") ? "&" : "?") + queryString
             }
-            else if HTTPMethod == "POST"
+            else if HTTPMethod == "POST" || HTTPMethod == "PUT"
             {
                 HTTPBody = queryString.data(using: String.Encoding.utf8)
             }
@@ -271,7 +271,7 @@ class WebLoader: NSObject,URLSessionDataDelegate
         let request:NSMutableURLRequest = NSMutableURLRequest(url: nsurl, cachePolicy: NSURLRequest.CachePolicy.useProtocolCachePolicy, timeoutInterval: 25)
         request.httpMethod = HTTPMethod
         
-        if HTTPMethod == "POST"
+        if HTTPMethod == "POST" || HTTPMethod == "PUT"
         {
             request.httpBody = HTTPBody
         }

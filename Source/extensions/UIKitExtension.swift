@@ -31,6 +31,14 @@ extension CGPoint
     var integral:CGPoint{
         return CGPoint(x: ceil(x), y: ceil(y))
     }
+    
+    //计算两点的距离
+    static func distance(point1:CGPoint, point2:CGPoint) -> CGFloat
+    {
+        let xDistance:CGFloat = point2.x - point1.x
+        let yDistance:CGFloat = point2.y - point1.y
+        return sqrt(pow(abs(xDistance), 2) + pow(abs(yDistance), 2))
+    }
 }
 
 extension CGRect
@@ -63,6 +71,11 @@ extension CGSize
     public var isEmpty:Bool
     {
         return width == 0 || height == 0
+    }
+    
+    //最短边
+    public var minEdge:CGFloat{
+        return min(width, height)
     }
 }
 
@@ -214,7 +227,7 @@ extension UIImage
             return nil
         }
         
-        if scale > 1{
+        if scale == UIScreen.mainScreen().scale{
             return self
         }
         

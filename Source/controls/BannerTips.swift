@@ -162,8 +162,8 @@ open class BannerTips: UIView
         clearTimeout(_autoCloseIntervalID)
         if autoClose
         {
-            _autoCloseIntervalID = setTimeout(autoCloseDuration, closure:{
-                self.dismiss()
+            _autoCloseIntervalID = setTimeout(autoCloseDuration, closure:{[weak self] in
+                self?.dismiss()
             })
         }
         
