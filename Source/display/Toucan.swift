@@ -564,7 +564,7 @@ open class Toucan : NSObject {
         - returns: Resized image within bounds
         */
         static func drawImageInBounds(_ image: UIImage, bounds : CGRect) -> UIImage {
-            return drawImageWithClosure(size: bounds.size) { (size: CGSize, context: CGContext) -> () in
+            return drawImageWithClosure(size: bounds.size, scale: image.scale) { (size: CGSize, context: CGContext) -> () in
                 image.draw(in: bounds)
             };
         }
@@ -578,9 +578,9 @@ open class Toucan : NSObject {
         - returns: Resized and cropped image
         */
         static func croppedImageWithRect(_ image: UIImage, rect: CGRect) -> UIImage {
-            return drawImageWithClosure(size: rect.size) { (size: CGSize, context: CGContext) -> () in
-                let drawRect = CGRect(x: -rect.origin.x, y: -rect.origin.y, width: image.size.width, height: image.size.height)
-                context.clip(to: CGRect(x: 0, y: 0, width: rect.size.width, height: rect.size.height))
+            return drawImageWithClosure(size: rect.size, scale: image.scale) { (size: CGSize, context: CGContext) -> () in
+                let drawRect = CGRectMake(-rect.origin.x, -rect.origin.y, image.size.width, image.size.height)
+                context.clip(to: CGRectMake(0, 0, rect.size.width, rect.size.height))
                 image.draw(in: drawRect)
             };
         }
@@ -593,8 +593,9 @@ open class Toucan : NSObject {
         
         - returns: Image pulled from the end of the closure
         */
-        static func drawImageWithClosure(size: CGSize!, closure: (_ size: CGSize, _ context: CGContext) -> ()) -> UIImage {
-            UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        static func drawImageWithClosure(size: CGSize!, scale:CGFloat = 0, closure: (_ size: CGSize, _ context: CGContext) -> ()) -> UIImage {
+            print("scale:", scale)
+            UIGraphicsBeginImageContextWithOptions(size, false, scale)
             closure(size, UIGraphicsGetCurrentContext()!)
             let image : UIImage = UIGraphicsGetImageFromCurrentImageContext()!
             UIGraphicsEndImageContext()

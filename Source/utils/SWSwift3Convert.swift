@@ -59,6 +59,11 @@ func CGRectMake(_ x:CGFloat,_ y:CGFloat,_ width:CGFloat,_ height:CGFloat) -> CGR
     return CGRect(x: x, y: y, width: width, height: height)
 }
 
+var CGSizeZero:CGSize
+{
+    return CGSize.zero
+}
+
 var CGRectZero:CGRect
 {
     return CGRect.zero
@@ -67,4 +72,9 @@ var CGRectZero:CGRect
 var CGPointZero:CGPoint
 {
     return CGPoint.zero
+}
+
+var UIEdgeInsetsZero:UIEdgeInsets
+{
+    return UIEdgeInsets.zero
 }

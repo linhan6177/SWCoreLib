@@ -15,11 +15,11 @@ protocol CustomLayerDelegateWrapperDelegate:NSObjectProtocol
 }
 
 //自定义图层绘制代理委托
-class CustomLayerDelegateWrapper:NSObject
+class CustomLayerDelegateWrapper:NSObject,CALayerDelegate
 {
     weak var delegate:CustomLayerDelegateWrapperDelegate?
     
-    func drawLayer(_ layer: CALayer, inContext ctx: CGContext)
+    func draw(_ layer: CALayer, in ctx: CGContext)
     {
         delegate?.customDrawLayer(layer, inContext: ctx)
     }

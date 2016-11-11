@@ -227,7 +227,7 @@ extension UIImage
             return nil
         }
         
-        if scale == UIScreen.mainScreen().scale{
+        if scale == UIScreen.main.scale{
             return self
         }
         
@@ -347,7 +347,7 @@ extension UIViewController
     
     private func createNavigationCustomButton(_ title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
-        let button = UIButton(type: .system)
+        let button = UIButton(type:.system)
         button.setTitle(title, for: .normal)
         button.setBackgroundImage(image, for: .normal)
         button.setBackgroundImage(highlightedImage, for: .highlighted)

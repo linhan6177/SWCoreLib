@@ -228,7 +228,7 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
         cell?.indexPath = indexPath
         cell?.delegate = self
         let imagesCount:Int = delegate?.numberOfPhotosInPhotoViewer(self) ?? 0
-        let index:Int = (indexPath as NSIndexPath).row
+        let index:Int = indexPath.row
         if index >= 0 && index < imagesCount
         {
             if _startFrame != nil && index == _startIndex && !_animatedFromStartFrameFlag
@@ -247,12 +247,12 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
     
     func photoViewerCell(_ cell:SWPhotoViewerCell, didSingleTapAtIndexPath indexPath: IndexPath)
     {
-        delegate?.photoViewer(self, didSingleTapAtIndex: (indexPath as NSIndexPath).row)
+        delegate?.photoViewer(self, didSingleTapAtIndex: indexPath.row)
     }
     
     func photoViewerCell(_ cell:SWPhotoViewerCell, didLongPressAtIndexPath indexPath: IndexPath)
     {
-        delegate?.photoViewer(self, didLongPressAtIndex: (indexPath as NSIndexPath).row)
+        delegate?.photoViewer(self, didLongPressAtIndex: indexPath.row)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView)

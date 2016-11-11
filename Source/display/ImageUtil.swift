@@ -51,12 +51,12 @@ open class ImageUtil:NSObject
         let size = image.size
         UIGraphicsBeginImageContextWithOptions(size, false, image.scale)
         let context = UIGraphicsGetCurrentContext()
-        CGContextSaveGState(context)
-        CGContextScaleCTM(context, -1, 1)
-        CGContextTranslateCTM(context, -size.width, 0)
-        image.drawInRect(CGRectMake(0, 0, size.width, size.height))
-        CGContextRestoreGState(context)
-        let flipImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        context?.saveGState()
+        context?.scaleBy(x: -1, y: 1)
+        context?.translateBy(x: -size.width, y: 0)
+        image.draw(in: CGRectMake(0, 0, size.width, size.height))
+        context?.restoreGState()
+        let flipImage:UIImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
         UIGraphicsEndImageContext()
         return flipImage
     }
@@ -67,12 +67,12 @@ open class ImageUtil:NSObject
         let size = image.size
         UIGraphicsBeginImageContextWithOptions(size, false, image.scale)
         let context = UIGraphicsGetCurrentContext()
-        CGContextSaveGState(context)
-        CGContextScaleCTM(context, 1, -1)
-        CGContextTranslateCTM(context, 0, -size.height)
-        image.drawInRect(CGRectMake(0, 0, size.width, size.height))
-        CGContextRestoreGState(context)
-        let flipImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        context?.saveGState()
+        context?.scaleBy(x: 1, y: -1)
+        context?.translateBy(x: 0, y: -size.height)
+        image.draw(in: CGRectMake(0, 0, size.width, size.height))
+        context?.restoreGState()
+        let flipImage:UIImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
         UIGraphicsEndImageContext()
         return flipImage
     }
@@ -84,28 +84,28 @@ open class ImageUtil:NSObject
         let size = angle180 ? image.size : CGSizeMake(image.size.height, image.size.width)
         UIGraphicsBeginImageContextWithOptions(size, false, image.scale)
         let context = UIGraphicsGetCurrentContext()
-        CGContextSaveGState(context)
+        context?.saveGState()
         
         if abs(angle) % 90 == 0
         {
             if angle / 90 == 1
             {
-                CGContextTranslateCTM(context, size.width, 0)
+                context?.translateBy(x: size.width, y: 0)
             }
             else if angle / 90 == -1
             {
-                CGContextTranslateCTM(context, 0, size.height)
+                context?.translateBy(x: 0, y: size.height)
             }
             else if angle / 180 == 1
             {
-                CGContextTranslateCTM(context, size.width, size.height);
+                context?.translateBy(x: size.width, y: size.height)
             }
-            CGContextRotateCTM(context, CGFloat(angle) * CGFloat(M_PI) / 180.0)
+            context?.rotate(by: CGFloat(angle) * CGFloat(M_PI) / 180.0)
         }
         
-        image.drawInRect(CGRectMake(0, 0, image.size.width, image.size.height))
-        CGContextRestoreGState(context)
-        let flipImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        image.draw(in: CGRectMake(0, 0, image.size.width, image.size.height))
+        context?.restoreGState()
+        let flipImage:UIImage = UIGraphicsGetImageFromCurrentImageContext() ?? image
         UIGraphicsEndImageContext()
         return flipImage
     }

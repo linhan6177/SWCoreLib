@@ -38,6 +38,7 @@ class TimerObject
     var callbackWithArgs:SetTimeoutWithArgsCallbackHandler?
     weak var timer:MSWeakTimer?
     
+    
     init(id:String, callback:SetTimeoutCallbackHandler?, callbackWithArgs:SetTimeoutWithArgsCallbackHandler?)
     {
         self.id = id

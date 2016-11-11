@@ -32,14 +32,14 @@ class ImagePickerHelper:NSObject,UIImagePickerControllerDelegate,UINavigationCon
     //打开相册
     func presentPhotoLibraryPickerController(allowsEditing:Bool = true)
     {
-        let photoLibraryAvailable:Bool = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.PhotoLibrary)
+        let photoLibraryAvailable:Bool = UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.photoLibrary)
         if photoLibraryAvailable
         {
             let pickerController:UIImagePickerController = UIImagePickerController()
             pickerController.delegate = self
-            pickerController.sourceType = UIImagePickerControllerSourceType.PhotoLibrary
+            pickerController.sourceType = UIImagePickerControllerSourceType.photoLibrary
             pickerController.allowsEditing = allowsEditing
-            containerViewController?.presentViewController(pickerController, animated:true, completion:nil)
+            containerViewController?.present(pickerController, animated:true, completion:nil)
         }
     }
     
@@ -77,8 +77,8 @@ class ImagePickerHelper:NSObject,UIImagePickerControllerDelegate,UINavigationCon
         }
         else
         {
-            picker.dismissViewControllerAnimated(true, completion: {finish in
-                self.delegate?.imagePickerDidFinishPickingImage(nil)
+            picker.dismiss(animated:true, completion: {finish in
+                self.delegate?.imagePickerDidFinishPickingImage(image: nil)
             })
         }
         

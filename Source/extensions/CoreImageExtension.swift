@@ -15,7 +15,7 @@ extension CIImage {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(buffer) else{
             return nil
         }
-        self.init(CVPixelBuffer: pixelBuffer)
+        self.init(cvPixelBuffer: pixelBuffer)
     }
 }
 
@@ -40,18 +40,21 @@ extension CIFilter
         return performImageProcess(source, filter: filter)
     }
     
-    private class func performImageProcess(source:UIImage, filter:CIFilter?) -> UIImage?
+    private class func performImageProcess(_ source:UIImage, filter:CIFilter?) -> UIImage?
     {
-        guard let cgImage = source.CGImage,let filter = filter else{
+        guard let cgImage = source.cgImage,let filter = filter else{
             return nil
         }
-        filter.setValue(CIImage(CGImage: cgImage), forKey: kCIInputImageKey)
+        filter.setValue(CIImage(cgImage: cgImage), forKey: kCIInputImageKey)
         if let ciImage = filter.outputImage
         {
             let context:CIContext = CIContext(options: nil)
             let rect = ciImage.extent
-            let cgImage = context.createCGImage(ciImage, fromRect: rect)
-            return UIImage(CGImage: cgImage, scale: source.scale, orientation: source.imageOrientation)
+            if let cgImage = context.createCGImage(ciImage, from: rect)
+            {
+                return UIImage(cgImage: cgImage, scale: source.scale, orientation: source.imageOrientation)
+            }
+            return nil
         }
         return nil
     }

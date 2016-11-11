@@ -26,8 +26,8 @@ struct SWALPhotoRequestOptions
 struct SWALPhotoRequestResult
 {
     var image:UIImage?
-    var data:NSData?
-    var creationDate:NSDate?
+    var data:Data?
+    var creationDate:Date?
 }
 
 //照片保存结果
@@ -35,7 +35,18 @@ struct WriteImageCompletionResult
 {
     var success:Bool = false
     var localIdentifier:String?
-    var error:NSError?
+    var error:Error?
+    
+    init(success:Bool, localIdentifier:String?, error:NSError?)
+    {
+        self.success = success
+        self.localIdentifier = localIdentifier
+        self.error = error
+    }
+}
+
+//相册
+protocol SWALAlbumDelegate:NSObjectProtocol {
     
     func albumCoverChanged(_ album:SWALAlbum, cover:UIImage)
 }
@@ -105,9 +116,9 @@ class SWALPhoto:NSObject
     var localIdentifier:String
     var index:Int = 0
     var originImage:UIImage?
-    var creationDate:NSDate?
+    var creationDate:Date?
     
-    func fetchOriginImage(_ completeCallback:@escaping ImageCompleteCallback)
+    func fetchOriginImage(_ completeCallback:@escaping ImageCompleteCallback, options:SWALPhotoRequestOptions?)
     {
         (iOS8Available && SWALUsePHKit) ? fetchOriginImageWithPHKit(completeCallback, options:options) : fetchOriginImageWithALKit(completeCallback)
     }
@@ -197,7 +208,7 @@ class SWALPhoto:NSObject
     }
     
     //获取原图
-    private func fetchOriginImageWithPHKit(_ completeCallback:@escaping ImageCompleteCallback)
+    private func fetchOriginImageWithPHKit(_ completeCallback:@escaping ImageCompleteCallback, options:SWALPhotoRequestOptions?)
     {
         if #available(iOS 8.0, *)
         {
@@ -212,7 +223,12 @@ class SWALPhoto:NSObject
             imageRequestOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.fastFormat
             imageRequestOptions.resizeMode = PHImageRequestOptionsResizeMode.exact
             imageRequestOptions.isSynchronous = false
-            PHImageManager.default().requestImage(for: asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: nil, resultHandler: {image, info in
+            
+            var result:SWALPhotoRequestResult = SWALPhotoRequestResult()
+            result.creationDate = creationDate
+            
+            PHImageManager.default().requestImage(for:asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: nil, resultHandler: {image, info in
+                imageReturned = true
                 self.originImage = image
                 result.image = image
                 if !requestImageData || (requestImageData && dataReturned)
@@ -223,7 +239,7 @@ class SWALPhoto:NSObject
             
             if requestImageData
             {
-                PHImageManager.defaultManager().requestImageDataForAsset(asset, options: imageRequestOptions, resultHandler: {imageData, url, ori, info in
+                PHImageManager.default().requestImageData(for: asset, options: imageRequestOptions, resultHandler: {imageData, url, ori, info in
                     dataReturned = true
                     result.data = imageData
                     
@@ -277,10 +293,22 @@ class SWALPhoto:NSObject
 }
 
 enum SWALAuthorizationStatus : Int {
-    case notDetermined
-    case restricted
-    case denied
-    case authorized
+    case NotDetermined
+    case Restricted
+    case Denied
+    case Authorized
+    
+    @available(iOS 8.0, *)
+    init(status:PHAuthorizationStatus)
+    {
+        self = SWALAuthorizationStatus(rawValue: status.rawValue) ?? .NotDetermined
+    }
+    
+    init(status:ALAuthorizationStatus)
+    {
+        self = SWALAuthorizationStatus(rawValue: status.rawValue) ?? .NotDetermined
+    }
+    
 }
 
 private var _manager:SWAssetsLibraryHelper?
@@ -304,7 +332,6 @@ class SWAssetsLibraryHelper: NSObject
     
     //授权状态
     var authorizationStatus:SWALAuthorizationStatus{
-        var status = SWALAuthorizationStatus.notDetermined
         if #available(iOS 8.0, *)
         {
             return SWALAuthorizationStatus(status: PHPhotoLibrary.authorizationStatus())
@@ -333,7 +360,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //请求授权
-    func requestAuthorization(handler: (SWALAuthorizationStatus) -> Void)
+    func requestAuthorization(handler: @escaping (SWALAuthorizationStatus) -> Void)
     {
         let status = authorizationStatus
         if status == .NotDetermined
@@ -341,7 +368,7 @@ class SWAssetsLibraryHelper: NSObject
             if #available(iOS 8.0, *)
             {
                 PHPhotoLibrary.requestAuthorization({status in
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         handler(SWALAuthorizationStatus(status: status))
                     })
                 })
@@ -349,16 +376,16 @@ class SWAssetsLibraryHelper: NSObject
             else
             {
                 _library.enumerateGroupsWithTypes(ALAssetsGroupAll, usingBlock: { group, stop in
-                    dispatch_async(dispatch_get_main_queue(), {
+                    DispatchQueue.main.async(execute: {
                         if group == nil
                         {
                             handler(SWALAuthorizationStatus.Authorized)
                         }
                     })
                 }, failureBlock: {error in
-                    if error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError
+                    if let error = error as? NSError,error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError
                     {
-                        dispatch_async(dispatch_get_main_queue(), {
+                        DispatchQueue.main.async(execute: {
                             handler(SWALAuthorizationStatus.Denied)
                         })
                     }
@@ -382,14 +409,16 @@ class SWAssetsLibraryHelper: NSObject
                 }
                 else if status == .notDetermined{
                     PHPhotoLibrary.requestAuthorization({status in
-                        if status == .authorized {
-                            self.fetchCollections()
-                            self.notifyRequestAuthorizationAuthorized()
-                        }
-                        else {
-                            self.notifyRequestAuthorizationDenied()
-                        }
-                    })
+                        DispatchQueue.main.async(execute: {
+                            if status == .authorized {
+                                self.fetchCollections()
+                                self.notifyRequestAuthorizationAuthorized()
+                            }
+                            else {
+                                self.notifyRequestAuthorizationDenied()
+                            }
+                        })
+                    })//end requestAuthorization
                 }
                 else{
                     self.notifyRequestAuthorizationDenied()
@@ -411,7 +440,7 @@ class SWAssetsLibraryHelper: NSObject
         _iOS8Available && SWALUsePHKit ? fetchAlbumWithPHKit() : fetchAlbumWithALKit()
     }
     
-    func fetchPhotoList(_ album:SWALAlbum)
+    func fetchPhotoList(album album:SWALAlbum)
     {
         if _iOS8Available && SWALUsePHKit
         {
@@ -437,9 +466,9 @@ class SWAssetsLibraryHelper: NSObject
         var photos:[SWALPhoto] = []
         if #available(iOS 8.0, *)
         {
-            let result:PHFetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(localIdentifiers, options: nil)
-            let assets:[PHAsset] = result.objectsAtIndexes(NSIndexSet(indexesInRange: NSMakeRange(0, result.count))).flatMap({$0 as? PHAsset})
-            for (index, asset) in assets.enumerate()
+            let result:PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: nil)
+            let assets:[PHAsset] = result.objects(at: IndexSet(integersIn: NSMakeRange(0, result.count).toRange()!)).flatMap({$0 as? PHAsset})
+            for (index, asset) in assets.enumerated()
             {
                 let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
                 photo.index = index
@@ -455,7 +484,7 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //获取照片原图
-    func fetchOriginImage(_ photos:[SWALPhoto], completeCallback:@escaping ([UIImage])->Void)
+    func fetchOriginImage(photos:[SWALPhoto], completeCallback:@escaping ([SWALPhotoRequestResult])->Void, options:SWALPhotoRequestOptions?)
     {
         var count:Int = 0
         var results:[SWALPhotoRequestResult] = []
@@ -477,42 +506,42 @@ class SWAssetsLibraryHelper: NSObject
         }//end for
     }
     
-    func fetchOriginImage(localIdentifiers:[String], completeCallback:([SWALPhotoRequestResult])->Void)
+    func fetchOriginImage(localIdentifiers:[String], completeCallback:@escaping ([SWALPhotoRequestResult])->Void)
     {
         if #available(iOS 8.0, *) {
             var photos:[SWALPhoto] = []
-            let result:PHFetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(localIdentifiers, options: nil)
-            let assets:[PHAsset] = result.objectsAtIndexes(NSIndexSet(indexesInRange: NSMakeRange(0, result.count))).flatMap({$0 as? PHAsset})
-            for (index, asset) in assets.enumerate()
+            let result:PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: nil)
+            let assets:[PHAsset] = result.objects(at: IndexSet(integersIn: NSMakeRange(0, result.count).toRange()!)).flatMap({$0 as? PHAsset})
+            for (index, asset) in assets.enumerated()
             {
                 let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
                 photo.index = index
                 photo.creationDate = asset.creationDate
                 photos.append(photo)
             }
-            fetchOriginImage(photos, completeCallback: completeCallback, options: nil)
+            fetchOriginImage(photos: photos, completeCallback: completeCallback, options: nil)
         }
         else{
             
         }
     }
     
-    func createAlbum(albumName:String, completionHandler:(SWALAlbum?)->Void)
+    func createAlbum(_ albumName:String, completionHandler:@escaping (SWALAlbum?)->Void)
     {
         if #available(iOS 8.0, *)
         {
             let collections:[PHAssetCollection] = self.fetchAllCollections()
-            if let index = collections.indexOf({($0.localizedTitle ?? "") == albumName}),
+            if let index = collections.index(where: {($0.localizedTitle ?? "") == albumName}),
                let collection = collections.valueAt(index){
                completionHandler(SWALAlbum(collection: collection))
             }else{
                 //创建相册
                 var localIdentifier:String?
-                PHPhotoLibrary.sharedPhotoLibrary().performChanges({
-                    localIdentifier = PHAssetCollectionChangeRequest.creationRequestForAssetCollectionWithTitle(albumName).placeholderForCreatedAssetCollection.localIdentifier
+                PHPhotoLibrary.shared().performChanges({
+                    localIdentifier = PHAssetCollectionChangeRequest.creationRequestForAssetCollection(withTitle: albumName).placeholderForCreatedAssetCollection.localIdentifier
                     }, completionHandler: {success, error in
-                        if let localIdentifier = localIdentifier where localIdentifier != "" && success,
-                           let collection = PHAssetCollection.fetchAssetCollectionsWithLocalIdentifiers([localIdentifier], options: nil).firstObject as? PHAssetCollection
+                        if let localIdentifier = localIdentifier,
+                           let collection = PHAssetCollection.fetchAssetCollections(withLocalIdentifiers: [localIdentifier], options: nil).firstObject,localIdentifier != "" && success
                         {
                             completionHandler(SWALAlbum(collection: collection))
                         }
@@ -534,21 +563,21 @@ class SWAssetsLibraryHelper: NSObject
         if #available(iOS 8.0, *)
         {
             var localIdentifier:String?
-            PHPhotoLibrary.sharedPhotoLibrary().performChanges({
-                let request:PHAssetChangeRequest = PHAssetChangeRequest.creationRequestForAssetFromImage(image)
+            PHPhotoLibrary.shared().performChanges({
+                let request:PHAssetChangeRequest = PHAssetChangeRequest.creationRequestForAsset(from: image)
                 localIdentifier = request.placeholderForCreatedAsset?.localIdentifier
             }, completionHandler: {success,error in
-                if let localIdentifier = localIdentifier where localIdentifier != "" && success
+                if let localIdentifier = localIdentifier, localIdentifier != "" && success
                 {
                     //print("localIdentifier:", localIdentifier)
                     //默认保存到系统相册（相机胶卷）,如果保存时带相册名，同步一份到目标相册
-                    if let albumName = albumName where albumName != ""
+                    if let albumName = albumName , albumName != ""
                     {
                         self.createAlbum(albumName, completionHandler: {album in
                             if let collection = album?.collection,
-                               let asset = PHAsset.fetchAssetsWithLocalIdentifiers([localIdentifier], options: nil).firstObject as? PHAsset
+                               let asset = PHAsset.fetchAssets(withLocalIdentifiers: [localIdentifier], options: nil).firstObject
                             {
-                                self.addAssets(asset, collection: collection, completionHandler: {success,error in
+                                self.addAssets(asset: asset, collection: collection, completionHandler: {success,error in
                                     completionHandler?(WriteImageCompletionResult(success: true, localIdentifier: localIdentifier, error: nil))
                                     
                                 })
@@ -564,7 +593,7 @@ class SWAssetsLibraryHelper: NSObject
                 }
                 else
                 {
-                    let result = WriteImageCompletionResult(success: false, localIdentifier: nil, error: error)
+                    let result = WriteImageCompletionResult(success: false, localIdentifier: nil, error: error as? NSError)
                     completionHandler?(result)
                 }
             })//end performChanges
@@ -576,11 +605,11 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     //删除相册照片
-    func deleteAssets(localIdentifiers:[String], completionHandler:((Bool,NSError?)->Void)?)
+    func deleteAssets(localIdentifiers:[String], completionHandler:((Bool,Error?)->Void)?)
     {
         if #available(iOS 8.0, *) {
-            let result:PHFetchResult = PHAsset.fetchAssetsWithLocalIdentifiers(localIdentifiers, options: nil)
-            PHPhotoLibrary.sharedPhotoLibrary().performChanges({
+            let result:PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: nil)
+            PHPhotoLibrary.shared().performChanges({
                 PHAssetChangeRequest.deleteAssets(result)
                 }, completionHandler: {success,error in
                     completionHandler?(success, error)
@@ -592,11 +621,12 @@ class SWAssetsLibraryHelper: NSObject
     }
     
     @available(iOS 8.0, *)
-    private func addAssets(asset:PHAsset, collection:PHAssetCollection, completionHandler:(Bool, NSError?)->Void)
+    private func addAssets(asset:PHAsset, collection:PHAssetCollection, completionHandler:@escaping (Bool, Error?)->Void)
     {
-        PHPhotoLibrary.sharedPhotoLibrary().performChanges({
-            let request = PHAssetCollectionChangeRequest(forAssetCollection: collection)
-            request?.addAssets([asset])
+        PHPhotoLibrary.shared().performChanges({
+            let request = PHAssetCollectionChangeRequest(for: collection)
+            let enumeration: NSArray = [asset]
+            request?.addAssets(enumeration)
         }, completionHandler: completionHandler)
     }
     
@@ -608,20 +638,20 @@ class SWAssetsLibraryHelper: NSObject
         
         // 列出所有用户创建的相册
         let UserCollectionsResult = PHCollectionList.fetchTopLevelUserCollections(with: nil)
-        UserCollectionsResult.enumerateObjects{collection, index, stop in
+        UserCollectionsResult.enumerateObjects({collection, index, stop in
             if let collection = collection as? PHAssetCollection {
                 collections.append(collection)
             }
-        }
+        })
         
         // 列出所有相册智能相册
         let IgnoreSmartSubtype:[PHAssetCollectionSubtype] = [.smartAlbumSlomoVideos]
         let SmartCollectionsResult = PHAssetCollection.fetchAssetCollections(with: PHAssetCollectionType.smartAlbum, subtype: PHAssetCollectionSubtype.any, options: nil)
-        SmartCollectionsResult.enumerateObjects{collection, index, stop in
+        SmartCollectionsResult.enumerateObjects({collection, index, stop in
             if let collection = collection as? PHAssetCollection {
                 collections.append(collection)
             }
-        }
+        })
         return collections
     }
     
@@ -637,7 +667,7 @@ class SWAssetsLibraryHelper: NSObject
             //按照时间排序获取第一张图作为封面
             let options:PHFetchOptions = PHFetchOptions()
             options.predicate = NSPredicate(format: "mediaType = %d", 1)
-            options.sortDescriptors = [NSSortDescriptor(key: "creationDate" , ascending: true)]
+            options.sortDescriptors = [NSSortDescriptor(key: "creationDate" , ascending: false)]
             let result = PHAsset.fetchAssets(in: collection, options: options)
             if result.count > 0
             {
@@ -651,7 +681,7 @@ class SWAssetsLibraryHelper: NSObject
                     cameraRollAlbum = album
                 }
                 
-                if let asset = result.lastObject as? PHAsset
+                if let asset = result.lastObject
                 {
                     let scale = UIScreen.main.scale
                     let size = CGSize(width: AlbumCoverSize.width * scale, height: AlbumCoverSize.height * scale)
@@ -710,7 +740,7 @@ class SWAssetsLibraryHelper: NSObject
             }
             
             }, failureBlock: {error in
-                if error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError
+                if let error = error as? NSError,error.code == ALAssetsLibraryAccessUserDeniedError || error.code == ALAssetsLibraryAccessGloballyDeniedError
                 {
                     self.notifyRequestAuthorizationDenied()
                 }

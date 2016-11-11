@@ -30,9 +30,9 @@ extension UITableView
             {
                 for indexPath in indexPaths
                 {
-                    let numAfter = dataSource.tableView(self, numberOfRowsInSection: (indexPath as NSIndexPath).section)
-                    let numBefore = numberOfRows(inSection: (indexPath as NSIndexPath).section)
-                    if (indexPath as NSIndexPath).row < 0 || (indexPath as NSIndexPath).row >= numBefore
+                    let numAfter = dataSource.tableView(self, numberOfRowsInSection: indexPath.section)
+                    let numBefore = numberOfRows(inSection: indexPath.section)
+                    if indexPath.row < 0 || indexPath.row >= numBefore
                     {
                         invalid = true
                     }

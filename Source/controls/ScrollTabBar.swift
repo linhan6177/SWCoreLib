@@ -143,7 +143,7 @@ class ScrollTabBar:UIView
                     button.textColor = unselectedColor
                     button.textAlignment = .center
                     button.isUserInteractionEnabled = true
-                    //button.addTarget(self, action: "buttonTouched:", forControlEvents: UIControlEvents.TouchUpInside)
+                    //button.addTarget(self, action: "buttonTouched:", for: UIControlEvents.TouchUpInside)
                     let gesture:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(ScrollTabBar.buttonTaped(_:)))
                     button.addGestureRecognizer(gesture)
                     _cacheButtons.append(button)

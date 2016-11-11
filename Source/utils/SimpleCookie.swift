@@ -52,14 +52,14 @@ class SimpleCookie:NSObject
     }
 **/
     
-    func getObject(_ key:String!) -> AnyObject?
+    func getObject(_ key:String!) -> Any?
     {
-        let obj:AnyObject? = userData?[key] as AnyObject?
+        let obj:Any? = userData?[key] as Any?
         return obj
     }
     
     
-    func setObject(_ anObject: AnyObject?, forKey key:String)
+    func setObject(_ anObject: Any?, forKey key:String)
     {
         userData?[key] = anObject
         userDefaults?.set(userData, forKey:"UserData")

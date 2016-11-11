@@ -19,11 +19,13 @@ class SWSoundPlayer:NSObject {
         static var cache = [URL:SystemSoundID]()
     }
     
-    static func playSound(_ soundFile: String) {
-        
+    static func playSound(_ soundFile: String)
+    {
         if !enabled {
             return
         }
+        
+        stopAll()
         
         if let url = Bundle.main.url(forResource: soundFile, withExtension: nil) {
             
@@ -33,7 +35,7 @@ class SWSoundPlayer:NSObject {
                 AudioServicesCreateSystemSoundID(url as CFURL, &soundID)
                 Internal.cache[url] = soundID
             }
-            
+            filename = soundFile
             AudioServicesPlaySystemSound(soundID)
             
         } else {
@@ -41,8 +43,32 @@ class SWSoundPlayer:NSObject {
         }
     }
     
+    
+    
     static func play(_ fileName: String) {
         self.playSound(fileName)
+    }
+    
+    static func stop(fileName: String) {
+        self.stopSound(soundFile:fileName)
+    }
+    
+    static func stopSound(soundFile: String)
+    {
+        if let url = Bundle.main.url(forResource: soundFile, withExtension: nil),
+           let soundID = Internal.cache[url]
+        {
+            AudioServicesRemoveSystemSoundCompletion(soundID)
+            //Internal.cache.removeValue(forKey: url)
+        }
+    }
+    
+    static func stopAll()
+    {
+        if let filename = filename
+        {
+            stop(fileName: filename)
+        }
     }
     
     //震动（静音状态才能震动）

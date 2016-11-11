@@ -247,7 +247,7 @@ class ImageLoader: UIImageView
             SWImageCacheManager.sharedManager().saveOriginImage(data, url: _url)
         }
         
-        if let loadedImage = UIImage(data: data, scale: UIScreen.mainScreen().scale)
+        if let loadedImage = UIImage(data: data, scale: UIScreen.main.scale)
         {
             let compress = imageProcessHandler(loadedImage)
             //如果图片未达到压缩的条件，则直接保存原图

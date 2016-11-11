@@ -11,11 +11,11 @@ import Foundation
 
 @objc protocol WebLoaderDelegate:NSObjectProtocol
 {
-    @objc optional func webLoaderDidFail(_ webLoader:WebLoader, error:NSError?, bindArgs:AnyObject?)
+    @objc optional func webLoaderDidFail(_ webLoader:WebLoader, error:NSError?, bindArgs:Any?)
     
-    @objc optional func webLoaderCacheDataDidFinishLoading(_ webLoader:WebLoader, data:Data, bindArgs:AnyObject?)
+    @objc optional func webLoaderCacheDataDidFinishLoading(_ webLoader:WebLoader, data:Data, bindArgs:Any?)
     
-    func webLoaderDidFinishLoading(_ webLoader:WebLoader, data:Data, bindArgs:AnyObject?)
+    func webLoaderDidFinishLoading(_ webLoader:WebLoader, data:Data, bindArgs:Any?)
 }
 
 //NSURLSession Delegate是强引用，因此中间加入一个弱引用层来打破引用循环
@@ -55,7 +55,7 @@ class WebLoader: NSObject,URLSessionDataDelegate
 {
     weak var delegate:WebLoaderDelegate?
     
-    var bindArgs:AnyObject?
+    var bindArgs:Any?
     
     private var _session:Foundation.URLSession?
     private var _task:URLSessionDataTask?
@@ -101,7 +101,7 @@ class WebLoader: NSObject,URLSessionDataDelegate
     //==============================            Public Method           ===============================
     //=================================================================================================
     
-    func load(_ url:String, data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil, returnCacheData:Bool = false)
+    func load(_ url:String, data:Any? = nil, method:String? = "GET", headers:[String:String]? = nil, returnCacheData:Bool = false)
     {
         
         if url != _url
@@ -201,7 +201,7 @@ class WebLoader: NSObject,URLSessionDataDelegate
     
     
     
-    class func query(_ parameters: [String: AnyObject], URLEncode:Bool = true) -> String {
+    class func query(_ parameters: [String: Any], URLEncode:Bool = true) -> String {
         var components: [(String, String)] = []
         
         for key in parameters.keys.sorted(by: <) {
@@ -212,10 +212,10 @@ class WebLoader: NSObject,URLSessionDataDelegate
         return (components.map { "\($0)=\($1)" } as [String]).joined(separator: "&")
     }
     
-    class func queryComponents(_ key: String, _ value: AnyObject, URLEncode:Bool = true) -> [(String, String)] {
+    class func queryComponents(_ key: String, _ value: Any, URLEncode:Bool = true) -> [(String, String)] {
         var components: [(String, String)] = []
         
-        if let dictionary = value as? [String: AnyObject] {
+        if let dictionary = value as? [String: Any] {
             for (nestedKey, value) in dictionary {
                 components += queryComponents("\(key)[\(nestedKey)]", value, URLEncode:URLEncode)
             }
@@ -235,7 +235,7 @@ class WebLoader: NSObject,URLSessionDataDelegate
     
     
     //创建一个请求头
-    class func buildRequest(_ url:String, data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil) -> URLRequest
+    class func buildRequest(_ url:String, data:Any? = nil, method:String? = "GET", headers:[String:String]? = nil) -> URLRequest
     {
         let HTTPMethod = method ?? "GET"
         var HTTPBody:Data?
@@ -245,13 +245,13 @@ class WebLoader: NSObject,URLSessionDataDelegate
         if let data = data
         {
             var queryString:String = ""
-            if let dic = data as? [String: AnyObject]
+            if let dic = data as? [String: Any]
             {
                 queryString = query(dic)
                 contentType = contentType ?? "application/x-www-form-urlencoded; charset=UTF-8"
                 HTTPHeaders["Content-Type"] = contentType
             }
-            else if !(data is NSData)
+            else if !(data is Data)
             {
                 queryString = HTTPMethod == "GET" ? "\(data)".URLEncoded : "\(data)"
             }
@@ -263,7 +263,14 @@ class WebLoader: NSObject,URLSessionDataDelegate
             }
             else if HTTPMethod == "POST" || HTTPMethod == "PUT"
             {
-                HTTPBody = queryString.data(using: String.Encoding.utf8)
+                if let data = data as? Data
+                {
+                    HTTPBody = data
+                }
+                else
+                {
+                    HTTPBody = queryString.data(using: String.Encoding.utf8)
+                }
             }
         }
         //println("requestURL:\(requestURL)")

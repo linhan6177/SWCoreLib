@@ -199,7 +199,7 @@ open class BannerTips: UIView
     {
         clipsToBounds = true
         autoresizingMask = [UIViewAutoresizing.flexibleWidth]
-        //userInteractionEnabled = false
+        //isUserInteractionEnabled = false
         
         
         _contentView.backgroundColor = UIColor(white: 0, alpha: 0.5)
