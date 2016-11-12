@@ -297,6 +297,7 @@ extension UIViewController
     }
     
     //创建左侧 文字导航按钮
+    @discardableResult
     func createNavigationLeftButton(_ title:String, target:AnyObject, action:Selector) -> UIBarButtonItem
     {
         let button:UIBarButtonItem = UIBarButtonItem(title: title, style: .plain, target: target, action: action)
@@ -305,6 +306,7 @@ extension UIViewController
     }
     
     //创建右侧 文字导航按钮
+    @discardableResult
     func createNavigationRightButton(_ title:String, target:AnyObject, action:Selector) -> UIBarButtonItem
     {
         let button:UIBarButtonItem = UIBarButtonItem(title: title, style: .plain, target: target, action: action)
