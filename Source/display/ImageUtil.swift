@@ -46,7 +46,7 @@ open class ImageUtil:NSObject
     }
     
     //水平翻转
-    public class func flipHorizontal(image:UIImage) -> UIImage
+    public class func flipHorizontal(_ image:UIImage) -> UIImage
     {
         let size = image.size
         UIGraphicsBeginImageContextWithOptions(size, false, image.scale)
@@ -62,7 +62,7 @@ open class ImageUtil:NSObject
     }
     
     //垂直翻转
-    public class func flipVertical(image:UIImage) -> UIImage
+    public class func flipVertical(_ image:UIImage) -> UIImage
     {
         let size = image.size
         UIGraphicsBeginImageContextWithOptions(size, false, image.scale)
@@ -78,7 +78,7 @@ open class ImageUtil:NSObject
     }
     
     //图片旋转(仅限90°为单位的旋转, -90 90)
-    public class func rotate(image:UIImage, angle:Int) -> UIImage
+    public class func rotate(_ image:UIImage, angle:Int) -> UIImage
     {
         let angle180:Bool = abs(angle) % 180 == 0
         let size = angle180 ? image.size : CGSizeMake(image.size.height, image.size.width)

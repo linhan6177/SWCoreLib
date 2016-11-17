@@ -317,7 +317,7 @@ class WebLoader: NSObject,URLSessionDataDelegate
     }
 
     
-    class func load(_ url:String, completionHandler:@escaping ((_ data:Data?)->Void), errorHandler:@escaping ((_ error:NSError)->Void), data:AnyObject? = nil, method:String? = "GET", headers:[String:String]? = nil) -> URLRequest
+    class func load(_ url:String, completionHandler:@escaping ((_ data:Data?)->Void), errorHandler:@escaping ((_ error:NSError)->Void), data:Any? = nil, method:String? = "GET", headers:[String:String]? = nil) -> URLRequest
     {
         
         let request = buildRequest(url, data:data, method:method, headers:headers)

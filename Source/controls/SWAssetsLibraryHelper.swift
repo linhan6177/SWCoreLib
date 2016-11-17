@@ -20,6 +20,7 @@ let SWALUsePHKit:Bool = true
 struct SWALPhotoRequestOptions
 {
     var requestImageData:Bool = false
+    var origin:Bool = true
 }
 
 //照片获取结果
@@ -440,7 +441,7 @@ class SWAssetsLibraryHelper: NSObject
         _iOS8Available && SWALUsePHKit ? fetchAlbumWithPHKit() : fetchAlbumWithALKit()
     }
     
-    func fetchPhotoList(album album:SWALAlbum)
+    func fetchPhotoList(album:SWALAlbum)
     {
         if _iOS8Available && SWALUsePHKit
         {
@@ -461,7 +462,7 @@ class SWAssetsLibraryHelper: NSObject
         }
     }
     
-    func fetchPhotoList(localIdentifiers localIdentifiers:[String]) -> [SWALPhoto]
+    func fetchPhotoList(localIdentifiers:[String]) -> [SWALPhoto]
     {
         var photos:[SWALPhoto] = []
         if #available(iOS 8.0, *)
@@ -504,6 +505,26 @@ class SWAssetsLibraryHelper: NSObject
                 
             }, options:options)//end callback
         }//end for
+    }
+    
+    func fetchAssets(localIdentifiers:[String]) -> [SWALPhoto]
+    {
+        var photos:[SWALPhoto] = []
+        if #available(iOS 8.0, *) {
+            let result:PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: nil)
+            if result.count > 0
+            {
+                let assets:[PHAsset] = result.objects(at: IndexSet(integersIn: NSMakeRange(0, result.count).toRange()!)).flatMap({$0 as? PHAsset})
+                for (index, asset) in assets.enumerated()
+                {
+                    let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
+                    photo.index = index
+                    photo.creationDate = asset.creationDate
+                    photos.append(photo)
+                }
+            }
+        }
+        return photos
     }
     
     func fetchOriginImage(localIdentifiers:[String], completeCallback:@escaping ([SWALPhotoRequestResult])->Void)

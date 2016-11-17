@@ -15,7 +15,79 @@ protocol SWPhotoViewerCellDelegate:NSObjectProtocol
     func photoViewerCell(_ cell:SWPhotoViewerCell, didLongPressAtIndexPath indexPath: IndexPath)
 }
 
-class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
+
+protocol SWPhotoViewerFetcher:class {
+    
+    static func create() -> SWPhotoViewerFetcher
+    
+    weak var delegate:SWPhotoViewerFetcherDelegate?{get set}
+    
+    func fetch(photo:SWPVPhoto)
+}
+
+extension SWPhotoViewerFetcher where Self:NSObject
+{
+    static func create() -> SWPhotoViewerFetcher
+    {
+        return Self()
+    }
+}
+
+protocol SWPhotoViewerFetcherDelegate:NSObjectProtocol
+{
+    func fetchStart()
+    func fetchProgress(current:Int, total:Int)
+    func fetchFailure(error:Error)
+    func fetchSuccess(image:UIImage)
+}
+
+class SWPhotoViewerDefaultFetcher:NSObject, SWPhotoViewerFetcher
+{
+    weak var delegate:SWPhotoViewerFetcherDelegate?
+    
+    private let _downloader:Downloader = Downloader()
+    
+    override init() {
+        super.init()
+        
+        _downloader.startCallback = {[weak self] in
+            self?.delegate?.fetchStart()
+        }
+        _downloader.failCallback = {[weak self] error in
+            self?.delegate?.fetchFailure(error: error)
+        }
+        _downloader.progressCallback = {[weak self] current, total in
+            self?.delegate?.fetchProgress(current: current, total: total)
+        }
+        _downloader.completeCallback = {[weak self] data in
+            self?.loadCompleteCallback(data)
+        }
+        
+    }
+    
+    private func loadCompleteCallback(_ data:Data)
+    {
+        if let image = UIImage(data:data)
+        {
+            SWImageCacheManager.sharedManager().saveOriginImage(data, url: _downloader.url)
+            delegate?.fetchSuccess(image: image)
+        }
+        else
+        {
+            delegate?.fetchFailure(error: NSError(domain: "sw", code: 404, userInfo: nil))
+        }
+    }
+    
+    func fetch(photo:SWPVPhoto)
+    {
+        if let url = photo.largeImageURL
+        {
+            _downloader.load(url)
+        }
+    }
+}
+
+class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate,SWPhotoViewerFetcherDelegate
 {
     weak var delegate:SWPhotoViewerCellDelegate?
     
@@ -32,11 +104,15 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         }
     }
     
+    var fetcher:SWPhotoViewerFetcher?{
+        didSet{
+            fetcher?.delegate = self
+        }
+    }
+    
     var indexPath:IndexPath!
     
     private var selfFrame:CGRect = CGRect.zero
-    
-    private var _downloader:Downloader = Downloader()
     
     //图片打开前的位置及大小
     var startFrame:CGRect?
@@ -118,7 +194,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
                     }
                     else
                     {
-                        _downloader.load(url)
+                        fetcher?.fetch(photo: photo)
                     }
                 }
                 
@@ -139,9 +215,7 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         {
             UIView.animate(withDuration: 0.3, delay: 0, options: UIViewAnimationOptions(), animations: {
                 self._imageView.frame = targetFrame
-                }, completion: {finish in
-                    //self._imageView.image = nil
-            })
+                }, completion: nil)
         }
         else
         {
@@ -189,19 +263,6 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
     {
         backgroundColor = UIColor.clear
         
-        _downloader.startCallback = {[weak self] in
-            self?.loadStartCallback()
-        }
-        _downloader.failCallback = {[weak self] error in
-            self?.loadFailCallback(error)
-        }
-        _downloader.progressCallback = {[weak self] current, total in
-            self?.loadProgressCallback(current, totalBytes: total)
-        }
-        _downloader.completeCallback = {[weak self] data in
-            self?.loadCompleteCallback(data as Data)
-        }
-        
         //长按弹出菜单选择保存到手机相册或分享
         let longPressGestureRecognizer:UILongPressGestureRecognizer = UILongPressGestureRecognizer(target: self, action: #selector(imageLongPress(_:)))
         longPressGestureRecognizer.minimumPressDuration = 1
@@ -227,43 +288,9 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         contentView.addSubview(_scrollView)
         _scrollView.addSubview(_imageView)
         
-        
-        
         let cellTapGesture:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(cellTapped(_:)))
         addGestureRecognizer(cellTapGesture)
         //cellTapGesture.requireGestureRecognizerToFail(singleTapGestureRecognizer)
-    }
-    
-    private func loadStartCallback()
-    {
-        progressView?.view.isHidden = false
-        progressView?.startAnimating()
-        print(progressView?.view.frame)
-    }
-    
-    private func loadFailCallback(_ error:NSError)
-    {
-        progressView?.view.isHidden = true
-        progressView?.stopAnimating()
-    }
-    
-    private func loadProgressCallback(_ loadedBytes:Int, totalBytes:Int)
-    {
-        var progress:Double = Double(loadedBytes) / Double(totalBytes)
-        progress = max(min(progress, 1), 0)
-        progressView?.progress = progress
-    }
-    
-    private func loadCompleteCallback(_ data:Data)
-    {
-        if let image = UIImage(data:data)
-        {
-            let replace:Bool = _imageView.image != nil
-            setupImage(image, replace: replace)
-            SWImageCacheManager.sharedManager().saveOriginImage(data, url: _downloader.url)
-        }
-        progressView?.view.isHidden = true
-        progressView?.stopAnimating()
     }
     
     //图片尺寸自适应缩放到容器内
@@ -316,11 +343,38 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate
         }
     }
     
+    func fetchStart()
+    {
+        progressView?.view.isHidden = false
+        progressView?.startAnimating()
+    }
+    
+    func fetchProgress(current:Int, total:Int)
+    {
+        var progress:Double = Double(current) / Double(total)
+        progress = max(min(progress, 1), 0)
+        progressView?.progress = progress
+    }
+    
+    func fetchFailure(error:Error)
+    {
+        progressView?.view.isHidden = true
+        progressView?.stopAnimating()
+    }
+    
+    func fetchSuccess(image:UIImage)
+    {
+        let replace:Bool = _imageView.image != nil
+        setupImage(image, replace: replace)
+        progressView?.view.isHidden = true
+        progressView?.stopAnimating()
+    }
+    
     //图片长按保存
     @objc private func imageLongPress(_ recognizer:UILongPressGestureRecognizer)
     {
         //会触发两次长按事件，一次是长按开始的时候，一次是长按结束的时候
-        if recognizer.state == UIGestureRecognizerState.began
+        if recognizer.state == .began
         {
             delegate?.photoViewerCell(self, didLongPressAtIndexPath: indexPath)
         }

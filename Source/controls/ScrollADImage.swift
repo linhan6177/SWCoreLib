@@ -26,7 +26,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
         {
             if autoScrollInterval > 0
             {
-                MSWeakTimer.scheduledTimer(withTimeInterval: autoScrollInterval, target: self, selector: #selector(timeInterval), userInfo: nil, repeats: true, dispatchQueue: DispatchQueue.main)
+                _timer = MSWeakTimer.scheduledTimer(withTimeInterval: autoScrollInterval, target: self, selector: #selector(timeInterval), userInfo: nil, repeats: true, dispatchQueue: DispatchQueue.main)
             }
             else
             {
@@ -66,7 +66,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
     
     deinit
     {
-        //print("DEINIT ScrollADImage")
+        print("DEINIT ScrollADImage")
     }
     
     override var frame:CGRect
@@ -84,7 +84,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
     
     
     private var _multiImage:Bool = false
-    var images:[AnyObject] = []
+    var images:[Any] = []
         {
         didSet
         {
@@ -107,15 +107,23 @@ class ScrollADImage:UIView,UIScrollViewDelegate
                     //停留在第一张
                     _scrollView.contentOffset = CGPoint(x: frame.width, y: 0)
                     
-                    var item:AnyObject = images.last!
-                    addImageView(item, tag:-1)
+                    if let last = images.last
+                    {
+                        addImageView(last, tag:-1)
+                    }
+                    
                     for i in 0..<images.count
                     {
-                        item = images[i]
-                        addImageView(item, tag:i)
+                        if let item = images.valueAt(i)
+                        {
+                            addImageView(item, tag:i)
+                        }
                     }
-                    item = images.first!
-                    addImageView(item, tag:images.count)
+                    
+                    if let first = images.first
+                    {
+                        addImageView(first, tag:images.count)
+                    }
                 }
                 else
                 {
@@ -162,7 +170,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
         
     }
     
-    private func addImageView(_ image:AnyObject, tag:Int)
+    private func addImageView(_ image:Any, tag:Int)
     {
         let x:CGFloat = CGFloat(_multiImage ? tag + 1 : tag) * width
         let imageView:ImageLoader = _cacheImageViews.valueAt(_imageViews.count) ?? createImageView()

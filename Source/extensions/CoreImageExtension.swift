@@ -22,7 +22,7 @@ extension CIImage {
 extension CIFilter
 {
     //黑白
-    class func grayscale(source:UIImage) -> UIImage?
+    class func grayscale(_ source:UIImage) -> UIImage?
     {
         let filter:CIFilter? = CIFilter(name:"CIColorControls")
         filter?.setValue(0.0, forKey: kCIInputBrightnessKey)
@@ -32,7 +32,7 @@ extension CIFilter
     }
     
     //像素化(默认8，最大100，最小0)
-    class func pixellate(source:UIImage, scale:Float = 8) -> UIImage?
+    class func pixellate(_ source:UIImage, scale:Float = 8) -> UIImage?
     {
         let inputScale = min(max(scale, 1), 100)
         let filter:CIFilter? = CIFilter(name:"CIPixellate")
@@ -46,9 +46,10 @@ extension CIFilter
             return nil
         }
         filter.setValue(CIImage(cgImage: cgImage), forKey: kCIInputImageKey)
-        if let ciImage = filter.outputImage
+        if let ciImage = filter.outputImage,
+           let context = SWImageUtil.contextMake()
         {
-            let context:CIContext = CIContext(options: nil)
+            //let context:CIContext = CIContext(options: nil)
             let rect = ciImage.extent
             if let cgImage = context.createCGImage(ciImage, from: rect)
             {

@@ -28,9 +28,15 @@ class FileUtility: NSObject {
         return nil
     }
     
+    @discardableResult
     class func saveImageCacheToPath(_ path:String,image:Data)->Bool
     {
-       return ((try? image.write(to: URL(fileURLWithPath: path), options: [.atomic])) != nil)
+        do{
+            try image.write(to: URL(fileURLWithPath: path), options: [.atomic])
+            return true
+        }
+        catch{}
+       return false
     }
     
     //scale为0 表示根据屏幕分辨率

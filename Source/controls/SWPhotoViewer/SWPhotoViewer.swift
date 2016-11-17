@@ -14,14 +14,27 @@ protocol SWPVPhoto
     var largeImage:UIImage? {get set}
     var largeImageURL:String? {get set}
     var thumbImage:UIImage? {get set}
+    //本地相册PHAsset
+    var object:Any? {get set}
 }
 
+//加载进度条
 protocol SWPhotoViewerProgressView:class
 {
+    static func create() -> SWPhotoViewerProgressView
+    
     var progress:Double {get set}
     var view:UIView {get}
     func startAnimating()
     func stopAnimating()
+}
+
+extension SWPhotoViewerProgressView where Self:NSObject
+{
+    static func create() -> SWPhotoViewerProgressView
+    {
+        return Self()
+    }
 }
 
 class SWPhotoViewerDefaultProgressView:NSObject,SWPhotoViewerProgressView
@@ -45,30 +58,6 @@ class SWPhotoViewerDefaultProgressView:NSObject,SWPhotoViewerProgressView
     }
 }
 
-/**
-class SWPhotoViewerProgressView:UIView, SWPVProgressViewProtocol
-{
-    required init(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
-    }
-    
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-    }
-    
-    var progress:Double? = 0
-    
-    func startAnimating()
-    {
-        fatalError("NSCoding not supported")
-    }
-    
-    func stopAnimating()
-    {
-        
-    }
-}
-**/
 protocol SWPhotoViewerDelegate:class
 {
     //照片总数
@@ -83,10 +72,34 @@ protocol SWPhotoViewerDelegate:class
     //当前选中索引变化
     func photoViewer(_ photoViewer: SWPhotoViewer, didScrollToIndex index: Int)
     
+    //图片上单击
     func photoViewer(_ photoViewer: SWPhotoViewer, didSingleTapAtIndex index: Int)
     
     //图片上长按
     func photoViewer(_ photoViewer: SWPhotoViewer, didLongPressAtIndex index: Int)
+}
+
+extension SWPhotoViewerDelegate
+{
+    func progressViewForPhotoViewer(_ photoViewer: SWPhotoViewer) -> SWPhotoViewerProgressView?
+    {
+        return nil
+    }
+    
+    func photoViewer(_ photoViewer: SWPhotoViewer, didScrollToIndex index: Int)
+    {
+        
+    }
+    
+    func photoViewer(_ photoViewer: SWPhotoViewer, didSingleTapAtIndex index: Int)
+    {
+        
+    }
+    
+    func photoViewer(_ photoViewer: SWPhotoViewer, didLongPressAtIndex index: Int)
+    {
+        
+    }
 }
 
 class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoViewerCellDelegate
@@ -180,6 +193,38 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
         
     }
     
+    private var _progressViewClass:AnyClass?
+    func registerClassForProgressView(_ classType: AnyClass)
+    {
+        _progressViewClass = classType
+    }
+    
+    private var _photoFetcherClass:AnyClass?
+    func registerClassForPhotoFetcher(_ classType: AnyClass)
+    {
+        _photoFetcherClass = classType
+    }
+    
+    private func createProgressView() -> SWPhotoViewerProgressView
+    {
+        var view:SWPhotoViewerProgressView?
+        if let classType = _progressViewClass as? SWPhotoViewerProgressView.Type
+        {
+            view = classType.create()
+        }
+        return view ?? SWPhotoViewerDefaultProgressView()
+    }
+    
+    private func createPhotoFetcher() -> SWPhotoViewerFetcher
+    {
+        var view:SWPhotoViewerFetcher?
+        if let classType = _photoFetcherClass as? SWPhotoViewerFetcher.Type
+        {
+            view = classType.create()
+        }
+        return view ?? SWPhotoViewerDefaultFetcher()
+    }
+    
     private func setup()
     {
         //backgroundView.backgroundColor = UIColor(white: 0, alpha: 0.5)
@@ -222,7 +267,9 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
         {
             cell = SWPhotoViewerCell(style: UITableViewCellStyle.default, reuseIdentifier: identifier)
             cell?.contentView.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI) / 2)
-            cell?.progressView = delegate?.progressViewForPhotoViewer(self) ?? SWPhotoViewerDefaultProgressView()
+            //cell?.progressView = delegate?.progressViewForPhotoViewer(self) ?? SWPhotoViewerDefaultProgressView()
+            cell?.progressView = createProgressView()
+            cell?.fetcher = createPhotoFetcher()
         }
         cell?.size = bounds.size
         cell?.indexPath = indexPath

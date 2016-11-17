@@ -58,7 +58,7 @@ class ImagePickerHelper:NSObject,UIImagePickerControllerDelegate,UINavigationCon
     }
     
     //选完相片
-    func imagePickerController(picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : AnyObject])
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any])
     {
         if let image:UIImage = info[UIImagePickerControllerEditedImage] as? UIImage ?? info[UIImagePickerControllerOriginalImage] as? UIImage
         {
@@ -68,6 +68,7 @@ class ImagePickerHelper:NSObject,UIImagePickerControllerDelegate,UINavigationCon
                     DispatchQueue.main.async{
                         
                         picker.dismiss(animated:true, completion: {finish in
+                            
                             self.delegate?.imagePickerDidFinishPickingImage(image: resizedImge)
                         })
                         

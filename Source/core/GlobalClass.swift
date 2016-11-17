@@ -36,13 +36,14 @@ class TimerObject
     var id:String
     var callback:SetTimeoutCallbackHandler?
     var callbackWithArgs:SetTimeoutWithArgsCallbackHandler?
-    weak var timer:MSWeakTimer?
+    var timer:MSWeakTimer?
     
     
     init(id:String, callback:SetTimeoutCallbackHandler?, callbackWithArgs:SetTimeoutWithArgsCallbackHandler?)
     {
         self.id = id
         self.callback = callback
+        //self.callback = {callback?()}
         self.callbackWithArgs = callbackWithArgs
     }
     
@@ -85,7 +86,8 @@ class TimerObject
     }
 }
 
-func setTimeout(_ delay:Double, closure:@escaping SetTimeoutCallbackHandler) -> String
+@discardableResult
+func setTimeout(_ delay:Double, closure: @escaping SetTimeoutCallbackHandler) -> String
 {
     let id:String = StringUtil.getUniqid(10)
     let timerObject:TimerObject = TimerObject(id: id, callback: closure, callbackWithArgs:nil)
@@ -94,6 +96,7 @@ func setTimeout(_ delay:Double, closure:@escaping SetTimeoutCallbackHandler) -> 
     return id
 }
 
+@discardableResult
 func setInterval(_ delay:Double, closure:@escaping SetTimeoutCallbackHandler) -> String
 {
     let id:String = StringUtil.getUniqid(10)
