@@ -25,7 +25,7 @@ class ButtonUtil
         button.imageEdgeInsets = UIEdgeInsets(top: -((height - imageSize.height) * 1), left: (width - ImageWidth) * 0.5, bottom: 0, right: 0)
         button.titleEdgeInsets = UIEdgeInsets(top: ImageHeight + gap, left: -TextWidth - (ImageWidth - TextWidth), bottom: 0, right: 0)
         button.titleLabel?.font = font
-        button.setTitle(title, for: UIControlState())
+        button.setTitle(title, for: .normal)
         return button
     }
 }

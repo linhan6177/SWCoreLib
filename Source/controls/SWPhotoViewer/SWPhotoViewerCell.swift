@@ -197,6 +197,11 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate,SWPhotoViewerFetch
                         fetcher?.fetch(photo: photo)
                     }
                 }
+                else if let _ = photo.object
+                {
+                    fetcher?.fetch(photo: photo)
+                }
+                
                 
                 //大图还没加载完成，则先用小图代替
                 if let thumbImage = photo.thumbImage , largeImage == nil
@@ -345,29 +350,37 @@ class SWPhotoViewerCell: UITableViewCell,UIScrollViewDelegate,SWPhotoViewerFetch
     
     func fetchStart()
     {
-        progressView?.view.isHidden = false
-        progressView?.startAnimating()
+        DispatchQueue.main.async {
+            self.progressView?.view.isHidden = false
+            self.progressView?.startAnimating()
+        }
     }
     
     func fetchProgress(current:Int, total:Int)
     {
-        var progress:Double = Double(current) / Double(total)
-        progress = max(min(progress, 1), 0)
-        progressView?.progress = progress
+        DispatchQueue.main.async {
+            var progress:Double = Double(current) / Double(total)
+            progress = max(min(progress, 1), 0)
+            self.progressView?.progress = progress
+        }
     }
     
     func fetchFailure(error:Error)
     {
-        progressView?.view.isHidden = true
-        progressView?.stopAnimating()
+        DispatchQueue.main.async {
+            self.progressView?.view.isHidden = true
+            self.progressView?.stopAnimating()
+        }
     }
     
     func fetchSuccess(image:UIImage)
     {
-        let replace:Bool = _imageView.image != nil
-        setupImage(image, replace: replace)
-        progressView?.view.isHidden = true
-        progressView?.stopAnimating()
+        DispatchQueue.main.async {
+            let replace:Bool = self._imageView.image != nil
+            self.setupImage(image, replace: replace)
+            self.progressView?.view.isHidden = true
+            self.progressView?.stopAnimating()
+        }
     }
     
     //图片长按保存

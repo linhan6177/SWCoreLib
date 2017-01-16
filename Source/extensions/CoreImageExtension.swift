@@ -46,9 +46,9 @@ extension CIFilter
             return nil
         }
         filter.setValue(CIImage(cgImage: cgImage), forKey: kCIInputImageKey)
-        if let ciImage = filter.outputImage,
-           let context = SWImageUtil.contextMake()
+        if let ciImage = filter.outputImage
         {
+            let context = OCPatch.ciContextMake()
             //let context:CIContext = CIContext(options: nil)
             let rect = ciImage.extent
             if let cgImage = context.createCGImage(ciImage, from: rect)

@@ -343,6 +343,7 @@ class ChatInput:UIView,UITextViewDelegate,SWGrowingTextViewDelegate
         NotificationCenter.default.removeObserver(self)
     }
     
+    @discardableResult
     override func becomeFirstResponder() -> Bool
     {
         let superValue:Bool = super.becomeFirstResponder()

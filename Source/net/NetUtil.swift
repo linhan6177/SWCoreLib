@@ -10,9 +10,9 @@ import Foundation
 class NetUtil: NSObject
 {
     //type=guichu&a=b
-    class func stringToObject(_ string:String, separator:String = "&") -> [String:AnyObject]
+    class func stringToObject(_ string:String, separator:String = "&") -> [String:Any]
     {
-        var o:[String:AnyObject] = [:]
+        var o:[String:Any] = [:]
         let nsstring:NSString = string as NSString
         var arr:[String] = nsstring.components(separatedBy: separator) 
         let n:Int = arr.count
@@ -25,11 +25,11 @@ class NetUtil: NSObject
                 let value:String = pieces[1]
                 if value == "true"
                 {
-                    o[name] = true as AnyObject?
+                    o[name] = true
                 }
                 else if value == "false"
                 {
-                    o[name] = false as AnyObject?
+                    o[name] = false
                 }
                 else
                 {
@@ -37,15 +37,15 @@ class NetUtil: NSObject
                     let tempDouble:Double = (value as NSString).doubleValue
                     if value == "\(tempInt)"
                     {
-                        o[name] = tempInt as AnyObject?
+                        o[name] = tempInt
                     }
                     else if value == "\(tempDouble)"
                     {
-                        o[name] = tempDouble as AnyObject?
+                        o[name] = tempDouble
                     }
                     else
                     {
-                        o[name] = value as AnyObject?
+                        o[name] = value
                     }
                 }
                 
@@ -77,17 +77,6 @@ class NetUtil: NSObject
         }
         return params
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     

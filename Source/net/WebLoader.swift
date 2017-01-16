@@ -153,23 +153,18 @@ class WebLoader: NSObject,URLSessionDataDelegate
     {
         if let error = error
         {
-            DispatchQueue.main.async(execute: {
-                self.delegate?.webLoaderDidFail?(self, error:error as NSError?, bindArgs:self.bindArgs)
-            })
+            self.delegate?.webLoaderDidFail?(self, error:error as NSError?, bindArgs:self.bindArgs)
         }
         else
         {
-            DispatchQueue.main.async(execute: {
-                
-                var data:Data = self._responseData as Data
-                if let statusCode = (task.response as? HTTPURLResponse)?.statusCode , statusCode == 304,
-                   let request = task.currentRequest,
-                   let cachedData = URLCache.shared.cachedResponse(for: request)?.data
-                {
-                    data = cachedData
-                }
-                self.delegate?.webLoaderDidFinishLoading(self, data:data, bindArgs:self.bindArgs)
-            })
+            var data:Data = self._responseData as Data
+            if let statusCode = (task.response as? HTTPURLResponse)?.statusCode , statusCode == 304,
+                let request = task.currentRequest,
+                let cachedData = URLCache.shared.cachedResponse(for: request)?.data
+            {
+                data = cachedData
+            }
+            self.delegate?.webLoaderDidFinishLoading(self, data:data, bindArgs:self.bindArgs)
         }
     }
     
@@ -316,7 +311,7 @@ class WebLoader: NSObject,URLSessionDataDelegate
         return request
     }
 
-    
+    @discardableResult
     class func load(_ url:String, completionHandler:@escaping ((_ data:Data?)->Void), errorHandler:@escaping ((_ error:NSError)->Void), data:Any? = nil, method:String? = "GET", headers:[String:String]? = nil) -> URLRequest
     {
         

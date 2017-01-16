@@ -21,7 +21,7 @@ class ImagePickerHelper:NSObject,UIImagePickerControllerDelegate,UINavigationCon
     
     weak var containerViewController:UIViewController?
     
-    var cropSize:CGSize = CGSizeMake(160, 160)
+    var cropSize:CGSize = CGSize.zero
     
     deinit
     {
@@ -39,7 +39,8 @@ class ImagePickerHelper:NSObject,UIImagePickerControllerDelegate,UINavigationCon
             pickerController.delegate = self
             pickerController.sourceType = UIImagePickerControllerSourceType.photoLibrary
             pickerController.allowsEditing = allowsEditing
-            containerViewController?.present(pickerController, animated:true, completion:nil)
+            //containerViewController?.present(pickerController, animated:true, completion:nil)
+            UIApplication.shared.keyWindow?.rootViewController?.present(pickerController, animated:true, completion:nil)
         }
     }
     
@@ -53,7 +54,8 @@ class ImagePickerHelper:NSObject,UIImagePickerControllerDelegate,UINavigationCon
             pickerController.delegate = self
             pickerController.sourceType = UIImagePickerControllerSourceType.camera
             pickerController.allowsEditing = allowsEditing
-            containerViewController?.present(pickerController, animated:true, completion:nil)
+            //containerViewController?.present(pickerController, animated:true, completion:nil)
+            UIApplication.shared.keyWindow?.rootViewController?.present(pickerController, animated:true, completion:nil)
         }
     }
     

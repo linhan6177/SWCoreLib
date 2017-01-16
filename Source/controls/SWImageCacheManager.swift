@@ -146,7 +146,6 @@ class SWImageCacheManager:NSObject
         {
             return FileUtility.imageDataFromPath(fetchOriginStorePath(URL))
         }
-        return nil
     }
     
     func saveOriginImage(_ data:Data, url:String)

@@ -66,7 +66,7 @@ class ScrollADImage:UIView,UIScrollViewDelegate
     
     deinit
     {
-        print("DEINIT ScrollADImage")
+        //print("DEINIT ScrollADImage")
     }
     
     override var frame:CGRect

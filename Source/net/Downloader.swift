@@ -50,7 +50,7 @@ class Downloader: NSObject,NSURLConnectionDataDelegate
     
     deinit
     {
-        print("DEINIT Downloader")
+        //print("DEINIT Downloader")
     }
     
     var cachePolicy:NSURLRequest.CachePolicy

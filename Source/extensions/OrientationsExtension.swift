@@ -53,3 +53,20 @@ extension UINavigationController
 }
 
 
+extension UIPageViewController
+{
+    override open var supportedInterfaceOrientations : UIInterfaceOrientationMask
+    {
+        return viewControllers?.first?.supportedInterfaceOrientations ?? super.supportedInterfaceOrientations
+    }
+    
+    override open var shouldAutorotate:Bool
+    {
+        return viewControllers?.first?.shouldAutorotate ?? true
+    }
+    
+    override open var preferredInterfaceOrientationForPresentation : UIInterfaceOrientation
+    {
+        return viewControllers?.first?.preferredInterfaceOrientationForPresentation ?? super.preferredInterfaceOrientationForPresentation
+    }
+}

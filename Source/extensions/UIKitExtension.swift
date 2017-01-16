@@ -9,6 +9,13 @@
 import Foundation
 import UIKit
 
+extension IndexPath
+{
+    static var zero:IndexPath {
+        //return self(row: 0, section: 0)
+        return IndexPath(row: 0, section: 0)
+    }
+}
 
 //获取对角线两点所构成的区域
 func CGRectDiagonalRect(_ point1:CGPoint, point2:CGPoint) -> CGRect
@@ -77,6 +84,18 @@ extension CGSize
     public var minEdge:CGFloat{
         return min(width, height)
     }
+    
+    //乘以
+    func multiply(_ value:CGFloat) -> CGSize
+    {
+        return CGSize(width: width * value, height: height * value)
+    }
+    
+    //除以
+    func divide(_ value:CGFloat) -> CGSize
+    {
+        return CGSize(width: width / value, height: height / value)
+    }
 }
 
 extension UIView
@@ -104,6 +123,27 @@ extension UIView
         {
             subviews[i].removeFromSuperview()
         }
+    }
+    
+    
+    //当前是否在舞台有效范围内，只有在有效范围内才需要响应键盘事件
+    var isOnStage:Bool
+    {
+        guard let _ = window else
+        {
+            return false
+        }
+        guard let superview = superview else
+        {
+            return false
+        }
+        guard let keyWindow:UIView = UIApplication.shared.keyWindow else
+        {
+            return false
+        }
+        
+        let gloablFrame:CGRect = superview.convert(frame, toView: keyWindow)
+        return !gloablFrame.intersection(keyWindow.frame).isEmpty
     }
 }
 
@@ -209,8 +249,7 @@ extension UIImage
     
     func clone() -> UIImage
     {
-        UIGraphicsBeginImageContextWithOptions(size, false,
-                                               UIScreen.main.scale)
+        UIGraphicsBeginImageContextWithOptions(size, false, scale)
         self.draw(in: CGRect(x: 0, y: 0, width: size.width, height: size.height))
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
@@ -315,6 +354,7 @@ extension UIViewController
     }
     
     //创建一个自定义右侧导航按钮
+    @discardableResult
     func createNavigationRightCustomButton(_ title:String?, image:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
         let button = createNavigationCustomButton(title, image: image, highlightedImage: nil, target: target, action: action)
@@ -324,6 +364,7 @@ extension UIViewController
     }
     
     //创建一个自定义右侧导航按钮
+    @discardableResult
     func createNavigationRightCustomButton(_ title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
         let button = createNavigationCustomButton(title, image: image, highlightedImage: highlightedImage, target: target, action: action)
@@ -333,12 +374,14 @@ extension UIViewController
     }
     
     //创建一个自定义左侧导航按钮
+    @discardableResult
     func createNavigationLeftCustomButton(_ title:String?, image:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
         return createNavigationLeftCustomButton(title, image:image, highlightedImage: nil, target: target, action: action)
     }
     
     //创建一个自定义左侧导航按钮
+    @discardableResult
     func createNavigationLeftCustomButton(_ title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
         let button = createNavigationCustomButton(title, image: image, highlightedImage: highlightedImage, target: target, action: action)
@@ -349,7 +392,7 @@ extension UIViewController
     
     private func createNavigationCustomButton(_ title:String?, image:UIImage?, highlightedImage:UIImage?, target:AnyObject, action:Selector) -> UIButton
     {
-        let button = UIButton(type:.system)
+        let button = UIButton(type:.custom)
         button.setTitle(title, for: .normal)
         button.setBackgroundImage(image, for: .normal)
         button.setBackgroundImage(highlightedImage, for: .highlighted)

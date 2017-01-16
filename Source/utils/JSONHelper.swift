@@ -9,7 +9,7 @@
 import Foundation
 class JSONHelper: NSObject
 {
-    class func JSONEncode(_ obj:AnyObject) -> String
+    class func JSONEncode(_ obj:Any) -> String
     {
         var returnString:String = ""
         let jsonData:Data? = try? JSONSerialization.data(withJSONObject: obj, options: .prettyPrinted)

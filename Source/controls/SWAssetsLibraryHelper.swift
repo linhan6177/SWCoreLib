@@ -21,11 +21,23 @@ struct SWALPhotoRequestOptions
 {
     var requestImageData:Bool = false
     var origin:Bool = true
+    var targetSize:CGSize = CGSizeMake(4000, 4000)
+    //忽略缓存重新加载
+    var reloadIgnoringCache:Bool = false
+    
+    init()
+    {
+        if #available(iOS 8.0, *)
+        {
+            targetSize = PHImageManagerMaximumSize
+        }
+    }
 }
 
 //照片获取结果
 struct SWALPhotoRequestResult
 {
+    var localID:String = ""
     var image:UIImage?
     var data:Data?
     var creationDate:Date?
@@ -104,7 +116,7 @@ class SWALPhoto:NSObject
     
     weak var delegate:SWALPhotoDelegate?
     
-    private let PhotoCoverSize:CGSize = CGSize(width: 70, height: 70)
+    private let PhotoCoverSize:CGSize = CGSize(width: 80, height: 80)
     private var _PHAsset:AnyObject?
     @available(iOS 8.0, *)
     var phAsset:PHAsset? {
@@ -122,6 +134,32 @@ class SWALPhoto:NSObject
     func fetchOriginImage(_ completeCallback:@escaping ImageCompleteCallback, options:SWALPhotoRequestOptions?)
     {
         (iOS8Available && SWALUsePHKit) ? fetchOriginImageWithPHKit(completeCallback, options:options) : fetchOriginImageWithALKit(completeCallback)
+    }
+    
+    func clone() -> SWALPhoto?
+    {
+        var photo:SWALPhoto?
+        if #available(iOS 8.0, *)
+        {
+            if let asset = phAsset
+            {
+                photo = SWALPhoto(id: id, PHAsset: asset)
+            }
+        }
+        else
+        {
+            if let asset = asset
+            {
+                photo = SWALPhoto(id: id, ALAsset: asset)
+            }
+        }
+        photo?.image = image
+        photo?.thumbnail = thumbnail
+        photo?.index = index
+        photo?.selected = selected
+        photo?.originImage = originImage
+        photo?.creationDate = creationDate
+        return photo
     }
     
     var iOS8Available:Bool{
@@ -144,7 +182,7 @@ class SWALPhoto:NSObject
     {
         localIdentifier = id
         self.id = SWMD5.md532BitUpper(id)
-        self._PHAsset = asset
+        _PHAsset = asset
     }
     
     init(thumbnail:UIImage?) {
@@ -170,9 +208,10 @@ class SWALPhoto:NSObject
     var thumbnail:UIImage?
     
     //获取缩略图是异步的，需要回调
-    func fetchThumbnail(_ size:CGSize? = nil)
+    func fetchThumbnail(_ options:SWALPhotoRequestOptions? = nil)
     {
-        if let thumbnail = thumbnail
+        let reload = options?.reloadIgnoringCache ?? false
+        if let thumbnail = thumbnail,!reload
         {
             delegate?.photoThumbChanged(self, thumb: thumbnail)
             return
@@ -183,9 +222,8 @@ class SWALPhoto:NSObject
             {
                 if let asset = self.phAsset
                 {
-                    let ThumbnailSize = size ?? self.PhotoCoverSize
-                    let scale = UIScreen.main.scale
-                    PHImageManager.default().requestImage(for: asset, targetSize: CGSize(width: ThumbnailSize.width * scale, height: ThumbnailSize.height * scale), contentMode: .aspectFit, options: nil, resultHandler: {image, info in
+                    let ThumbnailSize = (options?.targetSize ?? self.PhotoCoverSize).multiply(UIScreen.main.scale)
+                    PHImageManager.default().requestImage(for: asset, targetSize: ThumbnailSize, contentMode: .aspectFit, options: nil, resultHandler: {image, info in
                         if let image = image
                         {
                             self.thumbnail = image
@@ -221,14 +259,15 @@ class SWALPhoto:NSObject
             var dataReturned:Bool = false
             var imageReturned:Bool = false
             let imageRequestOptions = PHImageRequestOptions()
-            imageRequestOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.fastFormat
+            imageRequestOptions.deliveryMode = PHImageRequestOptionsDeliveryMode.highQualityFormat
             imageRequestOptions.resizeMode = PHImageRequestOptionsResizeMode.exact
             imageRequestOptions.isSynchronous = false
             
             var result:SWALPhotoRequestResult = SWALPhotoRequestResult()
+            result.localID = asset.localIdentifier
             result.creationDate = creationDate
-            
-            PHImageManager.default().requestImage(for:asset, targetSize: PHImageManagerMaximumSize, contentMode: .aspectFit, options: nil, resultHandler: {image, info in
+            let targetSize:CGSize = options?.targetSize ?? PHImageManagerMaximumSize
+            PHImageManager.default().requestImage(for:asset, targetSize: targetSize, contentMode: .aspectFit, options: imageRequestOptions, resultHandler: {image, info in
                 imageReturned = true
                 self.originImage = image
                 result.image = image
@@ -263,6 +302,7 @@ class SWALPhoto:NSObject
             let imageOrientation:UIImageOrientation = UIImageOrientation(rawValue: representation.orientation().rawValue) ?? .up
             let image = UIImage(cgImage: cgImage, scale: scale, orientation: imageOrientation)
             originImage = image
+            
             var result:SWALPhotoRequestResult = SWALPhotoRequestResult()
             result.image = image
             completeCallback(result)
@@ -468,7 +508,7 @@ class SWAssetsLibraryHelper: NSObject
         if #available(iOS 8.0, *)
         {
             let result:PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: nil)
-            let assets:[PHAsset] = result.objects(at: IndexSet(integersIn: NSMakeRange(0, result.count).toRange()!)).flatMap({$0 as? PHAsset})
+            let assets:[PHAsset] = result.objects(at: IndexSet(integersIn: (0..<result.count)))
             for (index, asset) in assets.enumerated()
             {
                 let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
@@ -514,7 +554,7 @@ class SWAssetsLibraryHelper: NSObject
             let result:PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: nil)
             if result.count > 0
             {
-                let assets:[PHAsset] = result.objects(at: IndexSet(integersIn: NSMakeRange(0, result.count).toRange()!)).flatMap({$0 as? PHAsset})
+                let assets:[PHAsset] = result.objects(at: IndexSet(integersIn:(0..<result.count)))
                 for (index, asset) in assets.enumerated()
                 {
                     let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
@@ -527,12 +567,12 @@ class SWAssetsLibraryHelper: NSObject
         return photos
     }
     
-    func fetchOriginImage(localIdentifiers:[String], completeCallback:@escaping ([SWALPhotoRequestResult])->Void)
+    func fetchOriginImage(localIdentifiers:[String], options:SWALPhotoRequestOptions?, completeCallback:@escaping ([SWALPhotoRequestResult])->Void)
     {
         if #available(iOS 8.0, *) {
             var photos:[SWALPhoto] = []
             let result:PHFetchResult = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: nil)
-            let assets:[PHAsset] = result.objects(at: IndexSet(integersIn: NSMakeRange(0, result.count).toRange()!)).flatMap({$0 as? PHAsset})
+            let assets:[PHAsset] = result.objects(at: IndexSet(integersIn:(0..<result.count)))
             for (index, asset) in assets.enumerated()
             {
                 let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
@@ -540,7 +580,7 @@ class SWAssetsLibraryHelper: NSObject
                 photo.creationDate = asset.creationDate
                 photos.append(photo)
             }
-            fetchOriginImage(photos: photos, completeCallback: completeCallback, options: nil)
+            fetchOriginImage(photos: photos, completeCallback: completeCallback, options: options)
         }
         else{
             
@@ -806,12 +846,12 @@ class SWAssetsLibraryHelper: NSObject
         //按照时间排序获取第一张图作为封面
         let options:PHFetchOptions = PHFetchOptions()
         options.predicate = NSPredicate(format: "mediaType = %d", 1)
-        options.sortDescriptors = [NSSortDescriptor(key: "creationDate" , ascending: true)]
+        options.sortDescriptors = [NSSortDescriptor(key: "creationDate" , ascending: false)]
         let result = PHAsset.fetchAssets(in: collection, options: options)
-        let assets:[PHAsset] = result.objects(at: IndexSet(integersIn: NSMakeRange(0, result.count).toRange()!)).flatMap({$0 as? PHAsset})
+        let assets:[PHAsset] = result.objects(at: IndexSet(integersIn:(0..<result.count)))
         for (index, asset) in assets.enumerated()
         {
-            print("localIdentifier:", asset.localIdentifier)
+            //print("localIdentifier:", asset.localIdentifier)
             let photo:SWALPhoto = SWALPhoto(id:asset.localIdentifier, PHAsset: asset)
             photo.index = index
             photo.creationDate = asset.creationDate

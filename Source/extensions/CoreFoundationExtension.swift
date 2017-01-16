@@ -98,9 +98,10 @@ extension Array
     }
     
     //安全的移除某个元素
+    @discardableResult
     public mutating func removeAtIndexSafely(_ index:Int) -> Element?
     {
-        if index >= 0 && index < self.count
+        if index >= 0 && index < self.count && self.count > 0
         {
             return remove(at: index)
         }
@@ -165,6 +166,13 @@ extension URL
 }
 
 
+
+extension DispatchQueue
+{
+    class var globalDefault:DispatchQueue{
+        return DispatchQueue.global(priority: .default)
+    }
+}
 
 
 

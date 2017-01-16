@@ -676,7 +676,8 @@ class SWGrowingTextView: UIView,UITextViewDelegate
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     
-    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool
+    {
         if !textView.hasText && text == ""
         {
             return false

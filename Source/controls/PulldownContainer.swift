@@ -36,7 +36,7 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
     
     lazy private var _container:UIView = UIView()
     
-    class func shared()->PulldownContainer
+    class func shared() -> PulldownContainer
     {
         return _instance
     }
@@ -48,7 +48,7 @@ class PulldownContainer:NSObject,SWPopupContainerDelegate
     
     deinit
     {
-        print("DEINIT PulldownContainer")
+        //print("DEINIT PulldownContainer")
     }
     
     var state:SWPopupContainerState
