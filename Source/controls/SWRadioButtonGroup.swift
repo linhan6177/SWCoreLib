@@ -33,9 +33,9 @@ class SWRadioButtonGroup: NSObject
         }
         set
         {
-            items.valueAt(_selectedIndex)?.beSelected = false
-            if items.count > 0 && newValue >= 0 && newValue < items.count && newValue != _selectedIndex
+            if items.count > 0 && newValue >= -1 && newValue < items.count && newValue != _selectedIndex
             {
+                items.valueAt(_selectedIndex)?.beSelected = false
                 _selectedIndex = newValue
                 items.valueAt(newValue)?.beSelected = true
             }

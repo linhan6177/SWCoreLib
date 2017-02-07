@@ -41,6 +41,7 @@ struct SWALPhotoRequestResult
     var image:UIImage?
     var data:Data?
     var creationDate:Date?
+    var index:Int = 0
 }
 
 //照片保存结果
@@ -143,14 +144,14 @@ class SWALPhoto:NSObject
         {
             if let asset = phAsset
             {
-                photo = SWALPhoto(id: id, PHAsset: asset)
+                photo = SWALPhoto(id: localIdentifier, PHAsset: asset)
             }
         }
         else
         {
             if let asset = asset
             {
-                photo = SWALPhoto(id: id, ALAsset: asset)
+                photo = SWALPhoto(id: localIdentifier, ALAsset: asset)
             }
         }
         photo?.image = image
@@ -528,19 +529,21 @@ class SWAssetsLibraryHelper: NSObject
     func fetchOriginImage(photos:[SWALPhoto], completeCallback:@escaping ([SWALPhotoRequestResult])->Void, options:SWALPhotoRequestOptions?)
     {
         var count:Int = 0
-        var results:[SWALPhotoRequestResult] = []
+        var results:[(result:SWALPhotoRequestResult,index:Int)] = []
         for photo in photos
         {
             photo.fetchOriginImage({result in
                 if let result = result
                 {
-                    results.append(result)
+                    let index:Int = photos.index(where: {$0.localIdentifier == result.localID}) ?? 0
+                    results.append((result:result, index:index))
                 }
                 
                 count += 1
                 if count == photos.count
                 {
-                    completeCallback(results)
+                    results.sort(by: {$0.index < $1.index})
+                    completeCallback(results.map({$0.result}))
                 }
                 
             }, options:options)//end callback

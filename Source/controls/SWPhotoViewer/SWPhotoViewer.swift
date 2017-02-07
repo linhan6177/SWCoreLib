@@ -102,7 +102,7 @@ extension SWPhotoViewerDelegate
     }
 }
 
-class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoViewerCellDelegate
+class SWPhotoViewer: UIView,UICollectionViewDataSource,UICollectionViewDelegate,SWPhotoViewerCellDelegate
 {
     weak var delegate:SWPhotoViewerDelegate?
     
@@ -118,10 +118,12 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
     private var _animatedFromStartFrameFlag:Bool = false
     
     private var _inited:Bool = false
+    private var _layout:UICollectionViewFlowLayout = UICollectionViewFlowLayout()
     
     var backgroundView: UIView = UIView()
     
-    private var _tableView:UITableView = UITableView()
+    private var _collectionView:UICollectionView?
+    //private var _tableView:UITableView = UITableView()
     
     init()
     {
@@ -153,10 +155,19 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
         }
         set
         {
+            let newSize = newValue.size
+            let newFrame:CGRect = CGRect(x: 0, y: 0, width: newValue.width + grid, height: newValue.height)
+            _layout.itemSize = CGSizeMake(newSize.width + grid, newSize.height)
+            _collectionView?.frame = newFrame
+            _collectionView?.setCollectionViewLayout(_layout, animated: false)
+            backgroundView.frame = newFrame
+            
+            
             super.frame = newValue
-            backgroundView.frame = newValue
-            _tableView.frame = CGRect(x: 0, y: 0, width: newValue.width + grid, height: newValue.height)
-            _tableView.rowHeight = width + grid
+            
+            
+            //_tableView.frame = CGRect(x: 0, y: 0, width: newValue.width + grid, height: newValue.height)
+            //_tableView.rowHeight = width + grid
         }
     }
     
@@ -166,25 +177,31 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
     {
         let imagesCount:Int = delegate?.numberOfPhotosInPhotoViewer(self) ?? 0
         _startIndex = max(0, min(index, imagesCount - 1))
+        _index = _startIndex
         if rect != nil
         {
             _startFrame = rect
             _animatedFromStartFrameFlag = false
         }
-        _tableView.reloadRows(at: [IndexPath(row: _startIndex, section: 0)], with: .none)
-        updateContentOffset()
+        //_tableView.reloadRows(at: [IndexPath(row: _startIndex, section: 0)], with: .none)
+        let indexPath = IndexPath(row: _startIndex, section: 0)
+        _collectionView?.reloadItems(at: [indexPath])
+        _collectionView?.scrollToItem(at: indexPath, at: .left, animated: false)
     }
     
     func reloadData()
     {
-        _tableView.reloadData()
+        //_tableView.reloadData()
+        _collectionView?.reloadData()
     }
     
     func dismiss()
     {
         if let imagesCount = delegate?.numberOfPhotosInPhotoViewer(self) , imagesCount > 0 && _index >= 0 && _index < imagesCount
         {
-            if let cell = _tableView.cellForRow(at: IndexPath(row: _index, section: 0)) as? SWPhotoViewerCell
+            
+            //if let cell = _tableView.cellForRow(at: IndexPath(row: _index, section: 0)) as? SWPhotoViewerCell
+            if let cell = _collectionView?.cellForItem(at: IndexPath(row: _index, section: 0)) as? SWPhotoViewerCell
             {
                 let targetFrame:CGRect? = _index == _startIndex ? _startFrame : nil
                 cell.dismiss(targetFrame)
@@ -230,50 +247,47 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
         //backgroundView.backgroundColor = UIColor(white: 0, alpha: 0.5)
         addSubview(backgroundView)
         
-        _tableView.delegate = self
-        _tableView.dataSource = self
-        _tableView.bounces = true
-        _tableView.showsVerticalScrollIndicator = false
-        _tableView.transform = CGAffineTransform(rotationAngle: -CGFloat(M_PI) / 2)
-        _tableView.frame = CGRect(x: 0, y: 0, width: width + grid, height: height)
-        _tableView.isPagingEnabled = true
-        _tableView.separatorStyle = UITableViewCellSeparatorStyle.none
-        _tableView.backgroundColor = UIColor.clear
-        addSubview(_tableView)
+        _layout.minimumInteritemSpacing = 0
+        _layout.minimumLineSpacing = 0
+        _layout.sectionInset = UIEdgeInsetsMake(0, 0, 0, 0)
+        _layout.scrollDirection = .horizontal
+        
+        
+        _collectionView = UICollectionView(frame: CGRect.zero, collectionViewLayout: _layout)
+        _collectionView?.backgroundColor = UIColor.clear
+        _collectionView?.register(SWPhotoViewerCell.self, forCellWithReuseIdentifier: "SWPhotoViewerCell")
+        _collectionView?.dataSource = self
+        _collectionView?.delegate = self
+        _collectionView?.isPagingEnabled = true
+        _collectionView?.showsHorizontalScrollIndicator = false
+        _collectionView?.showsVerticalScrollIndicator = false
+        addSubview(_collectionView!)
+        
+        let a = frame
+        frame = a
     }
     
-    //更新tableView的内容位置
-    private func updateContentOffset()
-    {
-        let imagesCount:Int = delegate?.numberOfPhotosInPhotoViewer(self) ?? 0
-        if _startIndex > -1 && _startIndex < imagesCount
-        {
-            _index = _startIndex
-            _tableView.contentOffset = CGPoint(x: 0, y: CGFloat(_startIndex) * _tableView.width)
-        }
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int
     {
         return delegate?.numberOfPhotosInPhotoViewer(self) ?? 0
     }
     
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
+    private var _cacheCell:[Int:Bool] = [:]
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell
     {
-        let identifier:String = "SWPhotoViewerCell"
-        var cell:SWPhotoViewerCell? = tableView.dequeueReusableCell(withIdentifier: identifier) as? SWPhotoViewerCell
-        if cell == nil
+        let cell:SWPhotoViewerCell? = collectionView.dequeueReusableCell(withReuseIdentifier: "SWPhotoViewerCell", for: indexPath) as? SWPhotoViewerCell
+        
+        let tag:Int = cell?.hashValue ?? 0
+        if _cacheCell[tag] == nil
         {
-            cell = SWPhotoViewerCell(style: UITableViewCellStyle.default, reuseIdentifier: identifier)
-            cell?.contentView.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI) / 2)
-            //cell?.progressView = delegate?.progressViewForPhotoViewer(self) ?? SWPhotoViewerDefaultProgressView()
+            _cacheCell[tag] = true
             cell?.progressView = createProgressView()
             cell?.fetcher = createPhotoFetcher()
+            cell?.delegate = self
         }
+        
         cell?.size = bounds.size
         cell?.indexPath = indexPath
-        cell?.delegate = self
         let imagesCount:Int = delegate?.numberOfPhotosInPhotoViewer(self) ?? 0
         let index:Int = indexPath.row
         if index >= 0 && index < imagesCount
@@ -289,8 +303,51 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
             }
             cell?.photo = delegate?.photoViewer(self, photoAtIndex: index)
         }
-        return cell!
+        
+        
+        return cell ?? SWPhotoViewerCell(frame: _collectionView?.frame ?? .zero)
     }
+    
+    
+    
+//    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int
+//    {
+//        return delegate?.numberOfPhotosInPhotoViewer(self) ?? 0
+//    }
+    
+    
+//    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
+//    {
+//        let identifier:String = "SWPhotoViewerCell"
+//        var cell:SWPhotoViewerCell? = tableView.dequeueReusableCell(withIdentifier: identifier) as? SWPhotoViewerCell
+//        if cell == nil
+//        {
+//            cell = SWPhotoViewerCell(style: UITableViewCellStyle.default, reuseIdentifier: identifier)
+//            cell?.contentView.transform = CGAffineTransform(rotationAngle: CGFloat(M_PI) / 2)
+//            //cell?.progressView = delegate?.progressViewForPhotoViewer(self) ?? SWPhotoViewerDefaultProgressView()
+//            cell?.progressView = createProgressView()
+//            cell?.fetcher = createPhotoFetcher()
+//        }
+//        cell?.size = bounds.size
+//        cell?.indexPath = indexPath
+//        cell?.delegate = self
+//        let imagesCount:Int = delegate?.numberOfPhotosInPhotoViewer(self) ?? 0
+//        let index:Int = indexPath.row
+//        if index >= 0 && index < imagesCount
+//        {
+//            if _startFrame != nil && index == _startIndex && !_animatedFromStartFrameFlag
+//            {
+//                cell?.startFrame = _startFrame
+//                _animatedFromStartFrameFlag = true
+//            }
+//            else
+//            {
+//                cell?.startFrame = nil
+//            }
+//            cell?.photo = delegate?.photoViewer(self, photoAtIndex: index)
+//        }
+//        return cell!
+//    }
     
     func photoViewerCell(_ cell:SWPhotoViewerCell, didSingleTapAtIndexPath indexPath: IndexPath)
     {
@@ -302,16 +359,37 @@ class SWPhotoViewer: UIView,UITableViewDelegate,UITableViewDataSource,SWPhotoVie
         delegate?.photoViewer(self, didLongPressAtIndex: indexPath.row)
     }
     
+    private func scrollViewDidEndScrolling(_ scrollView: UIScrollView)
+    {
+        if !_didEndScrolling
+        {
+            _didEndScrolling = true
+            
+            let contentOffset:CGPoint = scrollView.contentOffset;
+            let imageWidth:CGFloat = scrollView.width
+            let index:Int = Int(contentOffset.x / imageWidth)
+            if index != _index && index >= 0
+            {
+                _index = index
+                delegate?.photoViewer(self, didScrollToIndex: _index)
+            }
+        }
+    }
+    
+    private var _didEndScrolling:Bool = false
     func scrollViewDidScroll(_ scrollView: UIScrollView)
     {
-        let contentOffset:CGPoint = scrollView.contentOffset;
-        let imageWidth:CGFloat = _tableView.width
-        let index:Int = Int(contentOffset.y / imageWidth)
-        if index != _index && index >= 0
-        {
-            _index = index
-            delegate?.photoViewer(self, didScrollToIndex: _index)
-        }
+        _didEndScrolling = false
+    }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView)
+    {
+        scrollViewDidEndScrolling(scrollView)
+    }
+    
+    func scrollViewDidEndScrollingAnimation(_ scrollView: UIScrollView)
+    {
+        scrollViewDidEndScrolling(scrollView)
     }
     
     
